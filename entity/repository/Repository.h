@@ -7,7 +7,7 @@
 
 class Repository {
 public:
-    using FileHashMap = std::unordered_map<std::string, int64_t>;
+    using FileHashMap = std::unordered_map<std::string, size_t>;
 
 public:
     // TODO сделать валидацию имени папки типа "../../folder/"

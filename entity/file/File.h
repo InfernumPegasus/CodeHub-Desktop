@@ -8,16 +8,13 @@
 class File {
 public:
     File(std::string_view filename,
-         std::string_view modTime,
-         int64_t hash,
+         size_t hash,
          FileStatus status) : name_(filename),
-                              modificationTime_(modTime),
                               hash_(hash),
                               status_(status) {}
 
     explicit File(std::string_view filename) :
             name_(filename),
-            modificationTime_(filename),
             hash_(CalculateHash(filename)),
             status_(FileStatus::Unknown) {}
 
@@ -32,7 +29,7 @@ public:
 public:
     [[nodiscard]] std::string Name() const;
 
-    [[nodiscard]] int64_t Hash() const;
+    [[nodiscard]] size_t Hash() const;
 
     [[nodiscard]] FileStatus Status() const;
 
@@ -49,7 +46,7 @@ public:
     static File FromJson(nlohmann::json json);
 
 public:
-    static int64_t CalculateHash(std::string_view filename);
+    static size_t CalculateHash(std::string_view filename);
 
     static std::string LastWriteTimeString(std::string_view filename);
 
@@ -58,9 +55,8 @@ private:
 
 private:
     std::string name_;
-    std::string modificationTime_;
 
-    int64_t hash_;
+    size_t hash_;
     FileStatus status_;
 };
 

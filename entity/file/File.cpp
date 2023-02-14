@@ -5,7 +5,7 @@ std::string File::Name() const {
     return name_;
 }
 
-int64_t File::Hash() const {
+size_t File::Hash() const {
     return hash_;
 }
 
@@ -13,13 +13,8 @@ FileStatus File::Status() const {
     return status_;
 }
 
-std::string File::ModificationTime() const {
-    return modificationTime_;
-}
-
 constexpr bool File::operator==(const File &rhs) const {
     return name_ == rhs.name_ &&
-           modificationTime_ == rhs.modificationTime_ &&
            hash_ == rhs.hash_ &&
            status_ == rhs.status_;
 }
@@ -28,10 +23,9 @@ bool File::operator<(const File &rhs) const {
     return hash_ < rhs.hash_;
 }
 
-auto File::ToJson() const -> nlohmann::json {
+nlohmann::json File::ToJson() const {
     nlohmann::json j;
     j["name"] = name_;
-    j["mod"] = modificationTime_;
     j["hash"] = hash_;
     j["status"] = status_;
     return j;
@@ -39,10 +33,9 @@ auto File::ToJson() const -> nlohmann::json {
 
 File File::FromJson(nlohmann::json json) {
     std::string name = json["name"];
-    std::string modTime = json["mod"];
-    int64_t hash = json["hash"];
+    size_t hash = json["hash"];
     FileStatus status = json["status"];
-    return {name, modTime, hash, status};
+    return {name, hash, status};
 }
 
 // TODO улучшить алгоритм
@@ -60,15 +53,17 @@ std::vector<char> File::LoadContent(std::string_view filename) {
 }
 
 // TODO проверить на баги с пустым или несуществующим файлом
-int64_t File::CalculateHash(std::string_view filename) {
+size_t File::CalculateHash(std::string_view filename) {
     auto content = LoadContent(filename);
-    auto res = static_cast<int64_t>(content.size());
+    auto res = content.size();
     std::string file = filename.data();
     for (auto &c: content) {
-        res ^= c + static_cast<int64_t>(std::hash<std::string>{}(file)) +
+        res ^= c + std::hash<std::string>{}(file) +
                0x9e3779b9 + (res << 6) + (res >> 2);
     }
     return res;
+
+//    return static_cast<size_t>(std::filesystem::hash_value(filename));
 }
 
 std::string File::LastWriteTimeString(std::string_view filename) {

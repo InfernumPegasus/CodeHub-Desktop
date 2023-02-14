@@ -26,6 +26,6 @@ Commit Commit::FromJson(nlohmann::json json) {
         files.insert(File::FromJson(file));
     }
     std::string message = json["message"];
-    int64_t checkSum = json["checksum"];
+    size_t checkSum = json["checksum"];
     return {files, message, checkSum};
 }
