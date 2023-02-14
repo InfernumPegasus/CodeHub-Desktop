@@ -131,7 +131,6 @@ void Repository::DoCommit(std::string_view message) {
             // File exists only in Map and doesn't exist in FS
             if (fileHashMap_.contains(filename)) {
                 toInsert.emplace(filename,
-                                 File::LastWriteTimeString(filename),
                                  File::CalculateHash(filename),
                                  FileStatus::Deleted);
 
@@ -143,7 +142,6 @@ void Repository::DoCommit(std::string_view message) {
             if (fileHashMap_.at(filename) != hash) {
                 auto calcHash = File::CalculateHash(filename);
                 toInsert.emplace(filename,
-                                 File::LastWriteTimeString(filename),
                                  calcHash,
                                  FileStatus::Modified);
 
@@ -152,13 +150,25 @@ void Repository::DoCommit(std::string_view message) {
         } else {
             auto calcHash = File::CalculateHash(filename);
             toInsert.emplace(filename,
-                             File::LastWriteTimeString(filename),
                              calcHash,
                              FileStatus::Created);
 
             fileHashMap_.emplace(filename, calcHash);
         }
     }
+
+    auto iter = fileHashMap_.begin();
+    while (iter != fileHashMap_.end()) {
+        if (!std::filesystem::exists(iter->first)) {
+            toInsert.emplace(iter->first,
+                             File::CalculateHash(iter->first),
+                             FileStatus::Deleted);
+            iter = fileHashMap_.erase(iter);
+        } else {
+            iter++;
+        }
+    }
+
     if (toInsert.empty()) {
         std::cout << "Nothing to commit!\n";
         return;
