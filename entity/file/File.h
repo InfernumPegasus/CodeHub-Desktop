@@ -9,9 +9,10 @@ class File {
 public:
     File(std::string_view filename,
          size_t hash,
-         FileStatus status) : name_(filename),
-                              hash_(hash),
-                              status_(status) {}
+         FileStatus status) :
+            name_(filename),
+            hash_(hash),
+            status_(status) {}
 
     explicit File(std::string_view filename) :
             name_(filename),
@@ -33,8 +34,6 @@ public:
 
     [[nodiscard]] FileStatus Status() const;
 
-    [[nodiscard]] std::string ModificationTime() const;
-
 public:
     constexpr bool operator==(const File &rhs) const;
 
@@ -47,8 +46,6 @@ public:
 
 public:
     static size_t CalculateHash(std::string_view filename);
-
-    static std::string LastWriteTimeString(std::string_view filename);
 
 private:
     static std::vector<char> LoadContent(std::string_view filename);

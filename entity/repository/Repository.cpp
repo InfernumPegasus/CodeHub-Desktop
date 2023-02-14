@@ -6,8 +6,8 @@ using FileHashMap = Repository::FileHashMap;
 
 bool Repository::CreateIgnoreFile() {
     std::ofstream ofs;
-    ofs.open(ignoreFile_, std::ios_base::ate);
-    if (!ofs.is_open()) {
+    ofs.open(ignoreFile_);
+    if (!ofs) {
         return false;
     }
 
@@ -15,8 +15,7 @@ bool Repository::CreateIgnoreFile() {
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
         if (auto filename = std::filesystem::absolute(file).filename().string();
                 filename.starts_with(".") || filename.starts_with("_")) {
-            auto absolute = std::filesystem::absolute(file).string() + "\n";
-            ofs.write(absolute.c_str(), static_cast<long>(absolute.length()));
+            ofs << std::filesystem::absolute(file).string() << "\n";
         }
     }
 
@@ -30,7 +29,7 @@ bool Repository::ReadIgnoreFile() {
     }
 
     std::ifstream ifs(ignoreFile_);
-    if (!ifs.is_open()) {
+    if (!ifs) {
         return false;
     }
 
@@ -66,13 +65,13 @@ bool Repository::CreateConfigFile() const {
 
 void Repository::UpdateConfigFile() const {
     std::ofstream ofs(configFile_);
-    if (!ofs.is_open() && !CreateConfigFile()) {
+    if (!ofs && !CreateConfigFile()) {
         std::cout << "Cannot create config folder!\n";
         return;
     }
 
     auto repoJson = ToJson().dump(2);
-    ofs.write(repoJson.c_str(), static_cast<long>(repoJson.length()));
+    ofs << repoJson;
 }
 
 bool Repository::ReadConfigFile() {
@@ -85,7 +84,7 @@ bool Repository::ReadConfigFile() {
     }
 
     std::ifstream ofs(configFile_);
-    if (ofs.is_open()) {
+    if (ofs) {
         nlohmann::json j = nlohmann::json::parse(ofs);
         std::vector<Commit> commitsVector;
 
@@ -126,18 +125,7 @@ void Repository::DoCommit(std::string_view message) {
     std::set<File> toInsert;
     auto collectedFiles = CollectFiles();
     for (const auto &[filename, hash]: collectedFiles) {
-        // File does not exist
-        if (!std::filesystem::exists(filename)) {
-            // File exists only in Map and doesn't exist in FS
-            if (fileHashMap_.contains(filename)) {
-                toInsert.emplace(filename,
-                                 File::CalculateHash(filename),
-                                 FileStatus::Deleted);
-
-                fileHashMap_.erase(filename);
-            }
-            // File exists
-        } else if (fileHashMap_.contains(filename)) {
+        if (fileHashMap_.contains(filename)) {
             // File exists and modified
             if (fileHashMap_.at(filename) != hash) {
                 auto calcHash = File::CalculateHash(filename);
@@ -207,10 +195,9 @@ constexpr std::vector<Commit> Repository::Commits() const {
 nlohmann::json Repository::ToJson() const {
     nlohmann::json j;
     std::vector<nlohmann::json> commitsJson;
-    std::for_each(commits_.begin(), commits_.end(),
-                  [&](const Commit &commit) {
-                      commitsJson.push_back(commit.ToJson());
-                  });
+    for (const auto &commit: commits_) {
+        commitsJson.push_back(commit.ToJson());
+    }
 
     j["repo_name"] = repositoryName_;
     j["repo_folder"] = repositoryFolder_;
@@ -226,10 +213,9 @@ Repository Repository::FromJson(nlohmann::json json) {
     std::vector<nlohmann::json> commitsJson = json["commits"];
     FileHashMap fileHashMap = json["map"];
     std::vector<Commit> commits;
-    std::for_each(commitsJson.begin(), commitsJson.end(),
-                  [&](nlohmann::json &commit) {
-                      commits.push_back(Commit::FromJson(commit));
-                  });
+    for (const auto &commit: commitsJson) {
+        commits.push_back(Commit::FromJson(commit));
+    }
 
     return {repoName, repoFolder, commits, fileHashMap};
 

@@ -52,7 +52,6 @@ std::vector<char> File::LoadContent(std::string_view filename) {
     return content;
 }
 
-// TODO проверить на баги с пустым или несуществующим файлом
 size_t File::CalculateHash(std::string_view filename) {
     auto content = LoadContent(filename);
     auto res = content.size();
@@ -62,33 +61,4 @@ size_t File::CalculateHash(std::string_view filename) {
                0x9e3779b9 + (res << 6) + (res >> 2);
     }
     return res;
-
-//    return static_cast<size_t>(std::filesystem::hash_value(filename));
-}
-
-std::string File::LastWriteTimeString(std::string_view filename) {
-    using std::to_string;
-
-    auto ftime = std::filesystem::last_write_time(filename);
-
-    static int64_t sfclock_diff = [] {
-        auto diff = int64_t(std::chrono::system_clock::now().time_since_epoch() /
-                            std::chrono::milliseconds(1)) -
-        int64_t(decltype(ftime)::clock::now().time_since_epoch() / std::chrono::milliseconds(1));
-        return (diff + (diff < 0 ? -500 : 500)) / 1000; // Round to the nearest second.
-    }();
-
-    std::time_t cftime = std::chrono::system_clock::to_time_t(
-            std::chrono::time_point<std::chrono::system_clock>(
-                    std::chrono::seconds(ftime.time_since_epoch() / std::chrono::seconds(1) + sfclock_diff)
-            )
-    );
-    auto resTime = std::localtime(&cftime);
-    std::string time = to_string(resTime->tm_year) + " " +
-                       to_string(resTime->tm_mon) + " " +
-                       to_string(resTime->tm_mday) + " " +
-                       to_string(resTime->tm_hour) + " " +
-                       to_string(resTime->tm_min) + " " +
-                       to_string(resTime->tm_sec);
-    return time;
 }
