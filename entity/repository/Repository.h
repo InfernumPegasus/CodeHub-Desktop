@@ -36,14 +36,12 @@ private:
 
     bool ReadIgnoreFile();
 
-    void UpdateIgnoreFile();
-
 private:
     [[nodiscard]] bool CreateConfigFile() const;
 
     void UpdateConfigFile() const;
 
-    bool LoadConfigFile();
+    bool ReadConfigFile();
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;

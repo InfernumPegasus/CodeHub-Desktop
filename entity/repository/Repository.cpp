@@ -13,8 +13,8 @@ bool Repository::CreateIgnoreFile() {
 
     for (auto &file:
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-        auto filename = std::filesystem::absolute(file).filename().string();
-        if (filename.starts_with(".")) {
+        if (auto filename = std::filesystem::absolute(file).filename().string();
+                filename.starts_with(".") || filename.starts_with("_")) {
             auto absolute = std::filesystem::absolute(file).string() + "\n";
             ofs.write(absolute.c_str(), static_cast<long>(absolute.length()));
         }
@@ -54,17 +54,6 @@ bool Repository::ReadIgnoreFile() {
     return true;
 }
 
-void Repository::UpdateIgnoreFile() {
-    std::ofstream ofs;
-    ofs.open(ignoreFile_);
-    if (ofs.is_open()) {
-        for (const auto &item: ignoredFiles_) {
-            std::string file = item + "\n";
-            ofs.write(file.c_str(), (long) file.length());
-        }
-    }
-}
-
 bool Repository::CreateConfigFile() const {
     std::string configDirectory = repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY;
     std::ofstream file;
@@ -78,7 +67,7 @@ bool Repository::CreateConfigFile() const {
 void Repository::UpdateConfigFile() const {
     std::ofstream ofs(configFile_);
     if (!ofs.is_open() && !CreateConfigFile()) {
-        std::cout << "Cannot create config folder!";
+        std::cout << "Cannot create config folder!\n";
         return;
     }
 
@@ -86,7 +75,7 @@ void Repository::UpdateConfigFile() const {
     ofs.write(repoJson.c_str(), static_cast<long>(repoJson.length()));
 }
 
-bool Repository::LoadConfigFile() {
+bool Repository::ReadConfigFile() {
     if (!std::filesystem::exists(configFile_)) {
         return false;
     }
@@ -134,9 +123,6 @@ FileHashMap Repository::CollectFiles() const {
 }
 
 void Repository::DoCommit(std::string_view message) {
-    using std::cout;
-    using std::endl;
-
     std::set<File> toInsert;
     auto collectedFiles = CollectFiles();
     for (const auto &[filename, hash]: collectedFiles) {
@@ -183,18 +169,17 @@ void Repository::DoCommit(std::string_view message) {
 }
 
 void Repository::Init() {
-    if (LoadConfigFile()) {
+    if (ReadConfigFile()) {
         std::cout << "Config loaded!\n";
     } else if (CreateConfigFile()) {
         std::cout << "Config file created!\n";
     }
 
     if (!ReadIgnoreFile()) {
-        std::cout << "Creating ignore file!";
+        std::cout << "Creating ignore file!\n";
         CreateIgnoreFile();
         ReadIgnoreFile();
     }
-    UpdateIgnoreFile();
 }
 
 constexpr std::string Repository::Name() const {

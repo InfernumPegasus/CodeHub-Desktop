@@ -7,7 +7,6 @@
 #include <utility>
 #include "../file/File.h"
 
-// TODO добавить хэш-сумму коммита
 class Commit {
 public:
     Commit(const std::set<File> &files, std::string message) :

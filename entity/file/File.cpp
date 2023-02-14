@@ -46,10 +46,10 @@ File File::FromJson(nlohmann::json json) {
 }
 
 // TODO улучшить алгоритм
-auto File::LoadContent(std::string_view filename) -> std::vector<char> {
+std::vector<char> File::LoadContent(std::string_view filename) {
     std::vector<char> content;
     std::ifstream ifs(filename.data());
-    if (ifs.is_open()) {
+    if (ifs) {
         char c;
         while (ifs.good()) {
             ifs.read(&c, sizeof(char));

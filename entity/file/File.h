@@ -54,7 +54,7 @@ public:
     static std::string LastWriteTimeString(std::string_view filename);
 
 private:
-    static auto LoadContent(std::string_view filename) -> std::vector<char>;
+    static std::vector<char> LoadContent(std::string_view filename);
 
 private:
     std::string name_;
