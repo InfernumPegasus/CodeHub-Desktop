@@ -8,7 +8,7 @@ constexpr std::string Commit::Message() const {
     return message_;
 }
 
-auto Commit::ToJson() const -> nlohmann::json {
+nlohmann::json Commit::ToJson() const {
     nlohmann::json j;
     std::vector<nlohmann::json> files;
     for (const auto &file: files_) {
@@ -16,6 +16,7 @@ auto Commit::ToJson() const -> nlohmann::json {
     }
     j["files"] = files;
     j["message"] = message_;
+    j["checksum"] = checkSum_;
     return j;
 }
 
@@ -25,5 +26,6 @@ Commit Commit::FromJson(nlohmann::json json) {
         files.insert(File::FromJson(file));
     }
     std::string message = json["message"];
-    return {files, message};
+    int64_t checkSum = json["checksum"];
+    return {files, message, checkSum};
 }
