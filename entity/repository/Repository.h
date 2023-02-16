@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "../commit/Commit.h"
+#include <fstream>
 
 class Repository {
 public:
@@ -17,20 +18,11 @@ public:
             repositoryName_(repositoryName),
             repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
             configFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE),
-            ignoreFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE) {}
+            ignoreFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE),
+            commitsFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE) {}
 
 private:
-    Repository(std::string_view repositoryName,
-               std::string_view repositoryFolder,
-               std::vector<Commit> commits,
-               FileHashMap fileHashMap) :
-            repositoryName_(repositoryName),
-            repositoryFolder_(repositoryFolder),
-            commits_(std::move(commits)),
-            fileHashMap_(std::move(fileHashMap)) {}
-
-private:
-    // TODO мб вынести в отдельный класс работу с конфигами?
+    // TODO вынести в отдельный класс работу с конфигами
     // TODO сделать так чтобы папка в игнор листе автоматически игнорила все ее содержимое
     bool CreateIgnoreFile();
 
@@ -42,6 +34,43 @@ private:
     void UpdateConfigFile() const;
 
     bool ReadConfigFile();
+
+private:
+    bool CreateCommitsFile() const {
+        std::ofstream file(configFile_);
+        return file.is_open();
+    }
+
+    void UpdateCommitsFile() const {
+        std::ofstream ofs(commitsFile_);
+        if (!ofs && !CreateCommitsFile()) {
+            std::cout << "Cannot create commits file!\n";
+            return;
+        }
+
+        auto repoJson = CommitsToJson().dump(2);
+        ofs << repoJson;
+    }
+
+    bool ReadCommitsFile() {
+        if (!std::filesystem::exists(commitsFile_) ||
+            std::filesystem::is_empty(commitsFile_)) {
+            return false;
+        }
+
+        std::ifstream ifs(commitsFile_);
+        if (ifs) {
+            nlohmann::json j = nlohmann::json::parse(ifs);
+            std::vector<nlohmann::json> commitsJson = j["commits"];
+            for (const auto &commit: commitsJson) {
+                commits_.push_back(Commit::FromJson(commit));
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
@@ -58,13 +87,22 @@ public:
 
     [[nodiscard]] constexpr std::vector<Commit> Commits() const;
 
-    [[nodiscard]] nlohmann::json ToJson() const;
+    [[nodiscard]] nlohmann::json ConfigToJson() const;
 
-    static Repository FromJson(nlohmann::json json);
+    nlohmann::json CommitsToJson() const {
+        nlohmann::json j;
+        std::vector<nlohmann::json> commitsJson;
+        for (const auto &commit: commits_) {
+            commitsJson.push_back(commit.ToJson());
+        }
+        j["commits"] = commitsJson;
+        return j;
+    }
 
 private:
     static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";
     static constexpr std::string VCS_CONFIG_FILE = ".repo_info.json";
+    static constexpr std::string VCS_COMMITS_FILE = ".commits.json";
     static constexpr std::string VCS_IGNORE_FILE = ".ignore";
 
 private:
@@ -73,6 +111,7 @@ private:
 
     std::string configFile_;
     std::string ignoreFile_;
+    std::string commitsFile_;
 
     std::vector<Commit> commits_;
     std::set<std::string> ignoredFiles_;

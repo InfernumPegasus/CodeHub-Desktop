@@ -70,7 +70,7 @@ void Repository::UpdateConfigFile() const {
         return;
     }
 
-    auto repoJson = ToJson().dump(2);
+    auto repoJson = ConfigToJson().dump(2);
     ofs << repoJson;
 }
 
@@ -83,18 +83,12 @@ bool Repository::ReadConfigFile() {
         return true;
     }
 
-    std::ifstream ofs(configFile_);
-    if (ofs) {
-        nlohmann::json j = nlohmann::json::parse(ofs);
-        std::vector<Commit> commitsVector;
-
-        for (auto &commit: j["commits"]) {
-            commitsVector.emplace_back(Commit::FromJson(commit));
-        }
+    std::ifstream ifs(configFile_);
+    if (ifs) {
+        nlohmann::json j = nlohmann::json::parse(ifs);
 
         repositoryName_ = j["repo_name"];
         repositoryFolder_ = j["repo_folder"];
-        commits_ = commitsVector;
         fileHashMap_ = j["map"];
 
         return true;
@@ -163,6 +157,7 @@ void Repository::DoCommit(std::string_view message) {
     }
 
     commits_.emplace_back(toInsert, message.data());
+    UpdateCommitsFile();
     UpdateConfigFile();
 }
 
@@ -178,6 +173,12 @@ void Repository::Init() {
         CreateIgnoreFile();
         ReadIgnoreFile();
     }
+
+    if (!ReadCommitsFile()) {
+        std::cout << "Creating commits file!\n";
+        CreateCommitsFile();
+        ReadCommitsFile();
+    }
 }
 
 constexpr std::string Repository::Name() const {
@@ -192,31 +193,12 @@ constexpr std::vector<Commit> Repository::Commits() const {
     return commits_;
 }
 
-nlohmann::json Repository::ToJson() const {
+nlohmann::json Repository::ConfigToJson() const {
     nlohmann::json j;
-    std::vector<nlohmann::json> commitsJson;
-    for (const auto &commit: commits_) {
-        commitsJson.push_back(commit.ToJson());
-    }
-
     j["repo_name"] = repositoryName_;
     j["repo_folder"] = repositoryFolder_;
-    j["commits"] = commitsJson;
     j["map"] = fileHashMap_;
 
     return j;
 }
 
-Repository Repository::FromJson(nlohmann::json json) {
-    std::string repoName = json["repo_name"];
-    std::string repoFolder = json["repo_folder"];
-    std::vector<nlohmann::json> commitsJson = json["commits"];
-    FileHashMap fileHashMap = json["map"];
-    std::vector<Commit> commits;
-    for (const auto &commit: commitsJson) {
-        commits.push_back(Commit::FromJson(commit));
-    }
-
-    return {repoName, repoFolder, commits, fileHashMap};
-
-}
