@@ -97,6 +97,42 @@ bool Repository::ReadConfigFile() {
     return false;
 }
 
+bool Repository::CreateCommitsFile() const {
+    std::ofstream file(configFile_);
+    return file.is_open();
+}
+
+void Repository::UpdateCommitsFile() const {
+    std::ofstream ofs(commitsFile_);
+    if (!ofs && !CreateCommitsFile()) {
+        std::cout << "Cannot create commits file!\n";
+        return;
+    }
+
+    auto repoJson = CommitsToJson().dump(2);
+    ofs << repoJson;
+}
+
+bool Repository::ReadCommitsFile() {
+    if (!std::filesystem::exists(commitsFile_) ||
+        std::filesystem::is_empty(commitsFile_)) {
+        return false;
+    }
+
+    std::ifstream ifs(commitsFile_);
+    if (ifs) {
+        nlohmann::json j = nlohmann::json::parse(ifs);
+        std::vector<nlohmann::json> commitsJson = j["commits"];
+        for (const auto &commit: commitsJson) {
+            commits_.push_back(Commit::FromJson(commit));
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 FileHashMap Repository::CollectFiles() const {
     FileHashMap collectedFiles;
 
