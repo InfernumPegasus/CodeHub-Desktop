@@ -39,10 +39,10 @@ public:
 
     bool operator<(const File &rhs) const;
 
-public:
-    [[nodiscard]] nlohmann::json ToJson() const;
-
-    static File FromJson(nlohmann::json json);
+//public:
+//    [[nodiscard]] nlohmann::json ToJson() const;
+//
+//    static File FromJson(nlohmann::json json);
 
 public:
     static size_t CalculateHash(std::string_view filename);

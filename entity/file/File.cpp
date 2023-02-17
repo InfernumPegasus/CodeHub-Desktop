@@ -23,21 +23,6 @@ bool File::operator<(const File &rhs) const {
     return hash_ < rhs.hash_;
 }
 
-nlohmann::json File::ToJson() const {
-    nlohmann::json j;
-    j["name"] = name_;
-    j["hash"] = hash_;
-    j["status"] = status_;
-    return j;
-}
-
-File File::FromJson(nlohmann::json json) {
-    std::string name = json["name"];
-    size_t hash = json["hash"];
-    FileStatus status = json["status"];
-    return {name, hash, status};
-}
-
 // TODO улучшить алгоритм
 std::vector<char> File::LoadContent(std::string_view filename) {
     std::vector<char> content;

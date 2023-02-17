@@ -45,25 +45,12 @@ public:
 public:
     [[nodiscard]] std::set<File> Files() const;
 
-    [[nodiscard]] constexpr std::string Message() const;
+    [[nodiscard]] std::string Message() const;
 
-    [[nodiscard]] constexpr size_t Checksum() const;
-
-public:
-    [[nodiscard]] nlohmann::json ToJson() const;
-
-    static Commit FromJson(nlohmann::json json);
+    [[nodiscard]] size_t Checksum() const;
 
 public:
-    size_t CalculateCheckSum() {
-        size_t checkSum = 0;
-        auto size = files_.size();
-        for (const auto &file: files_) {
-            checkSum += file.Hash() + (size << 2) + (size >> 5);
-        }
-        checkSum += std::hash<std::string>{}(message_);
-        return checkSum;
-    }
+    size_t CalculateCheckSum();
 
 private:
     std::set<File> files_;

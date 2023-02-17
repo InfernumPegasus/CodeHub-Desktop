@@ -21,6 +21,14 @@ public:
             ignoreFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE),
             commitsFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE) {}
 
+public:
+    Repository(std::string_view repositoryName,
+               std::string_view repositoryFolder,
+               FileHashMap files) :
+            repositoryName_(repositoryName),
+            repositoryFolder_(repositoryFolder),
+            fileHashMap_(std::move(files)) {}
+
 private:
     // TODO вынести в отдельный класс работу с конфигами
     // TODO сделать так чтобы папка в игнор листе автоматически игнорила все ее содержимое
@@ -31,7 +39,7 @@ private:
 private:
     [[nodiscard]] bool CreateConfigFile() const;
 
-    void UpdateConfigFile() const;
+    void UpdateConfigFile();
 
     bool ReadConfigFile();
 
@@ -58,10 +66,6 @@ public:
     [[nodiscard]] constexpr std::vector<Commit> Commits() const;
 
     [[nodiscard]] FileHashMap Map() const;
-
-    [[nodiscard]] nlohmann::json ConfigToJson() const;
-
-    nlohmann::json CommitsToJson() const;
 
 private:
     static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";

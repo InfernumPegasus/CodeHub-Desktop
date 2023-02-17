@@ -1,6 +1,8 @@
 #include <fstream>
 #include <ranges>
 #include "Repository.h"
+#include "../../serializer/JsonSerializer.h"
+
 
 using FileHashMap = Repository::FileHashMap;
 
@@ -63,14 +65,19 @@ bool Repository::CreateConfigFile() const {
     return file.is_open();
 }
 
-void Repository::UpdateConfigFile() const {
+void Repository::UpdateConfigFile() {
     std::ofstream ofs(configFile_);
     if (!ofs && !CreateConfigFile()) {
         std::cout << "Cannot create config folder!\n";
         return;
     }
 
-    auto repoJson = ConfigToJson().dump(2);
+//    auto repoJson = ConfigToJson().dump(2);
+    auto repoJson = JsonSerializer<Repository>::ConfigToJson(
+            repositoryName_,
+            repositoryFolder_,
+            fileHashMap_
+    ).dump(2);
     ofs << repoJson;
 }
 
@@ -86,10 +93,10 @@ bool Repository::ReadConfigFile() {
     std::ifstream ifs(configFile_);
     if (ifs) {
         nlohmann::json j = nlohmann::json::parse(ifs);
-
-        repositoryName_ = j["repo_name"];
-        repositoryFolder_ = j["repo_folder"];
-        fileHashMap_ = j["map"];
+        auto res = JsonSerializer<Repository>::ConfigFromJson(j);
+        repositoryName_ = res.repositoryName_;
+        repositoryFolder_ = res.repositoryFolder_;
+        fileHashMap_ = res.fileHashMap_;
 
         return true;
     }
@@ -109,7 +116,7 @@ void Repository::UpdateCommitsFile() const {
         return;
     }
 
-    auto repoJson = CommitsToJson().dump(2);
+    auto repoJson = JsonSerializer<Repository>::CommitsToJson(commits_).dump(2);
     ofs << repoJson;
 }
 
@@ -122,9 +129,9 @@ bool Repository::ReadCommitsFile() {
     std::ifstream ifs(commitsFile_);
     if (ifs) {
         nlohmann::json j = nlohmann::json::parse(ifs);
-        std::vector<nlohmann::json> commitsJson = j["commits"];
-        for (const auto &commit: commitsJson) {
-            commits_.push_back(Commit::FromJson(commit));
+        auto commits = JsonSerializer<Repository>::CommitsFromJson(j);
+        for (const auto &commit: commits) {
+            commits_.push_back(commit);
         }
 
         return true;
@@ -233,22 +240,22 @@ FileHashMap Repository::Map() const {
     return fileHashMap_;
 }
 
-nlohmann::json Repository::ConfigToJson() const {
-    nlohmann::json j;
-    j["repo_name"] = repositoryName_;
-    j["repo_folder"] = repositoryFolder_;
-    j["map"] = fileHashMap_;
-
-    return j;
-}
-
-nlohmann::json Repository::CommitsToJson() const {
-    nlohmann::json j;
-    std::vector<nlohmann::json> commitsJson;
-    for (const auto &commit: commits_) {
-        commitsJson.push_back(commit.ToJson());
-    }
-    j["commits"] = commitsJson;
-    return j;
-}
+//nlohmann::json Repository::ConfigToJson() const {
+//    nlohmann::json j;
+//    j["repo_name"] = repositoryName_;
+//    j["repo_folder"] = repositoryFolder_;
+//    j["map"] = fileHashMap_;
+//
+//    return j;
+//}
+//
+//nlohmann::json Repository::CommitsToJson() const {
+//    nlohmann::json j;
+//    std::vector<nlohmann::json> commitsJson;
+//    for (const auto &commit: commits_) {
+//        commitsJson.push_back(commit.ToJson());
+//    }
+//    j["commits"] = commitsJson;
+//    return j;
+//}
 
