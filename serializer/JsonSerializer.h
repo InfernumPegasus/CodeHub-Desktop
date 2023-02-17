@@ -85,11 +85,7 @@ public:
     }
 
     static std::vector<Commit> CommitsFromJson(nlohmann::json json) {
-        std::cout << json.dump(2) << std::endl;
         std::vector<nlohmann::json> commitsJson = json["commits"];
-        for (const auto &item: commitsJson) {
-            std::cout << item.dump(2) << "\n";
-        }
         std::vector<Commit> commits;
         for (const auto &commit: commitsJson) {
             commits.push_back(JsonSerializer<Commit>::FromJson(commit));

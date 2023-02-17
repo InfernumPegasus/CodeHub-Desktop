@@ -72,7 +72,6 @@ void Repository::UpdateConfigFile() {
         return;
     }
 
-//    auto repoJson = ConfigToJson().dump(2);
     auto repoJson = JsonSerializer<Repository>::ConfigToJson(
             repositoryName_,
             repositoryFolder_,
@@ -224,38 +223,18 @@ void Repository::Init() {
     }
 }
 
-constexpr std::string Repository::Name() const {
+std::string Repository::Name() const {
     return repositoryName_;
 }
 
-constexpr std::string Repository::Folder() const {
+std::string Repository::Folder() const {
     return repositoryFolder_;
 }
 
-constexpr std::vector<Commit> Repository::Commits() const {
+std::vector<Commit> Repository::Commits() const {
     return commits_;
 }
 
 FileHashMap Repository::Map() const {
     return fileHashMap_;
 }
-
-//nlohmann::json Repository::ConfigToJson() const {
-//    nlohmann::json j;
-//    j["repo_name"] = repositoryName_;
-//    j["repo_folder"] = repositoryFolder_;
-//    j["map"] = fileHashMap_;
-//
-//    return j;
-//}
-//
-//nlohmann::json Repository::CommitsToJson() const {
-//    nlohmann::json j;
-//    std::vector<nlohmann::json> commitsJson;
-//    for (const auto &commit: commits_) {
-//        commitsJson.push_back(commit.ToJson());
-//    }
-//    j["commits"] = commitsJson;
-//    return j;
-//}
-

@@ -59,11 +59,11 @@ public:
     void Init();
 
 public:
-    [[nodiscard]] constexpr std::string Name() const;
+    [[nodiscard]] std::string Name() const;
 
-    [[nodiscard]] constexpr std::string Folder() const;
+    [[nodiscard]] std::string Folder() const;
 
-    [[nodiscard]] constexpr std::vector<Commit> Commits() const;
+    [[nodiscard]] std::vector<Commit> Commits() const;
 
     [[nodiscard]] FileHashMap Map() const;
 
