@@ -229,12 +229,26 @@ constexpr std::vector<Commit> Repository::Commits() const {
     return commits_;
 }
 
+FileHashMap Repository::Map() const {
+    return fileHashMap_;
+}
+
 nlohmann::json Repository::ConfigToJson() const {
     nlohmann::json j;
     j["repo_name"] = repositoryName_;
     j["repo_folder"] = repositoryFolder_;
     j["map"] = fileHashMap_;
 
+    return j;
+}
+
+nlohmann::json Repository::CommitsToJson() const {
+    nlohmann::json j;
+    std::vector<nlohmann::json> commitsJson;
+    for (const auto &commit: commits_) {
+        commitsJson.push_back(commit.ToJson());
+    }
+    j["commits"] = commitsJson;
     return j;
 }
 

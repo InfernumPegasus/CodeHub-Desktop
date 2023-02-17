@@ -8,6 +8,10 @@ constexpr std::string Commit::Message() const {
     return message_;
 }
 
+constexpr size_t Commit::Checksum() const {
+    return checkSum_;
+}
+
 nlohmann::json Commit::ToJson() const {
     nlohmann::json j;
     std::vector<nlohmann::json> files;

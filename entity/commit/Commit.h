@@ -47,6 +47,8 @@ public:
 
     [[nodiscard]] constexpr std::string Message() const;
 
+    [[nodiscard]] constexpr size_t Checksum() const;
+
 public:
     [[nodiscard]] nlohmann::json ToJson() const;
 

@@ -3,8 +3,8 @@
 
 
 #include <iostream>
-#include "../commit/Commit.h"
 #include <fstream>
+#include "../commit/Commit.h"
 
 class Repository {
 public:
@@ -57,17 +57,11 @@ public:
 
     [[nodiscard]] constexpr std::vector<Commit> Commits() const;
 
+    [[nodiscard]] FileHashMap Map() const;
+
     [[nodiscard]] nlohmann::json ConfigToJson() const;
 
-    nlohmann::json CommitsToJson() const {
-        nlohmann::json j;
-        std::vector<nlohmann::json> commitsJson;
-        for (const auto &commit: commits_) {
-            commitsJson.push_back(commit.ToJson());
-        }
-        j["commits"] = commitsJson;
-        return j;
-    }
+    nlohmann::json CommitsToJson() const;
 
 private:
     static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";
