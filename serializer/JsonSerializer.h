@@ -55,14 +55,14 @@ public:
 template<>
 class JsonSerializer<Repository> {
 public:
-    static nlohmann::json ConfigToJson(std::string_view name,
-                                       std::string_view folder,
-                                       Repository::FileHashMap &fileHashMap) {
+    static nlohmann::json ConfigToJson(
+            std::string_view name,
+            std::string_view folder,
+            Repository::FileHashMap &fileHashMap) {
         nlohmann::json j;
         j["repo_name"] = name;
         j["repo_folder"] = folder;
         j["map"] = fileHashMap;
-
         return j;
     }
 
@@ -80,7 +80,6 @@ public:
         std::string repositoryName = json["repo_name"];
         std::string repositoryFolder = json["repo_folder"];
         auto fileHashMap = json["map"];
-
         return {repositoryName, repositoryFolder, fileHashMap};
     }
 

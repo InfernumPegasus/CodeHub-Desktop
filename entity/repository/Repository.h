@@ -21,7 +21,6 @@ public:
             ignoreFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE),
             commitsFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE) {}
 
-public:
     Repository(std::string_view repositoryName,
                std::string_view repositoryFolder,
                FileHashMap files) :

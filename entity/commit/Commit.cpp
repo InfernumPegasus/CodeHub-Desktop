@@ -12,7 +12,7 @@ size_t Commit::Checksum() const {
     return checkSum_;
 }
 
-size_t Commit::CalculateCheckSum() {
+size_t Commit::CalculateCheckSum() const {
     size_t checkSum = 0;
     auto size = files_.size();
     for (const auto &file: files_) {

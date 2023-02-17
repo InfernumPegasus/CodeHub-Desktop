@@ -50,7 +50,7 @@ public:
     [[nodiscard]] size_t Checksum() const;
 
 public:
-    size_t CalculateCheckSum();
+    [[nodiscard]] size_t CalculateCheckSum() const;
 
 private:
     std::set<File> files_;
