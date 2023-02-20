@@ -10,29 +10,14 @@
 class Commit {
 public:
     Commit(const std::set<File> &files,
-           std::string message) :
-            message_(std::move(message)) {
-        for (const auto &file: files) {
-            files_.emplace(file);
-        }
-        checkSum_ = CalculateCheckSum();
-    }
+           std::string message);
 
     Commit(const std::set<std::string> &files,
-           std::string message) :
-            message_(std::move(message)) {
-        for (const auto &file: files) {
-            files_.emplace(file);
-        }
-        checkSum_ = CalculateCheckSum();
-    }
+           std::string message);
 
     Commit(std::set<File> files,
            std::string message,
-           size_t checkSum) :
-            files_(std::move(files)),
-            message_(std::move(message)),
-            checkSum_(checkSum) {}
+           size_t checkSum);
 
     Commit(const Commit &rhs) = default;
 
