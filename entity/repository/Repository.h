@@ -1,10 +1,10 @@
 #ifndef CODEHUB_REPOSITORY_H
 #define CODEHUB_REPOSITORY_H
 
-
-#include <iostream>
-#include <fstream>
 #include "../commit/Commit.h"
+#include "../filemanager/ConfigManager.h"
+#include "../filemanager/CommitsManager.h"
+#include "../filemanager/IgnoreFileManager.h"
 
 class Repository {
 public:
@@ -14,40 +14,11 @@ public:
     // TODO сделать валидацию имени папки типа "../../folder/"
     // TODO сделать валидацию имени репозитория
     Repository(std::string_view repositoryName,
-               std::string_view repositoryFolder) :
-            repositoryName_(repositoryName),
-            repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
-            configFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE),
-            ignoreFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE),
-            commitsFile_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE) {}
+               std::string_view repositoryFolder);
 
     Repository(std::string_view repositoryName,
                std::string_view repositoryFolder,
-               FileHashMap files) :
-            repositoryName_(repositoryName),
-            repositoryFolder_(repositoryFolder),
-            fileHashMap_(std::move(files)) {}
-
-private:
-    // TODO вынести в отдельный класс работу с конфигами
-    // TODO сделать так чтобы папка в игнор листе автоматически игнорила все ее содержимое
-    bool CreateIgnoreFile();
-
-    bool ReadIgnoreFile();
-
-private:
-    [[nodiscard]] bool CreateConfigFile() const;
-
-    void UpdateConfigFile();
-
-    bool ReadConfigFile();
-
-private:
-    bool CreateCommitsFile() const;
-
-    void UpdateCommitsFile() const;
-
-    bool ReadCommitsFile();
+               FileHashMap files);
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
@@ -76,9 +47,9 @@ private:
     std::string repositoryName_;
     std::string repositoryFolder_;
 
-    std::string configFile_;
-    std::string ignoreFile_;
-    std::string commitsFile_;
+    ConfigManager configManager_;
+    CommitsManager commitsManager_;
+    IgnoreFileManager ignoreFileManager_;
 
     std::vector<Commit> commits_;
     std::set<std::string> ignoredFiles_;

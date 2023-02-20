@@ -1,143 +1,37 @@
-#include <fstream>
-#include <ranges>
 #include "Repository.h"
-#include "../../serializer/JsonSerializer.h"
-
 
 using FileHashMap = Repository::FileHashMap;
 
-bool Repository::CreateIgnoreFile() {
-    std::ofstream ofs;
-    ofs.open(ignoreFile_);
-    if (!ofs) {
-        return false;
-    }
+Repository::Repository(std::string_view repositoryName,
+                       std::string_view repositoryFolder) :
+        repositoryName_(repositoryName),
+        repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
+        configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
+                       &repositoryName_,
+                       &repositoryFolder_,
+                       &fileHashMap_),
+        commitsManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE,
+                        &commits_),
+        ignoreFileManager_(repositoryFolder_,
+                           repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
+                           &ignoredFiles_) {}
 
-    for (auto &file:
-            std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-        if (auto filename = std::filesystem::absolute(file).filename().string();
-                filename.starts_with(".") || filename.starts_with("_")) {
-            ofs << std::filesystem::absolute(file).string() << "\n";
-        }
-    }
+Repository::Repository(std::string_view repositoryName,
+                       std::string_view repositoryFolder,
+                       FileHashMap files) :
+        repositoryName_(repositoryName),
+        repositoryFolder_(repositoryFolder),
+        fileHashMap_(std::move(files)),
+        configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
+                       &repositoryName_,
+                       &repositoryFolder_,
+                       &fileHashMap_),
+        commitsManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE,
+                        &commits_),
+        ignoreFileManager_(repositoryFolder_,
+                           repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
+                           &ignoredFiles_) {}
 
-    return true;
-}
-
-bool Repository::ReadIgnoreFile() {
-    if (!std::filesystem::exists(ignoreFile_) ||
-        std::filesystem::is_empty(ignoreFile_)) {
-        return false;
-    }
-
-    std::ifstream ifs(ignoreFile_);
-    if (!ifs) {
-        return false;
-    }
-
-    std::string readFilename;
-    while (ifs.good()) {
-        std::getline(ifs, readFilename);
-        if (!std::filesystem::exists(readFilename)) {
-            continue;
-        }
-
-        ignoredFiles_.emplace(readFilename);
-        if (std::filesystem::is_directory(readFilename)) {
-            for (auto &file:
-                    std::filesystem::recursive_directory_iterator(readFilename)) {
-                auto filename = std::filesystem::absolute(file).string();
-                ignoredFiles_.insert(filename);
-            }
-        }
-    }
-
-    return true;
-}
-
-bool Repository::CreateConfigFile() const {
-    std::string configDirectory = repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY;
-    std::ofstream file;
-    if ((std::filesystem::exists(configDirectory) &&
-         !std::filesystem::exists(configFile_)) ||
-        std::filesystem::create_directory(configDirectory)) {}
-    file.open(configFile_);
-    return file.is_open();
-}
-
-void Repository::UpdateConfigFile() {
-    std::ofstream ofs(configFile_);
-    if (!ofs && !CreateConfigFile()) {
-        std::cout << "Cannot create config folder!\n";
-        return;
-    }
-
-    auto repoJson = JsonSerializer<Repository>::ConfigToJson(
-            repositoryName_,
-            repositoryFolder_,
-            fileHashMap_
-    ).dump(2);
-    ofs << repoJson;
-}
-
-bool Repository::ReadConfigFile() {
-    if (!std::filesystem::exists(configFile_)) {
-        return false;
-    }
-
-    if (std::filesystem::is_empty(configFile_)) {
-        return true;
-    }
-
-    std::ifstream ifs(configFile_);
-    if (ifs) {
-        nlohmann::json j = nlohmann::json::parse(ifs);
-        auto res = JsonSerializer<Repository>::ConfigFromJson(j);
-        repositoryName_ = res.repositoryName_;
-        repositoryFolder_ = res.repositoryFolder_;
-        fileHashMap_ = res.fileHashMap_;
-
-        return true;
-    }
-
-    return false;
-}
-
-bool Repository::CreateCommitsFile() const {
-    std::ofstream file(configFile_);
-    return file.is_open();
-}
-
-void Repository::UpdateCommitsFile() const {
-    std::ofstream ofs(commitsFile_);
-    if (!ofs && !CreateCommitsFile()) {
-        std::cout << "Cannot create commits file!\n";
-        return;
-    }
-
-    auto repoJson = JsonSerializer<Repository>::CommitsToJson(commits_).dump(2);
-    ofs << repoJson;
-}
-
-bool Repository::ReadCommitsFile() {
-    if (!std::filesystem::exists(commitsFile_) ||
-        std::filesystem::is_empty(commitsFile_)) {
-        return false;
-    }
-
-    std::ifstream ifs(commitsFile_);
-    if (ifs) {
-        nlohmann::json j = nlohmann::json::parse(ifs);
-        auto commits = JsonSerializer<Repository>::CommitsFromJson(j);
-        for (const auto &commit: commits) {
-            commits_.push_back(commit);
-        }
-
-        return true;
-    }
-
-    return false;
-}
 
 FileHashMap Repository::CollectFiles() const {
     FileHashMap collectedFiles;
@@ -199,27 +93,29 @@ void Repository::DoCommit(std::string_view message) {
     }
 
     commits_.emplace_back(toInsert, message.data());
-    UpdateCommitsFile();
-    UpdateConfigFile();
+    commitsManager_.UpdateCommitsFile();
+    configManager_.UpdateConfigFile();
 }
 
 void Repository::Init() {
-    if (ReadConfigFile()) {
+    if (configManager_.ReadConfigFile()) {
         std::cout << "Config loaded!\n";
-    } else if (CreateConfigFile()) {
+    } else if (configManager_.CreateConfigFile()) {
         std::cout << "Config file created!\n";
     }
 
-    if (!ReadIgnoreFile()) {
-        std::cout << "Creating ignore file!\n";
-        CreateIgnoreFile();
-        ReadIgnoreFile();
+    if (!ignoreFileManager_.ReadIgnoreFile()) {
+        if (ignoreFileManager_.CreateIgnoreFile()) {
+            std::cout << "Ignore file created!\n";
+            ignoreFileManager_.ReadIgnoreFile();
+        }
     }
 
-    if (!ReadCommitsFile()) {
-        std::cout << "Creating commits file!\n";
-        CreateCommitsFile();
-        ReadCommitsFile();
+    if (!commitsManager_.ReadCommitsFile()) {
+        if (commitsManager_.CreateCommitsFile()) {
+            std::cout << "Commits file created!\n";
+            commitsManager_.ReadCommitsFile();
+        }
     }
 }
 

@@ -1,96 +1,31 @@
 #ifndef CODEHUB_JSONSERIALIZER_H
 #define CODEHUB_JSONSERIALIZER_H
 
-#include "../entity/repository/Repository.h"
 #include <nlohmann/json.hpp>
+#include "../entity/repository/Repository.h"
 
-template<class T>
-class JsonSerializer;
-
-template<>
-class JsonSerializer<File> {
+class JsonSerializer {
 public:
-    static nlohmann::json ToJson(const File &file) {
-        nlohmann::json j;
-        j["name"] = file.Name();
-        j["hash"] = file.Hash();
-        j["status"] = file.Status();
-        return j;
-    }
+    static nlohmann::json FileToJson(const File &file);
 
-    static File FromJson(nlohmann::json json) {
-        std::string name = json["name"];
-        size_t hash = json["hash"];
-        FileStatus status = json["status"];
-        return {name, hash, status};
-    }
-};
+    static File FileFromJson(nlohmann::json json);
 
-template<>
-class JsonSerializer<Commit> {
 public:
-    static nlohmann::json ToJson(const Commit &commit) {
-        nlohmann::json j;
-        std::vector<nlohmann::json> files;
-        for (const auto &file: commit.Files()) {
-            files.push_back(JsonSerializer<File>::ToJson(file));
-        }
-        j["files"] = files;
-        j["message"] = commit.Message();
-        j["checksum"] = commit.Checksum();
-        return j;
-    }
+    static nlohmann::json CommitToJson(const Commit &commit);
 
-    static Commit FromJson(nlohmann::json json) {
-        std::set<File> files;
-        for (auto &file: json["files"]) {
-            files.insert(JsonSerializer<File>::FromJson(file));
-        }
-        std::string message = json["message"];
-        size_t checkSum = json["checksum"];
-        return {files, message, checkSum};
-    }
-};
+    static Commit CommitFromJson(nlohmann::json json);
 
-template<>
-class JsonSerializer<Repository> {
 public:
     static nlohmann::json ConfigToJson(
             std::string_view name,
             std::string_view folder,
-            Repository::FileHashMap &fileHashMap) {
-        nlohmann::json j;
-        j["repo_name"] = name;
-        j["repo_folder"] = folder;
-        j["map"] = fileHashMap;
-        return j;
-    }
+            Repository::FileHashMap &fileHashMap);
 
-    static nlohmann::json CommitsToJson(const std::vector<Commit> &commits) {
-        nlohmann::json j;
-        std::vector<nlohmann::json> commitsJson;
-        for (const auto &commit: commits) {
-            commitsJson.push_back(JsonSerializer<Commit>::ToJson(commit));
-        }
-        j["commits"] = commitsJson;
-        return j;
-    }
+    static nlohmann::json CommitsToJson(const std::vector<Commit> &commits);
 
-    static Repository ConfigFromJson(nlohmann::json json) {
-        std::string repositoryName = json["repo_name"];
-        std::string repositoryFolder = json["repo_folder"];
-        auto fileHashMap = json["map"];
-        return {repositoryName, repositoryFolder, fileHashMap};
-    }
+    static Repository ConfigFromJson(nlohmann::json json);
 
-    static std::vector<Commit> CommitsFromJson(nlohmann::json json) {
-        std::vector<nlohmann::json> commitsJson = json["commits"];
-        std::vector<Commit> commits;
-        for (const auto &commit: commitsJson) {
-            commits.push_back(JsonSerializer<Commit>::FromJson(commit));
-        }
-        return commits;
-    }
+    static std::vector<Commit> CommitsFromJson(nlohmann::json json);
 };
 
 
