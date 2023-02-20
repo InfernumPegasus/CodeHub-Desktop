@@ -1,6 +1,18 @@
 #include <fstream>
 #include "File.h"
 
+File::File(std::string_view filename,
+           size_t hash,
+           FileStatus status) :
+        name_(filename),
+        hash_(hash),
+        status_(status) {}
+
+File::File(std::string_view filename) :
+        name_(filename),
+        hash_(CalculateHash(filename)),
+        status_(FileStatus::Unknown) {}
+
 std::string File::Name() const {
     return name_;
 }
@@ -23,18 +35,14 @@ bool File::operator<(const File &rhs) const {
     return hash_ < rhs.hash_;
 }
 
-// TODO улучшить алгоритм
 std::vector<char> File::LoadContent(std::string_view filename) {
     std::vector<char> content;
     std::ifstream ifs(filename.data());
-    if (ifs) {
-        char c;
-        while (ifs.good()) {
-            ifs.read(&c, sizeof(char));
-            content.push_back(c);
-        }
-    }
-    return content;
+
+    return {
+            std::istreambuf_iterator<char>(ifs),
+            std::istreambuf_iterator<char>()
+    };
 }
 
 size_t File::CalculateHash(std::string_view filename) {

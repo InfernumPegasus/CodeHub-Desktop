@@ -9,15 +9,9 @@ class File {
 public:
     File(std::string_view filename,
          size_t hash,
-         FileStatus status) :
-            name_(filename),
-            hash_(hash),
-            status_(status) {}
+         FileStatus status);
 
-    explicit File(std::string_view filename) :
-            name_(filename),
-            hash_(CalculateHash(filename)),
-            status_(FileStatus::Unknown) {}
+    explicit File(std::string_view filename);
 
     File(const File &rhs) = default;
 
@@ -38,11 +32,6 @@ public:
     constexpr bool operator==(const File &rhs) const;
 
     bool operator<(const File &rhs) const;
-
-//public:
-//    [[nodiscard]] nlohmann::json ToJson() const;
-//
-//    static File FromJson(nlohmann::json json);
 
 public:
     static size_t CalculateHash(std::string_view filename);
