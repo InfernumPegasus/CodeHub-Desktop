@@ -2,7 +2,7 @@
 #define CODEHUB_JSONSERIALIZER_H
 
 #include <nlohmann/json.hpp>
-#include "../entity/repository/Repository.h"
+#include "../repository/Repository.h"
 
 class JsonSerializer {
 public:

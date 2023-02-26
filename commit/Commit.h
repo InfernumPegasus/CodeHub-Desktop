@@ -1,11 +1,10 @@
 #ifndef CODEHUB_COMMIT_H
 #define CODEHUB_COMMIT_H
 
-
+#include "../file/File.h"
 #include <set>
 #include <nlohmann/json.hpp>
 #include <utility>
-#include "../file/File.h"
 
 class Commit {
 public:

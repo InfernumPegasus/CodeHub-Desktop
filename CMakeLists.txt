@@ -18,17 +18,17 @@ find_package(Boost COMPONENTS program_options REQUIRED)
 
 add_executable(CodeHub
         main.cpp
-        entity/file/File.cpp
-        entity/commit/Commit.cpp
-        entity/repository/Repository.cpp
+        file/File.cpp
+        commit/Commit.cpp
+        repository/Repository.cpp
         serializer/JsonSerializer.cpp
-        WebService.cpp
-        entity/filemanager/RepositoryConfigManager.cpp
-        entity/filemanager/CommitsManager.cpp
-        entity/filemanager/IgnoreFileManager.cpp
-        entity/validation/Validator.cpp
-        entity/VersionControlSystem.cpp
-        entity/filemanager/RepositoriesManager.cpp)
+        web/WebService.cpp
+        filemanager/RepositoryConfigManager.cpp
+        filemanager/CommitsManager.cpp
+        filemanager/IgnoreFileManager.cpp
+        validation/Validator.cpp
+        vcs/VersionControlSystem.cpp
+        filemanager/RepositoriesManager.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
 

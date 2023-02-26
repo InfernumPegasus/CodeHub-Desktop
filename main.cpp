@@ -1,5 +1,5 @@
-#include "entity/repository/Repository.h"
-#include "entity/VersionControlSystem.h"
+#include "repository/Repository.h"
+#include "vcs/VersionControlSystem.h"
 #include <boost/program_options.hpp>
 
 using namespace std::string_literals;
@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     versionControlSystem.Init();
 
 //    versionControlSystem.CreateRepository("LOL KEK CHEBUREK");
-    versionControlSystem.CreateRepository("nu zdarova /*/");
+//    versionControlSystem.CreateRepository("nu zdarova /*/");
 
     for (const auto &item: versionControlSystem.NameAndFolderMap()) {
         std::cout << item.first << " | " << item.second << "\n";

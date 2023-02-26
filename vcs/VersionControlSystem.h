@@ -1,8 +1,8 @@
 #ifndef CODEHUB_VERSIONCONTROLSYSTEM_H
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
-#include "repository/Repository.h"
-#include "filemanager/RepositoriesManager.h"
+#include "../repository/Repository.h"
+#include "../filemanager/RepositoriesManager.h"
 
 class VersionControlSystem {
 public:

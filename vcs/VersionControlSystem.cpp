@@ -1,5 +1,5 @@
 #include "VersionControlSystem.h"
-#include "validation/Validator.h"
+#include "../validation/Validator.h"
 
 VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.UpdateConfigFile();
