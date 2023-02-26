@@ -6,6 +6,9 @@
 
 class JsonSerializer {
 public:
+    using NameFolderMap = std::unordered_map<std::string, std::string>;
+
+public:
     static nlohmann::json FileToJson(const File &file);
 
     static File FileFromJson(nlohmann::json json);
@@ -26,6 +29,11 @@ public:
     static Repository ConfigFromJson(nlohmann::json json);
 
     static std::vector<Commit> CommitsFromJson(nlohmann::json json);
+
+public:
+    static nlohmann::json AppConfigToJson(const NameFolderMap &map);
+
+    static NameFolderMap AppConfigFromJson(nlohmann::json json);
 };
 
 

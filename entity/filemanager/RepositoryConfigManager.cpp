@@ -1,7 +1,7 @@
-#include "ConfigManager.h"
+#include "RepositoryConfigManager.h"
 #include "../../serializer/JsonSerializer.h"
 
-ConfigManager::ConfigManager(
+RepositoryConfigManager::RepositoryConfigManager(
         std::string configFile,
         std::string *repositoryNameRef,
         std::string *repositoryFolderRef,
@@ -11,7 +11,7 @@ ConfigManager::ConfigManager(
         repositoryFolderRef_(*repositoryFolderRef),
         fileHashMapRef_(*fileHashMapRef) {}
 
-bool ConfigManager::CreateConfigFile() const {
+bool RepositoryConfigManager::CreateConfigFile() const {
     std::string configDirectory = repositoryFolderRef_ + "/" + VCS_CONFIG_DIRECTORY;
     std::ofstream file;
     if ((std::filesystem::exists(configDirectory) &&
@@ -21,7 +21,7 @@ bool ConfigManager::CreateConfigFile() const {
     return file.is_open();
 }
 
-void ConfigManager::UpdateConfigFile() const {
+void RepositoryConfigManager::UpdateConfigFile() const {
     std::ofstream ofs(configFile_);
     if (!ofs && !CreateConfigFile()) {
         std::cout << "Cannot create config folder!\n";
@@ -36,7 +36,7 @@ void ConfigManager::UpdateConfigFile() const {
     ofs << repoJson;
 }
 
-bool ConfigManager::ReadConfigFile() const {
+bool RepositoryConfigManager::ReadConfigFile() const {
     if (!std::filesystem::exists(configFile_)) {
         return false;
     }

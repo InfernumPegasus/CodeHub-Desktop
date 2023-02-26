@@ -2,7 +2,7 @@
 #define CODEHUB_REPOSITORY_H
 
 #include "../commit/Commit.h"
-#include "../filemanager/ConfigManager.h"
+#include "../filemanager/RepositoryConfigManager.h"
 #include "../filemanager/CommitsManager.h"
 #include "../filemanager/IgnoreFileManager.h"
 
@@ -12,13 +12,17 @@ public:
 
 public:
     // TODO сделать валидацию имени папки типа "../../folder/"
-    // TODO сделать валидацию имени репозитория
     Repository(std::string_view repositoryName,
                std::string_view repositoryFolder);
 
     Repository(std::string_view repositoryName,
                std::string_view repositoryFolder,
                FileHashMap files);
+
+    ~Repository();
+
+public:
+    size_t ChangedFilesAmount() const;
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
@@ -37,6 +41,9 @@ public:
 
     [[nodiscard]] FileHashMap Map() const;
 
+public:
+    bool operator<(const Repository& rhs) const;
+
 private:
     static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";
     static constexpr std::string VCS_CONFIG_FILE = ".repo_info.json";
@@ -47,7 +54,7 @@ private:
     std::string repositoryName_;
     std::string repositoryFolder_;
 
-    ConfigManager configManager_;
+    RepositoryConfigManager configManager_;
     CommitsManager commitsManager_;
     IgnoreFileManager ignoreFileManager_;
 

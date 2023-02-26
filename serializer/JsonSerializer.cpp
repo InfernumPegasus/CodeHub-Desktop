@@ -73,3 +73,14 @@ std::vector<Commit> JsonSerializer::CommitsFromJson(nlohmann::json json) {
     }
     return commits;
 }
+
+nlohmann::json JsonSerializer::AppConfigToJson(
+        const JsonSerializer::NameFolderMap &map) {
+    nlohmann::json j;
+    j["map"] = map;
+    return j;
+}
+
+JsonSerializer::NameFolderMap JsonSerializer::AppConfigFromJson(nlohmann::json json) {
+    return json["map"];
+}

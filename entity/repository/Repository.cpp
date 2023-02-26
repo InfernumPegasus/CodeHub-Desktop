@@ -32,6 +32,14 @@ Repository::Repository(std::string_view repositoryName,
                            repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
                            &ignoredFiles_) {}
 
+Repository::~Repository() {
+    configManager_.UpdateConfigFile();
+    commitsManager_.UpdateCommitsFile();
+}
+
+size_t Repository::ChangedFilesAmount() const {
+    return CollectFiles().size();
+}
 
 FileHashMap Repository::CollectFiles() const {
     FileHashMap collectedFiles;
@@ -133,4 +141,8 @@ std::vector<Commit> Repository::Commits() const {
 
 FileHashMap Repository::Map() const {
     return fileHashMap_;
+}
+
+bool Repository::operator<(const Repository &rhs) const {
+    return repositoryName_ < rhs.repositoryName_;
 }

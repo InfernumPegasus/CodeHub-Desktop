@@ -1,29 +1,30 @@
 #include "entity/repository/Repository.h"
-#include <cpr/cpr.h>
+#include "entity/VersionControlSystem.h"
+#include <boost/program_options.hpp>
 
 using namespace std::string_literals;
+namespace po = boost::program_options;
 
-int main() {
-    Repository repository("Test-Rep",
-                          "/home/vladimir/GitHub/CodeHub/");
-    repository.Init();
-    repository.DoCommit("QWERTY");
+int main(int argc, char *argv[]) {
+    VersionControlSystem versionControlSystem;
+    versionControlSystem.Init();
 
-//    nlohmann::json j;
-//    j["name"] = "Vladimir";
-//    j["age"] = 19;
-//
-//    cpr::Response r = cpr::Get(
-//            cpr::Url{"http://localhost:8000/search/hhggtyj"}
-////            cpr::Parameters{
-////                    {"name", j["name"]},
-////                    {"age", to_string(j["age"])}
-////            }
-//    );
-//
-//    std::cout << r.status_code << std::endl;
-//    std::cout << r.header["content-type"] << std::endl;
-//    std::cout << r.text << std::endl;
+//    versionControlSystem.CreateRepository("LOL KEK CHEBUREK");
+    versionControlSystem.CreateRepository("nu zdarova /*/");
+
+    for (const auto &item: versionControlSystem.NameAndFolderMap()) {
+        std::cout << item.first << " | " << item.second << "\n";
+    }
+
+//    repository.Init();
+//    repository.DoCommit("QWERTY");
+
+//    std::cout << std::boolalpha <<
+//              Validator::IsValidRepositoryName("qwem__32") << "\n";
+
+//    WebService::Login(WebService::POST_LOGIN_TOKENS_URL,
+//                      "../.config/.user.json");
+//    WebService::GetUser(1);
 
     return 0;
 }

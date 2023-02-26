@@ -9,9 +9,12 @@ FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
         GIT_TAG 0817715923c9705e68994eb52ef9df3f6845beba) # The commit hash for 1.10.x. Replace with the latest from: https://github.com/libcpr/cpr/releases
 FetchContent_MakeAvailable(cpr)
 
-#Folders required for tests
-add_subdirectory(tests/lib/googletest)
-include_directories(tests/lib/googletest/googletest/include)
+##Folders required for tests
+#add_subdirectory(tests/lib/googletest)
+#include_directories(tests/lib/googletest/googletest/include)
+
+# Include boost
+find_package(Boost COMPONENTS program_options REQUIRED)
 
 add_executable(CodeHub
         main.cpp
@@ -20,11 +23,14 @@ add_executable(CodeHub
         entity/repository/Repository.cpp
         serializer/JsonSerializer.cpp
         WebService.cpp
-        entity/filemanager/ConfigManager.cpp
+        entity/filemanager/RepositoryConfigManager.cpp
         entity/filemanager/CommitsManager.cpp
-        entity/filemanager/IgnoreFileManager.cpp)
+        entity/filemanager/IgnoreFileManager.cpp
+        entity/validation/Validator.cpp
+        entity/VersionControlSystem.cpp
+        entity/filemanager/RepositoriesManager.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr)
+target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
 
 ##Tests
 #add_executable(Tests
