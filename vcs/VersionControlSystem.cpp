@@ -1,13 +1,25 @@
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 
+VersionControlSystem::VersionControlSystem() :
+        repositoriesManager_(&nameFolderMap_) {}
+
 VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.UpdateConfigFile();
 }
 
 void VersionControlSystem::CreateRepository(
-        std::string repositoryName) {
-    std::string currentDir = absolute(std::filesystem::current_path());
+        const std::string &repositoryName,
+        bool initRepository) {
+    CreateRepository(repositoryName,
+                     absolute(std::filesystem::current_path()),
+                     initRepository);
+}
+
+void VersionControlSystem::CreateRepository(
+        std::string repositoryName,
+        const std::string &repositoryFolder,
+        bool initRepository) {
     Validator::Trim(repositoryName);
     Validator::ReplaceWith(repositoryName, " ", "_");
     if (!Validator::IsValidRepositoryName(repositoryName)) {
@@ -15,13 +27,14 @@ void VersionControlSystem::CreateRepository(
         return;
     }
 
-    if (FindRepositoryByName(repositoryName) != repositories_.end()) {
-        Repository repository(repositoryName, currentDir);
-//    repository.Init();
-        repositories_.insert(repository);
+    if (nameFolderMap_.find(repositoryName) == nameFolderMap_.end()) {
+        nameFolderMap_.emplace(repositoryName, repositoryFolder);
 
-        repositoriesManager_.AddRepository(repositoryName, currentDir);
-        repositoriesManager_.UpdateConfigFile();
+        Repository repository(repositoryName, repositoryFolder);
+        if (initRepository) {
+            repository.InitManagers();
+        }
+
     } else {
         std::cout << "Repository '" << repositoryName << "' already exists!\n";
     }
@@ -29,26 +42,18 @@ void VersionControlSystem::CreateRepository(
 
 void VersionControlSystem::DeleteRepository(
         std::string_view repositoryName) {
-    auto pos = FindRepositoryByName(repositoryName);
-    if (pos != repositories_.end()) {
-        repositories_.erase(pos);
-    }
-}
-
-std::set<Repository>::iterator VersionControlSystem::FindRepositoryByName(
-        std::string_view name) {
-    return std::find_if(
-            repositories_.begin(),
-            repositories_.end(),
-            [name](const Repository &repository) { return repository.Name() == name; });
 }
 
 void VersionControlSystem::CheckStatus(std::string_view repoName) {
-    if (auto repo = FindRepositoryByName(repoName);
-            repo != repositories_.end()) {
+    if (auto pos = nameFolderMap_.find(repoName.data());
+            pos != nameFolderMap_.end()) {
+        Repository repository(pos->first, pos->second);
+        repository.InitConfigManager();
+        repository.InitIgnoreManager();
+
         std::cout << "Repository [" <<
-                  repo->Name() << "] status: ";
-        if (auto filesAmount = repo->ChangedFilesAmount();
+                  repository.Name() << "] status: ";
+        if (auto filesAmount = repository.ChangedFilesAmount();
                 filesAmount == 0) {
             std::cout << "Up-to-date.\n";
         } else {
@@ -66,6 +71,10 @@ void VersionControlSystem::Init() {
 }
 
 VersionControlSystem::NameFolderMap VersionControlSystem::NameAndFolderMap() const {
-    return repositoriesManager_.NameAndFolderMap();
+    return nameFolderMap_;
+}
+
+bool VersionControlSystem::Contains(std::string_view repositoryName) const {
+    return nameFolderMap_.contains(repositoryName.data());
 }
 

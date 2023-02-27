@@ -105,26 +105,36 @@ void Repository::DoCommit(std::string_view message) {
     configManager_.UpdateConfigFile();
 }
 
-void Repository::Init() {
+void Repository::InitConfigManager() {
     if (configManager_.ReadConfigFile()) {
         std::cout << "Config loaded!\n";
     } else if (configManager_.CreateConfigFile()) {
         std::cout << "Config file created!\n";
     }
+}
 
+void Repository::InitIgnoreManager() {
     if (!ignoreFileManager_.ReadIgnoreFile()) {
         if (ignoreFileManager_.CreateIgnoreFile()) {
             std::cout << "Ignore file created!\n";
             ignoreFileManager_.ReadIgnoreFile();
         }
     }
+}
 
+void Repository::InitCommitsManager() {
     if (!commitsManager_.ReadCommitsFile()) {
         if (commitsManager_.CreateCommitsFile()) {
             std::cout << "Commits file created!\n";
             commitsManager_.ReadCommitsFile();
         }
     }
+}
+
+void Repository::InitManagers() {
+    InitConfigManager();
+    InitIgnoreManager();
+    InitCommitsManager();
 }
 
 std::string Repository::Name() const {

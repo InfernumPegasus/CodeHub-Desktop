@@ -5,7 +5,14 @@
 #include <filesystem>
 #include <iostream>
 
-std::string RepositoriesManager::GetHomeDirectory()  {
+RepositoriesManager::RepositoriesManager(
+        RepositoriesManager::NameFolderMap *nameAndFolderMap_) :
+        appConfigDirectory_(GetHomeDirectory()),
+        repositoriesFile_(appConfigDirectory_ + "/" + REPOSITORIES_FILE),
+        nameAndFolderMap_(*nameAndFolderMap_) {}
+
+
+std::string RepositoriesManager::GetHomeDirectory() {
     auto dir = std::getenv("HOME");
     return dir == nullptr ? dir : getpwuid(getuid())->pw_dir;
 }
@@ -49,15 +56,5 @@ bool RepositoriesManager::ReadConfigFile() {
     }
 
     return false;
-}
-
-void RepositoriesManager::AddRepository(
-        std::string_view repositoryName,
-        std::string_view repositoryFolder) {
-    nameAndFolderMap_.emplace(repositoryName, repositoryFolder);
-}
-
-RepositoriesManager::NameFolderMap RepositoriesManager::NameAndFolderMap() const {
-    return nameAndFolderMap_;
 }
 

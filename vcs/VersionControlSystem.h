@@ -9,17 +9,23 @@ public:
     using NameFolderMap = std::unordered_map<std::string, std::string>;
 
 public:
+    VersionControlSystem();
+
     ~VersionControlSystem();
 
 public:
-    void CreateRepository(std::string repositoryName);
+    void CreateRepository(const std::string &repositoryName,
+                          bool initRepository);
+
+    void CreateRepository(std::string repositoryName,
+                          const std::string &repositoryFolder,
+                          bool initRepository);
 
     void DeleteRepository(std::string_view repositoryName);
 
-    std::set<Repository>::iterator FindRepositoryByName(
-            std::string_view name);
-
     void CheckStatus(std::string_view repoName);
+
+    bool Contains(std::string_view repositoryName) const;
 
 public:
     NameFolderMap NameAndFolderMap() const;
@@ -31,7 +37,7 @@ public:
 //    void PushToServer(const Repository &repository);
 
 private:
-    std::set<Repository> repositories_;
+    NameFolderMap nameFolderMap_;
 
     RepositoriesManager repositoriesManager_;
 };

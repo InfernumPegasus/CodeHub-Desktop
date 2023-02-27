@@ -14,7 +14,7 @@ FetchContent_MakeAvailable(cpr)
 #include_directories(tests/lib/googletest/googletest/include)
 
 # Include boost
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS program_options filesystem REQUIRED)
 
 add_executable(CodeHub
         main.cpp

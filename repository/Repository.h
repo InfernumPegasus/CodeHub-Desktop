@@ -30,7 +30,14 @@ private:
 public:
     void DoCommit(std::string_view message);
 
-    void Init();
+public:
+    void InitConfigManager();
+
+    void InitIgnoreManager();
+
+    void InitCommitsManager();
+
+    void InitManagers();
 
 public:
     [[nodiscard]] std::string Name() const;
