@@ -23,9 +23,6 @@ public:
     bool ReadConfigFile();
 
 private:
-    static constexpr std::string REPOSITORIES_FILE = "repos.json";
-
-private:
     const std::string appConfigDirectory_;
     const std::string repositoriesFile_;
 

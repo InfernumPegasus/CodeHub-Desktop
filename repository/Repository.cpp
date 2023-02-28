@@ -1,4 +1,5 @@
 #include "Repository.h"
+#include "../filemanager/Configs.h"
 
 using FileHashMap = Repository::FileHashMap;
 
@@ -20,7 +21,7 @@ Repository::Repository(std::string_view repositoryName,
                        std::string_view repositoryFolder,
                        FileHashMap files) :
         repositoryName_(repositoryName),
-        repositoryFolder_(repositoryFolder),
+        repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
         fileHashMap_(std::move(files)),
         configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
                        &repositoryName_,
@@ -39,6 +40,12 @@ Repository::~Repository() {
 
 size_t Repository::ChangedFilesAmount() const {
     return CollectFiles().size();
+}
+
+void Repository::AddFiles(const std::vector<std::string> &files) {
+    for (const auto &file: files) {
+        fileHashMap_.emplace(file, File::CalculateHash(file));
+    }
 }
 
 FileHashMap Repository::CollectFiles() const {
@@ -151,8 +158,4 @@ std::vector<Commit> Repository::Commits() const {
 
 FileHashMap Repository::Map() const {
     return fileHashMap_;
-}
-
-bool Repository::operator<(const Repository &rhs) const {
-    return repositoryName_ < rhs.repositoryName_;
 }

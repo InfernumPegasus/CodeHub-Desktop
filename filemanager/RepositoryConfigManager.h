@@ -30,9 +30,6 @@ public:
 
     [[nodiscard]] bool ReadConfigFile() const;
 
-public:
-    static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";
-
 private:
     std::string configFile_;
 

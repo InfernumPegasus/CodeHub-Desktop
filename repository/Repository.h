@@ -24,6 +24,8 @@ public:
 public:
     size_t ChangedFilesAmount() const;
 
+    void AddFiles(const std::vector<std::string> &files);
+
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
 
@@ -47,15 +49,6 @@ public:
     [[nodiscard]] std::vector<Commit> Commits() const;
 
     [[nodiscard]] FileHashMap Map() const;
-
-public:
-    bool operator<(const Repository& rhs) const;
-
-private:
-    static constexpr std::string VCS_CONFIG_DIRECTORY = ".config";
-    static constexpr std::string VCS_CONFIG_FILE = ".repo_info.json";
-    static constexpr std::string VCS_COMMITS_FILE = ".commits.json";
-    static constexpr std::string VCS_IGNORE_FILE = ".ignore";
 
 private:
     std::string repositoryName_;

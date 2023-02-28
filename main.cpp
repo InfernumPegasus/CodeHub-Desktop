@@ -9,43 +9,34 @@ namespace po = boost::program_options;
 
 VersionControlSystem versionControlSystem;
 
-void InitOptionHandle(const std::string &arg) {
-    using boost::char_separator;
+std::vector<std::string> SplitByWhitespace(std::string_view string) {
+    boost::char_separator<char> separator(" \t\n\r");
 
-    char_separator<char> separator(" \t\n\r");
-
-    boost::tokenizer<char_separator<char>> tokenizer(arg, separator);
+    boost::tokenizer<boost::char_separator<char>> tokenizer(string, separator);
     std::vector<std::string> args;
     std::copy(tokenizer.begin(), tokenizer.end(),
               std::back_inserter(args));
 
-    if (!std::filesystem::exists(args[1]) ||
-        !Validator::IsValidRepositoryName(args[0])) {
-        std::cout << "Cannot create repository: invalid name or path!\n";
-    } else if (versionControlSystem.Contains(args[0])) {
-        std::cout << "Repository '" << args[0] << "' already exists.\n";
-    } else {
-        Repository repository(args[0], args[1]);
-        versionControlSystem.CreateRepository(args[0],
-                                              args[1],
-                                              true);
-    }
+    return args;
 }
-
 
 int main(int argc, char *argv[]) {
     versionControlSystem.Init();
 
     po::options_description description("Allowed options");
     description.add_options()
+            //есть
             ("help,h", "produce help message")
+            //есть но надо тестить
             ("init", po::value<std::string>(), "init new repository")
-            ("status", po::value<std::string>(), "get repository status")
-            ("add", po::value<std::vector<std::string >>(), "add file to index")
-            ("restore", "restore files in work directory")
+            //есть но надо тестить
+            ("status","get repository status")
+            ("repositories", "show all repositories")
+            ("add", po::value<std::string>(), "add file to index")
+//            ("restore", "restore files in work directory")
             ("rm", po::value<std::vector<std::string>>(), "remove files from index and directory")
             ("log", "show commits history")
-            ("commit", "store changes")
+            ("commit", po::value<std::string>(), "store changes")
             ("push", "update external links and objects");
 
     try {
@@ -56,9 +47,28 @@ int main(int argc, char *argv[]) {
         if (vm.count("help")) {
             std::cout << description << std::endl;
         } else if (vm.count("init")) {
-            InitOptionHandle(vm["init"].as<std::string>());
+            versionControlSystem.CreateRepository(
+                    vm["init"].as<std::string>(),
+                    true);
         } else if (vm.count("status")) {
-            versionControlSystem.CheckStatus(vm["status"].as<std::string>());
+            versionControlSystem.CheckStatus();
+        } else if (vm.count("repositories")) {
+            for (const auto &[name, folder]:
+                    versionControlSystem.NameAndFolderMap()) {
+                std::cout << "'" << name << "' : '" << folder << "'\n";
+            }
+        } else if (vm.count("add")) {
+            // TODO а нужно ли оно вообще? (не особо но пусть будет)
+            VersionControlSystem::AddFiles(
+                    SplitByWhitespace(vm["add"].as<std::string>())
+            );
+        } else if (vm.count("rm")) {
+            // TODO допилить
+            std::cout << "TODO\n";
+        } else if (vm.count("commit")) {
+            VersionControlSystem::DoCommit(
+                    vm["commit"].as<std::string>()
+            );
         }
     } catch (po::unknown_option &unknownOption) {
         std::cout << unknownOption.what() << std::endl;

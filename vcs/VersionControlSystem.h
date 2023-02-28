@@ -14,27 +14,26 @@ public:
     ~VersionControlSystem();
 
 public:
-    void CreateRepository(const std::string &repositoryName,
+    void CreateRepository(std::string repositoryName,
                           bool initRepository);
 
-    void CreateRepository(std::string repositoryName,
-                          const std::string &repositoryFolder,
-                          bool initRepository);
+    void CheckStatus() const;
+
+    static void AddFiles(const std::vector<std::string> &files);
+
+    static void DoCommit(std::string_view message);
 
     void DeleteRepository(std::string_view repositoryName);
 
-    void CheckStatus(std::string_view repoName);
+    bool ExistsByName(std::string_view repositoryName) const;
 
-    bool Contains(std::string_view repositoryName) const;
+    bool ExistsByFolder(std::string_view repositoryFolder) const;
 
 public:
     NameFolderMap NameAndFolderMap() const;
 
 public:
     void Init();
-
-//public:
-//    void PushToServer(const Repository &repository);
 
 private:
     NameFolderMap nameFolderMap_;

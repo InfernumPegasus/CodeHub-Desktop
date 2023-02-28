@@ -34,6 +34,9 @@ public:
     static nlohmann::json AppConfigToJson(const NameFolderMap &map);
 
     static NameFolderMap AppConfigFromJson(nlohmann::json json);
+
+public:
+    static Repository GetRepositoryByFolder(const std::string &folder);
 };
 
 

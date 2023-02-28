@@ -1,4 +1,5 @@
 #include "JsonSerializer.h"
+#include "../filemanager/Configs.h"
 
 nlohmann::json JsonSerializer::FileToJson(const File &file) {
     nlohmann::json j;
@@ -83,4 +84,13 @@ nlohmann::json JsonSerializer::AppConfigToJson(
 
 JsonSerializer::NameFolderMap JsonSerializer::AppConfigFromJson(nlohmann::json json) {
     return json["map"];
+}
+
+Repository JsonSerializer::GetRepositoryByFolder(const std::string &folder) {
+    std::ifstream ifs(folder + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE);
+    if (!ifs) {
+        throw std::invalid_argument("Wrong folder provided!");
+    }
+    auto j = nlohmann::json::parse(ifs);
+    return ConfigFromJson(j);
 }
