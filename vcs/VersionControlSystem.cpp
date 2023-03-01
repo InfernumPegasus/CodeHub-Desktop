@@ -1,12 +1,14 @@
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
+#include "../filemanager/Configs.h"
 
 VersionControlSystem::VersionControlSystem() :
         repositoriesManager_(&nameFolderMap_) {}
 
 VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.UpdateConfigFile();
+    // TODO сделать апдейт коммитов
 }
 
 void VersionControlSystem::CreateRepository(
@@ -20,8 +22,6 @@ void VersionControlSystem::CreateRepository(
         return;
     }
 
-    std::cout << repositoryFolder << std::endl;
-
     if (ExistsByFolder(repositoryFolder)) {
         std::cout << "There is another repo in this folder!\n";
         return;
@@ -32,13 +32,14 @@ void VersionControlSystem::CreateRepository(
         return;
     }
 
-    std::cout << "Repository '" << repositoryName << "' created in folder '" << repositoryFolder << "'.\n";
     nameFolderMap_.emplace(repositoryName, repositoryFolder);
 
     Repository repository(repositoryName, repositoryFolder);
     if (initRepository) {
         repository.InitManagers();
     }
+
+    std::cout << "Repository '" << repositoryName << "' created in folder '" << repositoryFolder << "'.\n";
 }
 
 void VersionControlSystem::CheckStatus() const {
@@ -83,10 +84,8 @@ void VersionControlSystem::DeleteRepository(
 }
 
 void VersionControlSystem::Init() {
-    if (repositoriesManager_.ReadConfigFile()) {
-        std::cout << "Repository config loaded!\n";
-    } else if (repositoriesManager_.CreateConfigFile()) {
-        std::cout << "Repository config file created!\n";
+    if (!repositoriesManager_.ReadConfigFile() &&
+        repositoriesManager_.CreateConfigFile()) {
         repositoriesManager_.ReadConfigFile();
     }
 }
@@ -102,5 +101,14 @@ bool VersionControlSystem::ExistsByName(std::string_view repositoryName) const {
 bool VersionControlSystem::ExistsByFolder(std::string_view repositoryFolder) const {
     return std::ranges::any_of(nameFolderMap_.cbegin(), nameFolderMap_.cend(),
                                [&](auto &pair) { return pair.first != repositoryFolder; });
+}
+
+void VersionControlSystem::ShowRepositories() const {
+    for (const auto &[name, folder]: nameFolderMap_) {
+        if (ExistsByName(name) &&
+            ExistsByFolder(folder)) {
+            std::cout << "'" << name << "' : '" << folder << "'\n";
+        }
+    }
 }
 

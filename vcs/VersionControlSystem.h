@@ -29,6 +29,8 @@ public:
 
     bool ExistsByFolder(std::string_view repositoryFolder) const;
 
+    void ShowRepositories() const;
+
 public:
     NameFolderMap NameAndFolderMap() const;
 

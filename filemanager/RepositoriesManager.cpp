@@ -52,6 +52,12 @@ bool RepositoriesManager::ReadConfigFile() {
     if (ifs) {
         nlohmann::json j = nlohmann::json::parse(ifs);
         nameAndFolderMap_ = JsonSerializer::AppConfigFromJson(j);
+        std::erase_if(nameAndFolderMap_,
+                      [](auto &kv) {
+                          return !std::filesystem::exists(
+                                  kv.second + "/" + VCS_CONFIG_DIRECTORY
+                          );
+                      });
 
         return true;
     }
