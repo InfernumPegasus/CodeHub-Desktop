@@ -8,35 +8,49 @@ CommitsManager::CommitsManager(std::string commitsFile,
         commitsRef_(*commits) {}
 
 bool CommitsManager::CreateCommitsFile() const {
-    std::ofstream file(commitsFile_);
-    return file.is_open();
+    return CreateCommitsFile(commitsFile_);
 }
 
 void CommitsManager::UpdateCommitsFile() const {
-    std::ofstream ofs(commitsFile_);
-    if (!ofs && !CreateCommitsFile()) {
+    UpdateCommitsFile(commitsFile_, commitsRef_);
+}
+
+bool CommitsManager::ReadCommitsFile() {
+    return ReadCommitsFile(commitsFile_, commitsRef_);
+}
+
+bool CommitsManager::CreateCommitsFile(std::string_view path) {
+    std::ofstream file(path.data());
+    return file.is_open();
+}
+
+void CommitsManager::UpdateCommitsFile(
+        std::string_view path,
+        const std::vector<Commit> &commits) {
+    std::ofstream ofs(path.data());
+    if (!ofs) {
         std::cout << "Cannot create commits file!\n";
         return;
     }
 
-    auto repoJson =
-            JsonSerializer::CommitsToJson(commitsRef_)
-                    .dump(2);
+    auto repoJson = JsonSerializer::CommitsToJson(commits).dump(2);
     ofs << repoJson;
 }
 
-bool CommitsManager::ReadCommitsFile() {
-    if (!std::filesystem::exists(commitsFile_) ||
-        std::filesystem::is_empty(commitsFile_)) {
+bool CommitsManager::ReadCommitsFile(
+        std::string_view path,
+        std::vector<Commit> &commits) {
+    if (!std::filesystem::exists(path.data()) ||
+        std::filesystem::is_empty(path.data())) {
         return false;
     }
 
-    std::ifstream ifs(commitsFile_);
+    std::ifstream ifs(path.data());
     if (ifs) {
         nlohmann::json j = nlohmann::json::parse(ifs);
-        auto commits = JsonSerializer::CommitsFromJson(j);
-        for (const auto &commit: commits) {
-            commitsRef_.push_back(commit);
+        auto readCommits = JsonSerializer::CommitsFromJson(j);
+        for (const auto &commit: readCommits) {
+            commits.push_back(commit);
         }
 
         return true;

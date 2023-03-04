@@ -16,6 +16,15 @@ public:
 
     bool ReadCommitsFile();
 
+public:
+    static bool CreateCommitsFile(std::string_view path);
+
+    static void UpdateCommitsFile(std::string_view path,
+                                  const std::vector<Commit> &commits);
+
+    static bool ReadCommitsFile(std::string_view path,
+                                std::vector<Commit> &commits);
+
 private:
     std::string commitsFile_;
 

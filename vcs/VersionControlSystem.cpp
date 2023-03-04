@@ -8,7 +8,6 @@ VersionControlSystem::VersionControlSystem() :
 
 VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.UpdateConfigFile();
-    // TODO сделать апдейт коммитов
 }
 
 void VersionControlSystem::CreateRepository(
@@ -46,11 +45,8 @@ void VersionControlSystem::CheckStatus() const {
     for (const auto &[name, folder]: nameFolderMap_) {
         if (folder == std::filesystem::current_path()) {
             Repository repository(name, folder);
-            std::cout << "Repo created\n";
             repository.InitConfigManager();
-            std::cout << "InitConfig\n";
             repository.InitIgnoreManager();
-            std::cout << "InitIgnore\n";
 
             std::cout << "Repository '" <<
                       name << "' status: ";
@@ -63,14 +59,6 @@ void VersionControlSystem::CheckStatus() const {
         }
     }
 }
-
-void VersionControlSystem::AddFiles(
-        const std::vector<std::string> &files) {
-    auto repository = JsonSerializer::GetRepositoryByFolder(
-            std::filesystem::current_path());
-    repository.AddFiles(files);
-}
-
 
 void VersionControlSystem::DoCommit(std::string_view message) {
     auto repository = JsonSerializer::GetRepositoryByFolder(
@@ -109,6 +97,17 @@ void VersionControlSystem::ShowRepositories() const {
             ExistsByFolder(folder)) {
             std::cout << "'" << name << "' : '" << folder << "'\n";
         }
+    }
+}
+
+void VersionControlSystem::CommitsLog() {
+    auto repository = JsonSerializer::GetRepositoryByFolder(
+            std::filesystem::current_path());
+    repository.InitCommitsManager();
+
+    for (const auto &commit: repository.Commits()) {
+        std::cout << "commit " << commit.Checksum()
+                  << "\n\t" << commit.Message() << "\n\n";
     }
 }
 

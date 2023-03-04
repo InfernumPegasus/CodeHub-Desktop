@@ -28,7 +28,7 @@ add_executable(CodeHub
         filemanager/IgnoreFileManager.cpp
         validation/Validator.cpp
         vcs/VersionControlSystem.cpp
-        filemanager/RepositoriesManager.cpp filemanager/Configs.h)
+        filemanager/RepositoriesManager.cpp filemanager/Configs.h web/Endpoints.h)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
 

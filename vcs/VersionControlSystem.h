@@ -19,8 +19,6 @@ public:
 
     void CheckStatus() const;
 
-    static void AddFiles(const std::vector<std::string> &files);
-
     static void DoCommit(std::string_view message);
 
     void DeleteRepository(std::string_view repositoryName);
@@ -30,6 +28,8 @@ public:
     bool ExistsByFolder(std::string_view repositoryFolder) const;
 
     void ShowRepositories() const;
+
+    static void CommitsLog();
 
 public:
     NameFolderMap NameAndFolderMap() const;

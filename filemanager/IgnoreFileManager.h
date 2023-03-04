@@ -15,6 +15,13 @@ public:
 
     bool ReadIgnoreFile();
 
+public:
+    static bool CreateIgnoreFile(std::string_view path,
+                                 const std::set<std::string> &files);
+
+    static bool ReadIgnoreFile(std::string_view path,
+                               std::set<std::string> &files);
+
 private:
     std::string_view repositoryFolder_;
     std::string ignoreFile_;

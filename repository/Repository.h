@@ -11,7 +11,6 @@ public:
     using FileHashMap = std::unordered_map<std::string, size_t>;
 
 public:
-    // TODO сделать валидацию имени папки типа "../../folder/"
     Repository(std::string_view repositoryName,
                std::string_view repositoryFolder);
 
@@ -22,9 +21,7 @@ public:
     ~Repository();
 
 public:
-    size_t ChangedFilesAmount() const;
-
-    void AddFiles(const std::vector<std::string> &files);
+    int ChangedFilesAmount() const;
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;

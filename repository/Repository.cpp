@@ -35,17 +35,16 @@ Repository::Repository(std::string_view repositoryName,
 
 Repository::~Repository() {
     configManager_.UpdateConfigFile();
-    commitsManager_.UpdateCommitsFile();
 }
 
-size_t Repository::ChangedFilesAmount() const {
-    return CollectFiles().size();
-}
-
-void Repository::AddFiles(const std::vector<std::string> &files) {
-    for (const auto &file: files) {
-        fileHashMap_.emplace(file, File::CalculateHash(file));
+int Repository::ChangedFilesAmount() const {
+    int amount = 0;
+    for (const auto &[file, hash]: fileHashMap_) {
+        if (File::CalculateHash(file) != hash) {
+            amount++;
+        }
     }
+    return amount;
 }
 
 FileHashMap Repository::CollectFiles() const {
