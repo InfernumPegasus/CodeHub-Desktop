@@ -4,24 +4,36 @@
 #include <nlohmann/json.hpp>
 #include "cpr/cpr.h"
 #include "Endpoints.h"
+#include "../commit/Commit.h"
 
 class WebService {
-private:
-    static cpr::Response PostLogin(nlohmann::json userJson);
-
-    static cpr::Response PostTokens(nlohmann::json userJson);
-
 public:
     static cpr::Response PostLogin(std::string_view pathToJson);
 
-    static cpr::Response PostTokens(std::string_view pathToJson);
+    static cpr::Response PostLogin(const nlohmann::json& userJson);
 
+public:
+    static std::vector<int> PostFiles(const std::set<File> &files);
 
+    static cpr::Response PostFile(const File &file);
+
+public:
+    static cpr::Response PostCommit(const Commit &commit);
+
+    static std::vector<int> PostCommits(const std::vector<Commit> &commits);
+
+public:
     static void GetUser(int id);
 
 public:
-    static cpr::Response GetCommits();
+    static Commit GetCommit(size_t hash);
 
+    static std::vector<Commit> GetCommits(const std::vector<int> &ids);
+
+public:
+    static std::set<File> GetFiles(const std::vector<int> &ids);
+
+    static File GetFile(int id);
 };
 
 
