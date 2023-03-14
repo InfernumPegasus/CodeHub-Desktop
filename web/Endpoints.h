@@ -23,4 +23,9 @@ static constexpr std::string_view BASE_COMMITS_URL =
 static constexpr std::string_view BASE_TOKENS_URL =
         "http://localhost:8000/tokens/";
 
+/* FILES endpoints */
+
+static constexpr std::string_view BASE_FILES_URL =
+        "http://localhost:8000/files/";
+
 #endif //CODEHUB_ENDPOINTS_H
