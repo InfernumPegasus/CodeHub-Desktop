@@ -21,7 +21,7 @@ public:
 
     static void DoCommit(std::string_view message);
 
-    void DeleteRepository(std::string_view repositoryName);
+    void DeleteRepository();
 
     bool ExistsByName(std::string_view repositoryName) const;
 
@@ -30,6 +30,10 @@ public:
     void ShowRepositories() const;
 
     static void CommitsLog();
+
+    static void Push();
+
+    static std::vector<Commit> CommitsToPush();
 
 public:
     NameFolderMap NameAndFolderMap() const;

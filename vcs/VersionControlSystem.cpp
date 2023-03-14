@@ -2,6 +2,7 @@
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
 #include "../filemanager/Configs.h"
+#include "../web/WebService.h"
 
 VersionControlSystem::VersionControlSystem() :
         repositoriesManager_(&nameFolderMap_) {}
@@ -67,8 +68,13 @@ void VersionControlSystem::DoCommit(std::string_view message) {
     repository.DoCommit(message);
 }
 
-void VersionControlSystem::DeleteRepository(
-        std::string_view repositoryName) {
+void VersionControlSystem::DeleteRepository() {
+    std::string currentDir = std::filesystem::current_path();
+    for (const auto &[name, folder]: nameFolderMap_) {
+        if (folder == currentDir) {
+            nameFolderMap_.erase(name);
+        }
+    }
 }
 
 void VersionControlSystem::Init() {
@@ -109,5 +115,19 @@ void VersionControlSystem::CommitsLog() {
         std::cout << "commit " << commit.Checksum()
                   << "\n\t" << commit.Message() << "\n\n";
     }
+}
+
+void VersionControlSystem::Push() {
+    auto repository = JsonSerializer::GetRepositoryByFolder(
+            std::filesystem::current_path());
+    repository.InitCommitsManager();
+
+    auto response = WebService::PostCommit(repository.Commits().back());
+    std::cout << response.text << "\n";
+}
+
+std::vector<Commit> VersionControlSystem::CommitsToPush() {
+    std::vector<Commit> commits;
+    return commits;
 }
 
