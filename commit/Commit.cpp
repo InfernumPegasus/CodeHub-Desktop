@@ -1,8 +1,8 @@
 #include "Commit.h"
 
 Commit::Commit(const std::set<File> &files,
-               std::string message) :
-        message_(std::move(message)) {
+               std::string_view message) :
+        message_(message) {
     for (const auto &file: files) {
         files_.emplace(file);
     }
@@ -10,8 +10,8 @@ Commit::Commit(const std::set<File> &files,
 }
 
 Commit::Commit(const std::set<std::string> &files,
-               std::string message) :
-        message_(std::move(message)) {
+               std::string_view message) :
+        message_(message) {
     for (const auto &file: files) {
         files_.emplace(file);
     }
@@ -19,10 +19,10 @@ Commit::Commit(const std::set<std::string> &files,
 }
 
 Commit::Commit(std::set<File> files,
-               std::string message,
+               std::string_view message,
                size_t checkSum) :
         files_(std::move(files)),
-        message_(std::move(message)),
+        message_(message),
         checkSum_(checkSum) {}
 
 std::set<File> Commit::Files() const {
