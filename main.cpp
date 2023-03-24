@@ -50,6 +50,8 @@ int main(int argc, char *argv[]) {
         }
     } catch (po::unknown_option &unknownOption) {
         std::cout << unknownOption.what() << std::endl;
+    } catch (po::invalid_command_line_syntax &invalidCommandLineSyntax) {
+        std::cout << invalidCommandLineSyntax.what() << std::endl;
     }
 
 //    auto response = WebService::PostLogin();

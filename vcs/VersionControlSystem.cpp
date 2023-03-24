@@ -66,6 +66,11 @@ void VersionControlSystem::CheckStatus() const {
 }
 
 void VersionControlSystem::DoCommit(std::string_view message) {
+    if (message.empty()) {
+        std::cout << "Message cannot be empty.\n";
+        return;
+    }
+
     auto repository = JsonSerializer::GetRepositoryByFolder(
             std::filesystem::current_path());
     repository.InitManagers();

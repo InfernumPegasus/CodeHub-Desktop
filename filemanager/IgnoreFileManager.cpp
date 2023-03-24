@@ -21,7 +21,7 @@ bool IgnoreFileManager::CreateIgnoreFile() const {
     }
 
     std::ofstream ofs;
-    ofs.open(ignoreFile_.data());
+    ofs.open(ignoreFile_);
     if (!ofs) return false;
 
     for (const auto &file: files) {
@@ -32,21 +32,21 @@ bool IgnoreFileManager::CreateIgnoreFile() const {
 }
 
 bool IgnoreFileManager::ReadIgnoreFile() {
-    std::ifstream ifs(ignoreFile_.data());
+    std::ifstream ifs(ignoreFile_);
     if (!ifs) return false;
 
     std::string readFilename;
     while (ifs.good()) {
         std::getline(ifs, readFilename);
-        if (std::filesystem::exists(readFilename)) {
-            ignoredFilesRef_.emplace(readFilename);
-            if (!std::filesystem::is_directory(readFilename)) continue;
+        if (!std::filesystem::exists(readFilename)) continue;
 
-            for (auto &file:
-                    std::filesystem::recursive_directory_iterator(readFilename)) {
-                auto filename = std::filesystem::absolute(file).string();
-                ignoredFilesRef_.insert(filename);
-            }
+        ignoredFilesRef_.emplace(readFilename);
+        if (!std::filesystem::is_directory(readFilename)) continue;
+
+        for (auto &file:
+                std::filesystem::recursive_directory_iterator(readFilename)) {
+            auto filename = std::filesystem::absolute(file).string();
+            ignoredFilesRef_.insert(filename);
         }
     }
     return true;
