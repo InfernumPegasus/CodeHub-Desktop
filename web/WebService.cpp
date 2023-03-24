@@ -66,7 +66,7 @@ std::vector<Commit> WebService::GetCommits(const std::vector<size_t> &ids) {
 
 /* Files */
 
-void WebService::PostFiles(const std::set<File> &files) {
+void WebService::PostFiles(const std::unordered_set<File> &files) {
     for (const auto &file: files) {
         auto response = PostFile(file);
     }
@@ -177,7 +177,7 @@ cpr::Response WebService::PatchRepository(
     );
 }
 
-cpr::Files WebService::AttachFiles(const std::set<std::string> &filesVector) {
+cpr::Files WebService::AttachFiles(const std::unordered_set<std::string> &filesVector) {
     cpr::Files files;
     for (const auto &file: filesVector) {
         cpr::File f(file);

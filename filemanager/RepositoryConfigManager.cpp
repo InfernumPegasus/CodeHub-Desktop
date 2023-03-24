@@ -25,7 +25,6 @@ bool RepositoryConfigManager::CreateConfigFile() const {
 void RepositoryConfigManager::UpdateConfigFile() const {
     std::ofstream ofs(configFile_);
     if (!ofs && !CreateConfigFile()) {
-        std::cout << "Cannot create config folder!\n";
         return;
     }
 
@@ -47,15 +46,13 @@ bool RepositoryConfigManager::ReadConfigFile() const {
     }
 
     std::ifstream ifs(configFile_);
-    if (ifs) {
-        nlohmann::json j = nlohmann::json::parse(ifs);
-        auto res = JsonSerializer::RepositoryFromConfigJson(j);
-        repositoryNameRef_ = res.Name();
-        repositoryFolderRef_ = res.Folder();
-        fileHashMapRef_ = res.Map();
+    if (!ifs) return false;
 
-        return true;
-    }
+    nlohmann::json j = nlohmann::json::parse(ifs);
+    auto res = JsonSerializer::RepositoryFromConfigJson(j);
+    repositoryNameRef_ = res.Name();
+    repositoryFolderRef_ = res.Folder();
+    fileHashMapRef_ = res.Map();
 
-    return false;
+    return true;
 }

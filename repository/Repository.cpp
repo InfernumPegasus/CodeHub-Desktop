@@ -1,11 +1,13 @@
+#include <iostream>
+#include <utility>
 #include "Repository.h"
 #include "../filemanager/Configs.h"
 
 using FileHashMap = Repository::FileHashMap;
 
-Repository::Repository(std::string_view repositoryName,
-                       std::string_view repositoryFolder) :
-        repositoryName_(repositoryName),
+Repository::Repository(std::string repositoryName,
+                       const std::string &repositoryFolder) :
+        repositoryName_(std::move(repositoryName)),
         repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
         configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
                        &repositoryName_,
@@ -17,10 +19,10 @@ Repository::Repository(std::string_view repositoryName,
                            repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
                            &ignoredFiles_) {}
 
-Repository::Repository(std::string_view repositoryName,
-                       std::string_view repositoryFolder,
+Repository::Repository(std::string repositoryName,
+                       const std::string &repositoryFolder,
                        FileHashMap files) :
-        repositoryName_(repositoryName),
+        repositoryName_(std::move(repositoryName)),
         repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
         fileHashMap_(std::move(files)),
         configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
@@ -33,10 +35,10 @@ Repository::Repository(std::string_view repositoryName,
                            repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
                            &ignoredFiles_) {}
 
-Repository::Repository(std::string_view repositoryName,
-                       std::string_view repositoryFolder,
+Repository::Repository(std::string repositoryName,
+                       const std::string &repositoryFolder,
                        const std::vector<Commit> &commits) :
-        Repository(repositoryName, repositoryFolder) {
+        Repository(std::move(repositoryName), repositoryFolder) {
     commits_ = commits;
 }
 
@@ -44,14 +46,14 @@ Repository::~Repository() {
     configManager_.UpdateConfigFile();
 }
 
-int Repository::ChangedFilesAmount() const {
-    int amount = 0;
+FileHashMap Repository::ChangedFiles() const {
+    FileHashMap changedFiles;
     for (const auto &[file, hash]: fileHashMap_) {
         if (File::CalculateHash(file) != hash) {
-            amount++;
+            changedFiles.emplace(file, hash);
         }
     }
-    return amount;
+    return changedFiles;
 }
 
 FileHashMap Repository::CollectFiles() const {
@@ -61,12 +63,10 @@ FileHashMap Repository::CollectFiles() const {
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
         auto filename = std::filesystem::absolute(file).string();
 
-        if (ignoredFiles_.contains(filename) ||
-            std::filesystem::is_directory(filename)) {
-            continue;
+        if (!ignoredFiles_.contains(filename) &&
+            !std::filesystem::is_directory(filename)) {
+            collectedFiles.emplace(filename, File::CalculateHash(filename));
         }
-
-        collectedFiles.emplace(filename, File::CalculateHash(filename));
     }
 
     return collectedFiles;
@@ -80,14 +80,17 @@ void Repository::DoCommit(std::string_view message) {
             // File exists and modified
             if (fileHashMap_.at(filename) != hash) {
                 auto calcHash = File::CalculateHash(filename);
+                // Add file to new commit
                 toInsert.emplace(filename,
                                  calcHash,
                                  FileStatus::Modified);
 
+                // Rewrite modified file's hash
                 fileHashMap_.at(filename) = calcHash;
             }
         } else {
             auto calcHash = File::CalculateHash(filename);
+            // File created
             toInsert.emplace(filename,
                              calcHash,
                              FileStatus::Created);
@@ -98,49 +101,51 @@ void Repository::DoCommit(std::string_view message) {
 
     auto iter = fileHashMap_.begin();
     while (iter != fileHashMap_.end()) {
+        // File deleted
         if (!std::filesystem::exists(iter->first)) {
             toInsert.emplace(iter->first,
                              File::CalculateHash(iter->first),
                              FileStatus::Deleted);
+            // Erasing file from 'tracked'
             iter = fileHashMap_.erase(iter);
         } else {
             iter++;
         }
     }
 
-    if (toInsert.empty()) {
-        std::cout << "Nothing to commit!\n";
-        return;
-    }
+    if (!toInsert.empty()) {
+        Commit commit(toInsert, message);
+        commits_.push_back(commit);
+        commitsManager_.UpdateCommitsFile();
+        configManager_.UpdateConfigFile();
 
-    commits_.emplace_back(toInsert, message.data());
-    commitsManager_.UpdateCommitsFile();
-    configManager_.UpdateConfigFile();
+        std::cout << "Commit created:\n";
+        for (const auto &file: toInsert) {
+            std::cout << "file: '" << file.Name() << "'\n"
+                      << "status: " << static_cast<int>(file.Status()) << "\n\n";
+        }
+    } else {
+        std::cout << "Nothing to commit!\n";
+    }
 }
 
 void Repository::InitConfigManager() {
-    if (configManager_.ReadConfigFile()) {
-        std::cout << "Config loaded!\n";
-    } else if (configManager_.CreateConfigFile()) {
-        std::cout << "Config file created!\n";
-    }
+    if (!configManager_.ReadConfigFile() &&
+        configManager_.CreateConfigFile() &&
+        configManager_.ReadConfigFile()) {}
 }
 
 void Repository::InitIgnoreManager() {
-    if (!ignoreFileManager_.ReadIgnoreFile()) {
-        if (ignoreFileManager_.CreateIgnoreFile()) {
-            std::cout << "Ignore file created!\n";
-            ignoreFileManager_.ReadIgnoreFile();
-        }
+    if (!ignoreFileManager_.ReadIgnoreFile() &&
+        ignoreFileManager_.CreateIgnoreFile()) {
+        ignoreFileManager_.ReadIgnoreFile();
     }
 }
 
 void Repository::InitCommitsManager() {
-    if (!commitsManager_.ReadCommitsFile()) {
-        if (commitsManager_.CreateCommitsFile()) {
-            std::cout << "Commits file created!\n";
-            commitsManager_.ReadCommitsFile();
-        }
+    if (!commitsManager_.ReadCommitsFile() &&
+        commitsManager_.CreateCommitsFile()) {
+        commitsManager_.ReadCommitsFile();
     }
 }
 
@@ -166,8 +171,8 @@ FileHashMap Repository::Map() const {
     return fileHashMap_;
 }
 
-std::set<std::string> Repository::MapToFilenames() const {
-    std::set<std::string> files;
+std::unordered_set<std::string> Repository::MapToFilenames() const {
+    std::unordered_set<std::string> files;
     for (const auto &[name, _]: fileHashMap_) {
         files.insert(name);
     }

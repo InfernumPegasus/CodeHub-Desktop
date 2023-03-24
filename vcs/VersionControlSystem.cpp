@@ -1,3 +1,4 @@
+#include <iostream>
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
@@ -51,11 +52,14 @@ void VersionControlSystem::CheckStatus() const {
 
             std::cout << "Repository '" <<
                       name << "' status: ";
-            if (auto filesAmount = repository.ChangedFilesAmount();
-                    filesAmount == 0) {
+            if (auto changedFiles = repository.ChangedFiles();
+                    changedFiles.empty()) {
                 std::cout << "Up-to-date.\n";
             } else {
-                std::cout << filesAmount << " files changed.\n";
+                for (const auto &[fileName, hash]: changedFiles) {
+                    std::cout << "\nfile: '" << fileName;
+                }
+                std::cout << "\n\nTotal " << changedFiles.size() << " files changed.\n";
             }
         }
     }
@@ -128,6 +132,9 @@ void VersionControlSystem::Push() {
 //    std::cout << response.text << "\n";
 }
 
+/*
+ * TODO доделать
+ */
 std::vector<Commit> VersionControlSystem::CommitsToPush() {
     std::vector<Commit> commits;
     return commits;

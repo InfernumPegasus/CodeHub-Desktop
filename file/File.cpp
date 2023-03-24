@@ -1,16 +1,17 @@
 #include <fstream>
+#include <utility>
 #include "File.h"
 
-File::File(std::string_view filename,
+File::File(std::string filename,
            int32_t hash,
            FileStatus status) :
-        name_(filename),
+        name_(std::move(filename)),
         hash_(hash),
         status_(status) {}
 
-File::File(std::string_view filename) :
-        name_(filename),
-        hash_(CalculateHash(filename)),
+File::File(std::string filename) :
+        name_(std::move(filename)),
+        hash_(CalculateHash(name_)),
         status_(FileStatus::Unknown) {}
 
 std::string File::Name() const {

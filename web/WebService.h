@@ -23,7 +23,7 @@ public:
     static std::vector<Commit> GetCommits(const std::vector<size_t> &ids);
 
 public:
-    static void PostFiles(const std::set<File> &files);
+    static void PostFiles(const std::unordered_set<File> &files);
 
     static cpr::Response PostFile(const File &file);
 
@@ -43,7 +43,7 @@ public:
                                          bool isPrivate);
 
 public:
-    static cpr::Files AttachFiles(const std::set<std::string> &filesVector);
+    static cpr::Files AttachFiles(const std::unordered_set<std::string> &filesVector);
 };
 
 

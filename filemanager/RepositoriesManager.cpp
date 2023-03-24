@@ -49,19 +49,17 @@ bool RepositoriesManager::ReadConfigFile() {
     }
 
     std::ifstream ifs(repositoriesFile_);
-    if (ifs) {
-        nlohmann::json j = nlohmann::json::parse(ifs);
-        nameAndFolderMap_ = JsonSerializer::NameFolderFromJson(j);
-        std::erase_if(nameAndFolderMap_,
-                      [](auto &kv) {
-                          return !std::filesystem::exists(
-                                  kv.second + "/" + VCS_CONFIG_DIRECTORY
-                          );
-                      });
+    if (!ifs) return false;
 
-        return true;
-    }
+    nlohmann::json j = nlohmann::json::parse(ifs);
+    nameAndFolderMap_ = JsonSerializer::NameFolderFromJson(j);
+    std::erase_if(nameAndFolderMap_,
+                  [](auto &kv) {
+                      return !std::filesystem::exists(
+                              kv.second + "/" + VCS_CONFIG_DIRECTORY
+                      );
+                  });
 
-    return false;
+    return true;
 }
 

@@ -7,11 +7,11 @@
 
 class File {
 public:
-    File(std::string_view filename,
+    File(std::string filename,
          int32_t hash,
          FileStatus status);
 
-    explicit File(std::string_view filename);
+    explicit File(std::string filename);
 
     File(const File &rhs) = default;
 

@@ -1,6 +1,8 @@
 #ifndef CODEHUB_REPOSITORY_H
 #define CODEHUB_REPOSITORY_H
 
+#include <unordered_map>
+#include <unordered_set>
 #include "../commit/Commit.h"
 #include "../filemanager/RepositoryConfigManager.h"
 #include "../filemanager/CommitsManager.h"
@@ -11,21 +13,21 @@ public:
     using FileHashMap = std::unordered_map<std::string, size_t>;
 
 public:
-    Repository(std::string_view repositoryName,
-               std::string_view repositoryFolder);
+    Repository(std::string repositoryName,
+               const std::string& repositoryFolder);
 
-    Repository(std::string_view repositoryName,
-               std::string_view repositoryFolder,
+    Repository(std::string repositoryName,
+               const std::string& repositoryFolder,
                FileHashMap files);
 
-    Repository(std::string_view repositoryName,
-               std::string_view repositoryFolder,
+    Repository(std::string repositoryName,
+               const std::string& repositoryFolder,
                const std::vector<Commit> &commits);
 
     ~Repository();
 
 public:
-    int ChangedFilesAmount() const;
+    FileHashMap ChangedFiles() const;
 
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
@@ -52,7 +54,7 @@ public:
     [[nodiscard]] FileHashMap Map() const;
 
 public:
-    std::set<std::string> MapToFilenames() const;
+    std::unordered_set<std::string> MapToFilenames() const;
 
 private:
     std::string repositoryName_;
@@ -63,7 +65,7 @@ private:
     IgnoreFileManager ignoreFileManager_;
 
     std::vector<Commit> commits_;
-    std::set<std::string> ignoredFiles_;
+    std::unordered_set<std::string> ignoredFiles_;
 
     FileHashMap fileHashMap_;
 };

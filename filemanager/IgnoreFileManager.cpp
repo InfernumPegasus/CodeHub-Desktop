@@ -5,13 +5,13 @@
 IgnoreFileManager::IgnoreFileManager(
         std::string_view repositoryFolder,
         std::string ignoreFile,
-        std::set<std::string> *ignoredFiles) :
+        std::unordered_set<std::string> *ignoredFiles) :
         repositoryFolder_(repositoryFolder),
         ignoreFile_(std::move(ignoreFile)),
         ignoredFilesRef_(*ignoredFiles) {}
 
 bool IgnoreFileManager::CreateIgnoreFile() const {
-    std::set<std::string> files;
+    std::unordered_set<std::string> files;
     for (auto &file:
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
         if (auto filename = std::filesystem::absolute(file).filename().string();
@@ -20,21 +20,9 @@ bool IgnoreFileManager::CreateIgnoreFile() const {
         }
     }
 
-    return CreateIgnoreFile(ignoreFile_, files);
-}
-
-bool IgnoreFileManager::ReadIgnoreFile() {
-    return ReadIgnoreFile(ignoreFile_, ignoredFilesRef_);
-}
-
-bool IgnoreFileManager::CreateIgnoreFile(
-        std::string_view path,
-        const std::set<std::string> &files) {
     std::ofstream ofs;
-    ofs.open(path.data());
-    if (!ofs) {
-        return false;
-    }
+    ofs.open(ignoreFile_.data());
+    if (!ofs) return false;
 
     for (const auto &file: files) {
         ofs << file << "\n";
@@ -43,28 +31,23 @@ bool IgnoreFileManager::CreateIgnoreFile(
     return true;
 }
 
-bool IgnoreFileManager::ReadIgnoreFile(
-        std::string_view path,
-        std::set<std::string> &files) {
-    std::ifstream ifs(path.data());
-    if (ifs) {
-        std::string readFilename;
-        while (ifs.good()) {
-            std::getline(ifs, readFilename);
-            if (!std::filesystem::exists(readFilename)) {
-                continue;
-            }
+bool IgnoreFileManager::ReadIgnoreFile() {
+    std::ifstream ifs(ignoreFile_.data());
+    if (!ifs) return false;
 
-            files.emplace(readFilename);
-            if (std::filesystem::is_directory(readFilename)) {
-                for (auto &file:
-                        std::filesystem::recursive_directory_iterator(readFilename)) {
-                    auto filename = std::filesystem::absolute(file).string();
-                    files.insert(filename);
-                }
+    std::string readFilename;
+    while (ifs.good()) {
+        std::getline(ifs, readFilename);
+        if (std::filesystem::exists(readFilename)) {
+            ignoredFilesRef_.emplace(readFilename);
+            if (!std::filesystem::is_directory(readFilename)) continue;
+
+            for (auto &file:
+                    std::filesystem::recursive_directory_iterator(readFilename)) {
+                auto filename = std::filesystem::absolute(file).string();
+                ignoredFilesRef_.insert(filename);
             }
         }
-        return true;
     }
-    return false;
+    return true;
 }
