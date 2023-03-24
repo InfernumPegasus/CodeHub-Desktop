@@ -5,7 +5,7 @@
 #include <string>
 #include "../repository/Repository.h"
 
-class RepositoriesManager {
+class RepositoriesManager : public IFileManager {
 public:
     using NameFolderMap = std::unordered_map<std::string, std::string>;
 
@@ -16,11 +16,11 @@ public:
     static std::string GetHomeDirectory();
 
 public:
-    [[nodiscard]] bool CreateConfigFile() const;
+    bool Create() override;
 
-    void UpdateConfigFile() const;
+    bool Read() override;
 
-    bool ReadConfigFile();
+    void UpdateConfigFile();
 
 private:
     const std::string appConfigDirectory_;

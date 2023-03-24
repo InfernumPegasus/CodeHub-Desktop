@@ -1,12 +1,8 @@
-#include "repository/Repository.h"
-#include "vcs/VersionControlSystem.h"
-#include "validation/Validator.h"
-#include "web/WebService.h"
-#include <boost/program_options.hpp>
 #include <iostream>
+#include <boost/program_options.hpp>
+#include "vcs/VersionControlSystem.h"
+#include "web/WebService.h"
 
-using namespace std::string_view_literals;
-using namespace std::string_literals;
 namespace po = boost::program_options;
 
 int main(int argc, char *argv[]) {
@@ -49,9 +45,9 @@ int main(int argc, char *argv[]) {
             VersionControlSystem::Push();
         }
     } catch (po::unknown_option &unknownOption) {
-        std::cout << unknownOption.what() << std::endl;
+        std::cout << description << std::endl;
     } catch (po::invalid_command_line_syntax &invalidCommandLineSyntax) {
-        std::cout << invalidCommandLineSyntax.what() << std::endl;
+        std::cout << description << std::endl;
     }
 
 //    auto response = WebService::PostLogin();
@@ -66,7 +62,7 @@ int main(int argc, char *argv[]) {
 //        for (const auto &commit: repo.Commits()) {
 //            std::cout << commit << "\n";
 //        }
-
+//
 //        std::set<File> files{
 //                {"Codehub"s, 1, FileStatus::Created},
 //                {".ninja_log"s, 2, FileStatus::Modified},

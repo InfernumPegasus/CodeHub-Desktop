@@ -3,18 +3,19 @@
 
 #include <string>
 #include "../commit/Commit.h"
+#include "IFileManager.h"
 
-class CommitsManager {
+class CommitsManager : public IFileManager {
 public:
     CommitsManager(std::string commitsFile,
                    std::vector<Commit> *commits);
 
 public:
-    [[nodiscard]] bool CreateCommitsFile() const;
+    bool Create() override;
 
-    void UpdateCommitsFile() const;
+    bool Read() override;
 
-    bool ReadCommitsFile();
+    void Update() const;
 
 private:
     std::string commitsFile_;

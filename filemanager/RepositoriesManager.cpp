@@ -18,7 +18,7 @@ std::string RepositoriesManager::GetHomeDirectory() {
     return dir == nullptr ? dir : getpwuid(getuid())->pw_dir;
 }
 
-bool RepositoriesManager::CreateConfigFile() const {
+bool RepositoriesManager::Create() {
     std::ofstream file;
     if ((std::filesystem::exists(appConfigDirectory_) &&
          !std::filesystem::exists(repositoriesFile_)) ||
@@ -27,19 +27,7 @@ bool RepositoriesManager::CreateConfigFile() const {
     return file.is_open();
 }
 
-void RepositoriesManager::UpdateConfigFile() const {
-    std::ofstream ofs(repositoriesFile_);
-    if (!ofs && !CreateConfigFile()) {
-        std::cout << "Cannot create global config folder!\n";
-        return;
-    }
-
-    nlohmann::json json;
-    json["map"] = nameAndFolderMap_;
-    ofs << json.dump(2);
-}
-
-bool RepositoriesManager::ReadConfigFile() {
+bool RepositoriesManager::Read() {
     if (!std::filesystem::exists(repositoriesFile_)) {
         return false;
     }
@@ -63,3 +51,14 @@ bool RepositoriesManager::ReadConfigFile() {
     return true;
 }
 
+void RepositoriesManager::UpdateConfigFile() {
+    std::ofstream ofs(repositoriesFile_);
+    if (!ofs && !Create()) {
+        std::cout << "Cannot create global config folder!\n";
+        return;
+    }
+
+    nlohmann::json json;
+    json["map"] = nameAndFolderMap_;
+    ofs << json.dump(2);
+}

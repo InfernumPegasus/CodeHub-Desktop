@@ -12,7 +12,7 @@ RepositoryConfigManager::RepositoryConfigManager(
         repositoryFolderRef_(*repositoryFolderRef),
         fileHashMapRef_(*fileHashMapRef) {}
 
-bool RepositoryConfigManager::CreateConfigFile() const {
+bool RepositoryConfigManager::Create() {
     std::string configDirectory = repositoryFolderRef_ + "/" + VCS_CONFIG_DIRECTORY;
     std::ofstream file;
     if ((std::filesystem::exists(configDirectory) &&
@@ -22,21 +22,7 @@ bool RepositoryConfigManager::CreateConfigFile() const {
     return file.is_open();
 }
 
-void RepositoryConfigManager::UpdateConfigFile() const {
-    std::ofstream ofs(configFile_);
-    if (!ofs && !CreateConfigFile()) {
-        return;
-    }
-
-    auto repoJson = JsonSerializer::RepositoryToConfigJson(
-            repositoryNameRef_,
-            repositoryFolderRef_,
-            fileHashMapRef_
-    ).dump(2);
-    ofs << repoJson;
-}
-
-bool RepositoryConfigManager::ReadConfigFile() const {
+bool RepositoryConfigManager::Read() {
     if (!std::filesystem::exists(configFile_)) {
         return false;
     }
@@ -55,4 +41,18 @@ bool RepositoryConfigManager::ReadConfigFile() const {
     fileHashMapRef_ = res.Map();
 
     return true;
+}
+
+void RepositoryConfigManager::UpdateConfigFile() {
+    std::ofstream ofs(configFile_);
+    if (!ofs && !Create()) {
+        return;
+    }
+
+    auto repoJson = JsonSerializer::RepositoryToConfigJson(
+            repositoryNameRef_,
+            repositoryFolderRef_,
+            fileHashMapRef_
+    ).dump(2);
+    ofs << repoJson;
 }

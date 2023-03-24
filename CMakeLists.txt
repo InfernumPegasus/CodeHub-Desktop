@@ -21,16 +21,21 @@ add_executable(CodeHub
         file/File.cpp
         commit/Commit.cpp
         repository/Repository.cpp
+
         serializer/JsonSerializer.cpp
-        web/WebService.cpp
+
         filemanager/RepositoryConfigManager.cpp
         filemanager/CommitsManager.cpp
         filemanager/IgnoreFileManager.cpp
-        validation/Validator.cpp
-        vcs/VersionControlSystem.cpp
         filemanager/RepositoriesManager.cpp
         filemanager/Configs.h
-        web/Endpoints.h)
+        filemanager/IFileManager.h
+
+        validation/Validator.cpp
+        vcs/VersionControlSystem.cpp
+
+        web/Endpoints.h
+        web/WebService.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
 

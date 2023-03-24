@@ -3,17 +3,18 @@
 
 #include <string>
 #include <unordered_set>
+#include "IFileManager.h"
 
-class IgnoreFileManager {
+class IgnoreFileManager : public IFileManager {
 public:
     IgnoreFileManager(std::string_view repositoryFolder,
                       std::string ignoreFile,
                       std::unordered_set<std::string> *ignoredFiles);
 
 public:
-    [[nodiscard]] bool CreateIgnoreFile() const;
+    bool Create() override;
 
-    bool ReadIgnoreFile();
+    bool Read() override;
 
 private:
     std::string_view repositoryFolder_;

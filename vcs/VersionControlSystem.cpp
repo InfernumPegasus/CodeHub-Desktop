@@ -87,9 +87,9 @@ void VersionControlSystem::DeleteRepository() {
 }
 
 void VersionControlSystem::Init() {
-    if (!repositoriesManager_.ReadConfigFile() &&
-        repositoriesManager_.CreateConfigFile()) {
-        repositoriesManager_.ReadConfigFile();
+    if (!repositoriesManager_.Read() &&
+        repositoriesManager_.Create()) {
+        repositoriesManager_.Read();
     }
 }
 

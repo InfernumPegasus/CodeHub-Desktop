@@ -22,18 +22,9 @@ Repository::Repository(std::string repositoryName,
 Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder,
                        FileHashMap files) :
-        repositoryName_(std::move(repositoryName)),
-        repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
-        fileHashMap_(std::move(files)),
-        configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
-                       &repositoryName_,
-                       &repositoryFolder_,
-                       &fileHashMap_),
-        commitsManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE,
-                        &commits_),
-        ignoreFileManager_(repositoryFolder_,
-                           repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
-                           &ignoredFiles_) {}
+        Repository(std::move(repositoryName), repositoryFolder) {
+    fileHashMap_ = std::move(files);
+}
 
 Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder,
@@ -116,7 +107,7 @@ void Repository::DoCommit(std::string_view message) {
     if (!toInsert.empty()) {
         Commit commit(toInsert, message);
         commits_.push_back(commit);
-        commitsManager_.UpdateCommitsFile();
+        commitsManager_.Update();
         configManager_.UpdateConfigFile();
 
         std::cout << "Commit created:\n";
@@ -130,22 +121,22 @@ void Repository::DoCommit(std::string_view message) {
 }
 
 void Repository::InitConfigManager() {
-    if (!configManager_.ReadConfigFile() &&
-        configManager_.CreateConfigFile() &&
-        configManager_.ReadConfigFile()) {}
+    if (!configManager_.Read() &&
+        configManager_.Create() &&
+        configManager_.Read()) {}
 }
 
 void Repository::InitIgnoreManager() {
-    if (!ignoreFileManager_.ReadIgnoreFile() &&
-        ignoreFileManager_.CreateIgnoreFile()) {
-        ignoreFileManager_.ReadIgnoreFile();
+    if (!ignoreFileManager_.Read() &&
+        ignoreFileManager_.Create()) {
+        ignoreFileManager_.Read();
     }
 }
 
 void Repository::InitCommitsManager() {
-    if (!commitsManager_.ReadCommitsFile() &&
-        commitsManager_.CreateCommitsFile()) {
-        commitsManager_.ReadCommitsFile();
+    if (!commitsManager_.Read() &&
+        commitsManager_.Create()) {
+        commitsManager_.Read();
     }
 }
 

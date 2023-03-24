@@ -3,8 +3,9 @@
 
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "IFileManager.h"
 
-class RepositoryConfigManager {
+class RepositoryConfigManager : public IFileManager {
 public:
     using FileHashMap = std::unordered_map<std::string, size_t>;
 
@@ -23,11 +24,11 @@ public:
     RepositoryConfigManager &operator=(RepositoryConfigManager &&rhs) noexcept = delete;
 
 public:
-    [[nodiscard]] bool CreateConfigFile() const;
+    bool Create() override;
 
-    void UpdateConfigFile() const;
+    bool Read() override;
 
-    [[nodiscard]] bool ReadConfigFile() const;
+    void UpdateConfigFile();
 
 private:
     std::string configFile_;

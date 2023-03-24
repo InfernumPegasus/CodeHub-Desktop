@@ -7,22 +7,12 @@ CommitsManager::CommitsManager(std::string commitsFile,
         commitsFile_(std::move(commitsFile)),
         commitsRef_(*commits) {}
 
-bool CommitsManager::CreateCommitsFile() const {
+bool CommitsManager::Create() {
     std::ofstream file(commitsFile_);
     return file.is_open();
 }
 
-void CommitsManager::UpdateCommitsFile() const {
-    std::ofstream ofs(commitsFile_);
-    if (!ofs) {
-        return;
-    }
-
-    auto repoJson = JsonSerializer::CommitsToJson(commitsRef_).dump(2);
-    ofs << repoJson;
-}
-
-bool CommitsManager::ReadCommitsFile() {
+bool CommitsManager::Read() {
     if (!std::filesystem::exists(commitsFile_) ||
         std::filesystem::is_empty(commitsFile_)) {
         return false;
@@ -40,3 +30,12 @@ bool CommitsManager::ReadCommitsFile() {
     return true;
 }
 
+void CommitsManager::Update() const {
+    std::ofstream ofs(commitsFile_);
+    if (!ofs) {
+        return;
+    }
+
+    auto repoJson = JsonSerializer::CommitsToJson(commitsRef_).dump(2);
+    ofs << repoJson;
+}

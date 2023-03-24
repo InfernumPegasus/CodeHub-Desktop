@@ -10,7 +10,7 @@ IgnoreFileManager::IgnoreFileManager(
         ignoreFile_(std::move(ignoreFile)),
         ignoredFilesRef_(*ignoredFiles) {}
 
-bool IgnoreFileManager::CreateIgnoreFile() const {
+bool IgnoreFileManager::Create() {
     std::unordered_set<std::string> files;
     for (auto &file:
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
@@ -31,7 +31,7 @@ bool IgnoreFileManager::CreateIgnoreFile() const {
     return true;
 }
 
-bool IgnoreFileManager::ReadIgnoreFile() {
+bool IgnoreFileManager::Read() {
     std::ifstream ifs(ignoreFile_);
     if (!ifs) return false;
 
