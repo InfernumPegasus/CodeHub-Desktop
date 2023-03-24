@@ -15,8 +15,7 @@ void VersionControlSystem::CreateRepository(
         std::string repositoryName,
         bool initRepository) {
     std::string repositoryFolder = std::filesystem::current_path().string();
-    Validator::Trim(repositoryName);
-    Validator::ReplaceWith(repositoryName, " ", "_");
+    Validator::ValidateRepositoryName(repositoryName);
     if (!Validator::IsValidRepositoryName(repositoryName)) {
         std::cout << "'" << repositoryName << "' is wrong repository name!\n";
         return;
@@ -39,7 +38,8 @@ void VersionControlSystem::CreateRepository(
         repository.InitManagers();
     }
 
-    std::cout << "Repository '" << repositoryName << "' created in folder '" << repositoryFolder << "'.\n";
+    std::cout << "Repository '" << repositoryName
+              << "' created in folder '" << repositoryFolder << "'.\n";
 }
 
 void VersionControlSystem::CheckStatus() const {
@@ -112,18 +112,20 @@ void VersionControlSystem::CommitsLog() {
     repository.InitCommitsManager();
 
     for (const auto &commit: repository.Commits()) {
-        std::cout << "commit " << commit.Checksum()
-                  << "\n\t" << commit.Message() << "\n\n";
+        std::cout << commit << "\n";
     }
 }
 
+/*
+ * TODO переделать
+ */
 void VersionControlSystem::Push() {
     auto repository = JsonSerializer::GetRepositoryByFolder(
             std::filesystem::current_path());
     repository.InitCommitsManager();
 
-    auto response = WebService::PostCommit(repository.Commits().back());
-    std::cout << response.text << "\n";
+//    auto response = WebService::PostCommit(repository.Commits().back());
+//    std::cout << response.text << "\n";
 }
 
 std::vector<Commit> VersionControlSystem::CommitsToPush() {

@@ -8,7 +8,7 @@
 class File {
 public:
     File(std::string_view filename,
-         size_t hash,
+         int32_t hash,
          FileStatus status);
 
     explicit File(std::string_view filename);
@@ -24,7 +24,7 @@ public:
 public:
     [[nodiscard]] std::string Name() const;
 
-    [[nodiscard]] size_t Hash() const;
+    [[nodiscard]] int32_t Hash() const;
 
     [[nodiscard]] FileStatus Status() const;
 
@@ -34,7 +34,7 @@ public:
     bool operator<(const File &rhs) const;
 
 public:
-    static size_t CalculateHash(std::string_view filename);
+    static int32_t CalculateHash(std::string_view filename);
 
 private:
     static std::vector<char> LoadContent(std::string_view filename);
@@ -42,7 +42,7 @@ private:
 private:
     std::string name_;
 
-    size_t hash_;
+    int32_t hash_;
     FileStatus status_;
 };
 

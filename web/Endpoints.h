@@ -8,11 +8,6 @@
 static constexpr std::string_view BASE_USERS_URL =
         "http://localhost:8000/users/";
 
-/* REFRESH endpoints */
-
-static constexpr std::string_view BASE_REFRESH_URL =
-        "http://localhost:8000/refresh/";
-
 /* COMMITS endpoints */
 
 static constexpr std::string_view BASE_COMMITS_URL =
@@ -27,5 +22,14 @@ static constexpr std::string_view BASE_TOKENS_URL =
 
 static constexpr std::string_view BASE_FILES_URL =
         "http://localhost:8000/files/";
+
+/* REFRESH endpoints */
+static constexpr std::string_view BASE_REFRESH_URL =
+        "http://localhost:8000/refresh/";
+
+/* REPOSITORIES endpoints */
+static constexpr std::string_view BASE_REPOSITORIES_URL =
+        "http://localhost:8000/repositories/";
+
 
 #endif //CODEHUB_ENDPOINTS_H

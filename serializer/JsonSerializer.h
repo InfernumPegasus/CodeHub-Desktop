@@ -3,6 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include "../repository/Repository.h"
+#include "cpr/cookies.h"
 
 class JsonSerializer {
 public:
@@ -19,24 +20,34 @@ public:
     static Commit CommitFromJson(nlohmann::json json);
 
 public:
-    static nlohmann::json ConfigToJson(
+    static nlohmann::json RepositoryToConfigJson(
             std::string_view name,
             std::string_view folder,
-            Repository::FileHashMap &fileHashMap);
+            const Repository::FileHashMap &fileHashMap);
 
     static nlohmann::json CommitsToJson(const std::vector<Commit> &commits);
 
-    static Repository ConfigFromJson(nlohmann::json json);
+    static Repository RepositoryFromConfigJson(nlohmann::json json);
 
     static std::vector<Commit> CommitsFromJson(nlohmann::json json);
 
 public:
-    static nlohmann::json AppConfigToJson(const NameFolderMap &map);
+    static nlohmann::json NameFolderToJson(const NameFolderMap &map);
 
-    static NameFolderMap AppConfigFromJson(nlohmann::json json);
+    static NameFolderMap NameFolderFromJson(nlohmann::json json);
 
 public:
     static Repository GetRepositoryByFolder(const std::string &folder);
+
+public:
+    static nlohmann::json RepositoryToJson(const Repository &repository);
+
+    static Repository RepositoryFromJson(nlohmann::json json);
+
+public:
+    static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
+
+    static cpr::Cookies CookiesFromJson(nlohmann::json json);
 };
 
 

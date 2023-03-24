@@ -28,9 +28,14 @@ void Validator::Trim(std::string &string) {
     boost::algorithm::trim(string);
 }
 
-void Validator::ReplaceWith(std::string &string,
-                            std::string_view from,
-                            std::string_view to) {
-    boost::replace_all(string, from, to);
+void Validator::Replace(std::string &string,
+                        std::string_view what,
+                        std::string_view to) {
+    boost::replace_all(string, what, to);
+}
+
+void Validator::ValidateRepositoryName(std::string &name) {
+    Trim(name);
+    Replace(name, " ", "_");
 }
 

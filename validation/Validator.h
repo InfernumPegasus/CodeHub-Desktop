@@ -12,9 +12,14 @@ public:
 public:
     static void Trim(std::string &string);
 
-    static void ReplaceWith(std::string &string,
-                            std::string_view what,
-                            std::string_view to);
+    static void Replace(std::string &string,
+                        std::string_view what,
+                        std::string_view to);
+
+    static void ValidateRepositoryName(std::string &name);
+
+public:
+
 };
 
 

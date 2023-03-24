@@ -5,6 +5,7 @@
 #include <set>
 #include <nlohmann/json.hpp>
 #include <utility>
+#include <ostream>
 
 class Commit {
 public:
@@ -16,7 +17,7 @@ public:
 
     Commit(std::set<File> files,
            std::string_view message,
-           size_t checkSum);
+           int32_t checkSum);
 
     Commit(const Commit &rhs) = default;
 
@@ -27,14 +28,17 @@ public:
     Commit &operator=(Commit &&rhs) noexcept = default;
 
 public:
+    friend std::ostream &operator<<(std::ostream &os, const Commit &commit);
+
+public:
     [[nodiscard]] std::set<File> Files() const;
 
     [[nodiscard]] std::string Message() const;
 
-    [[nodiscard]] size_t Checksum() const;
+    [[nodiscard]] int32_t Checksum() const;
 
 public:
-    [[nodiscard]] size_t CalculateCheckSum() const;
+    [[nodiscard]] int32_t CalculateCheckSum() const;
 
 public:
     bool operator==(const Commit &other) const = default;
@@ -42,7 +46,7 @@ public:
 private:
     std::set<File> files_;
     std::string message_;
-    size_t checkSum_;
+    int32_t checkSum_;
 };
 
 

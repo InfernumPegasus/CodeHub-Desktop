@@ -44,19 +44,41 @@ int main(int argc, char *argv[]) {
                     vm["commit"].as<std::string>()
             );
         } else if (vm.count("push")) {
-            WebService::PostLogin(".config/user.json"sv);
+            WebService::PostLogin();
             VersionControlSystem::Push();
         }
     } catch (po::unknown_option &unknownOption) {
         std::cout << unknownOption.what() << std::endl;
     }
 
-//    auto login = WebService::PostLogin(".config/user.json"sv);
-//    File file1("build.ninja");
-//    File file2(".ninja_log");
-//    Commit commit(std::set{file1, file2}, "baza");
+//    auto response = WebService::PostLogin();
+//    {
+//        Repository repository("999QWERTY999",
+//                              std::filesystem::current_path().string());
+//        WebService::PostRepository(repository, true);
+//    }
+//    {
+//        auto repo = WebService::GetRepository("QWERTY");
+//        std::cout << repo.Name() << " " << repo.Folder() << "\n";
+//        for (const auto &commit: repo.Commits()) {
+//            std::cout << commit << "\n";
+//        }
+
+//        std::set<File> files{
+//                {"Codehub"s, 1, FileStatus::Created},
+//                {".ninja_log"s, 2, FileStatus::Modified},
+//                {"build.ninjs"s, 3, FileStatus::Deleted}
+//        };
+//        Commit commit1(files, "na bolote");
+//        Commit commit2(std::set<File>{}, "sueta");
 //
-//    VersionControlSystem::Push();
+//        std::vector vec{commit1, commit2};
+//        Repository repository("lyagushki prigayut tuda suda",
+//                              std::filesystem::current_path().string(),
+//                              vec);
+////        WebService::PostRepository(repository, true);
+//        std::cout << WebService::PostRepository(repository, true).text << "\n\n";
+//    }
 
     return 0;
 }

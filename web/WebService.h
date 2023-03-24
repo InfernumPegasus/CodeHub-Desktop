@@ -4,36 +4,46 @@
 #include <nlohmann/json.hpp>
 #include "cpr/cpr.h"
 #include "Endpoints.h"
-#include "../commit/Commit.h"
+#include "../repository/Repository.h"
 
 class WebService {
 public:
-    static cpr::Response PostLogin(std::string_view pathToJson);
+    static cpr::Cookies GetCookiesFromFile();
 
-    static cpr::Response PostLogin(const nlohmann::json& userJson);
+    static void SaveCookiesInFile(const cpr::Cookies& cookies);
 
 public:
-    static std::vector<int> PostFiles(const std::set<File> &files);
+    static cpr::Response PostLogin();
+
+    static size_t GetCurrentUser();
+
+public:
+    static Commit GetCommit(size_t id);
+
+    static std::vector<Commit> GetCommits(const std::vector<size_t> &ids);
+
+public:
+    static void PostFiles(const std::set<File> &files);
 
     static cpr::Response PostFile(const File &file);
 
 public:
-    static cpr::Response PostCommit(const Commit &commit);
-
-    static std::vector<int> PostCommits(const std::vector<Commit> &commits);
+    static cpr::Response GetRefresh();
 
 public:
-    static void GetUser(int id);
+    static void GetRepositories();
+
+    static Repository GetRepository(const std::string &repoName);
+
+    static cpr::Response PostRepository(const Repository &repository,
+                                        bool isPrivate);
+
+    static cpr::Response PatchRepository(std::string_view repoName,
+                                         const Repository &repository,
+                                         bool isPrivate);
 
 public:
-    static Commit GetCommit(size_t hash);
-
-    static std::vector<Commit> GetCommits(const std::vector<int> &ids);
-
-public:
-    static std::set<File> GetFiles(const std::vector<int> &ids);
-
-    static File GetFile(int id);
+    static cpr::Files AttachFiles(const std::set<std::string> &filesVector);
 };
 
 

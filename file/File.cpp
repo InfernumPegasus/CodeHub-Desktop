@@ -2,7 +2,7 @@
 #include "File.h"
 
 File::File(std::string_view filename,
-           size_t hash,
+           int32_t hash,
            FileStatus status) :
         name_(filename),
         hash_(hash),
@@ -17,7 +17,7 @@ std::string File::Name() const {
     return name_;
 }
 
-size_t File::Hash() const {
+int32_t File::Hash() const {
     return hash_;
 }
 
@@ -45,7 +45,7 @@ std::vector<char> File::LoadContent(std::string_view filename) {
     };
 }
 
-size_t File::CalculateHash(std::string_view filename) {
+int32_t File::CalculateHash(std::string_view filename) {
     auto content = LoadContent(filename);
     auto res = content.size();
     std::string file = filename.data();
@@ -53,5 +53,5 @@ size_t File::CalculateHash(std::string_view filename) {
         res ^= c + std::hash<std::string>{}(file) +
                0x9e3779b9 + (res << 6) + (res >> 2);
     }
-    return res;
+    return static_cast<int32_t>(res);
 }

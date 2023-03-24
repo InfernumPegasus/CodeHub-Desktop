@@ -29,7 +29,7 @@ void RepositoryConfigManager::UpdateConfigFile() const {
         return;
     }
 
-    auto repoJson = JsonSerializer::ConfigToJson(
+    auto repoJson = JsonSerializer::RepositoryToConfigJson(
             repositoryNameRef_,
             repositoryFolderRef_,
             fileHashMapRef_
@@ -49,7 +49,7 @@ bool RepositoryConfigManager::ReadConfigFile() const {
     std::ifstream ifs(configFile_);
     if (ifs) {
         nlohmann::json j = nlohmann::json::parse(ifs);
-        auto res = JsonSerializer::ConfigFromJson(j);
+        auto res = JsonSerializer::RepositoryFromConfigJson(j);
         repositoryNameRef_ = res.Name();
         repositoryFolderRef_ = res.Folder();
         fileHashMapRef_ = res.Map();

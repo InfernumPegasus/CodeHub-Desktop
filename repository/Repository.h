@@ -18,6 +18,10 @@ public:
                std::string_view repositoryFolder,
                FileHashMap files);
 
+    Repository(std::string_view repositoryName,
+               std::string_view repositoryFolder,
+               const std::vector<Commit> &commits);
+
     ~Repository();
 
 public:
@@ -46,6 +50,9 @@ public:
     [[nodiscard]] std::vector<Commit> Commits() const;
 
     [[nodiscard]] FileHashMap Map() const;
+
+public:
+    std::set<std::string> MapToFilenames() const;
 
 private:
     std::string repositoryName_;
