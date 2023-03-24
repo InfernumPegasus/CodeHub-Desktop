@@ -9,7 +9,7 @@ VersionControlSystem::VersionControlSystem() :
         repositoriesManager_(&nameFolderMap_) {}
 
 VersionControlSystem::~VersionControlSystem() {
-    repositoriesManager_.UpdateConfigFile();
+    repositoriesManager_.Update();
 }
 
 void VersionControlSystem::CreateRepository(
@@ -45,29 +45,29 @@ void VersionControlSystem::CreateRepository(
 
 void VersionControlSystem::CheckStatus() const {
     for (const auto &[name, folder]: nameFolderMap_) {
-        if (folder == std::filesystem::current_path()) {
-            Repository repository(name, folder);
-            repository.InitConfigManager();
-            repository.InitIgnoreManager();
+        if (!(folder == std::filesystem::current_path())) continue;
 
-            std::cout << "Repository '" <<
-                      name << "' status: ";
-            if (auto changedFiles = repository.ChangedFiles();
-                    changedFiles.empty()) {
-                std::cout << "Up-to-date.\n";
-            } else {
-                for (const auto &[fileName, hash]: changedFiles) {
-                    std::cout << "\nfile: '" << fileName;
-                }
-                std::cout << "\n\nTotal " << changedFiles.size() << " files changed.\n";
+        Repository repository(name, folder);
+        repository.InitConfigManager();
+        repository.InitIgnoreManager();
+
+        std::cout << "Repository '" <<
+                  name << "' status: ";
+        if (auto changedFiles = repository.ChangedFiles();
+                changedFiles.empty()) {
+            std::cout << "Up-to-date.\n";
+        } else {
+            for (const auto &[fileName, hash]: changedFiles) {
+                std::cout << "\nfile: '" << fileName;
             }
+            std::cout << "\n\nTotal " << changedFiles.size() << " files changed.\n";
         }
     }
 }
 
 void VersionControlSystem::DoCommit(std::string_view message) {
     if (message.empty()) {
-        std::cout << "Message cannot be empty.\n";
+        std::cout << "Commit message cannot be empty.\n";
         return;
     }
 
@@ -79,18 +79,12 @@ void VersionControlSystem::DoCommit(std::string_view message) {
 
 void VersionControlSystem::DeleteRepository() {
     std::string currentDir = std::filesystem::current_path();
-    for (const auto &[name, folder]: nameFolderMap_) {
-        if (folder == currentDir) {
-            nameFolderMap_.erase(name);
-        }
-    }
+    erase_if(nameFolderMap_,
+             [&](auto &pair) { return pair.first == currentDir; });
 }
 
 void VersionControlSystem::Init() {
-    if (!repositoriesManager_.Read() &&
-        repositoriesManager_.Create()) {
-        repositoriesManager_.Read();
-    }
+    repositoriesManager_.Init();
 }
 
 VersionControlSystem::NameFolderMap VersionControlSystem::NameAndFolderMap() const {
@@ -102,8 +96,10 @@ bool VersionControlSystem::ExistsByName(std::string_view repositoryName) const {
 }
 
 bool VersionControlSystem::ExistsByFolder(std::string_view repositoryFolder) const {
-    return std::ranges::any_of(nameFolderMap_.cbegin(), nameFolderMap_.cend(),
-                               [&](auto &pair) { return pair.first != repositoryFolder; });
+    return std::ranges::any_of(
+            nameFolderMap_.cbegin(), nameFolderMap_.cend(),
+            [&](auto &pair) { return pair.first != repositoryFolder; }
+    );
 }
 
 void VersionControlSystem::ShowRepositories() const {

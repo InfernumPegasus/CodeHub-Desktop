@@ -43,7 +43,7 @@ bool RepositoryConfigManager::Read() {
     return true;
 }
 
-void RepositoryConfigManager::UpdateConfigFile() {
+void RepositoryConfigManager::Update() {
     std::ofstream ofs(configFile_);
     if (!ofs && !Create()) {
         return;

@@ -15,20 +15,12 @@ public:
                             std::string *repositoryFolderRef,
                             FileHashMap *fileHashMapRef);
 
-    RepositoryConfigManager(const RepositoryConfigManager &rhs) = default;
-
-    RepositoryConfigManager &operator=(const RepositoryConfigManager &rhs) = delete;
-
-    RepositoryConfigManager(RepositoryConfigManager &&rhs) noexcept = default;
-
-    RepositoryConfigManager &operator=(RepositoryConfigManager &&rhs) noexcept = delete;
-
 public:
     bool Create() override;
 
     bool Read() override;
 
-    void UpdateConfigFile();
+    void Update();
 
 private:
     std::string configFile_;

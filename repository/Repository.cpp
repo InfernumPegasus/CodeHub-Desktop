@@ -34,7 +34,7 @@ Repository::Repository(std::string repositoryName,
 }
 
 Repository::~Repository() {
-    configManager_.UpdateConfigFile();
+    configManager_.Update();
 }
 
 FileHashMap Repository::ChangedFiles() const {
@@ -108,7 +108,7 @@ void Repository::DoCommit(std::string_view message) {
         Commit commit(toInsert, message);
         commits_.push_back(commit);
         commitsManager_.Update();
-        configManager_.UpdateConfigFile();
+        configManager_.Update();
 
         std::cout << "Commit created:\n";
         for (const auto &file: toInsert) {
@@ -121,29 +121,21 @@ void Repository::DoCommit(std::string_view message) {
 }
 
 void Repository::InitConfigManager() {
-    if (!configManager_.Read() &&
-        configManager_.Create() &&
-        configManager_.Read()) {}
+    configManager_.Init();
 }
 
 void Repository::InitIgnoreManager() {
-    if (!ignoreFileManager_.Read() &&
-        ignoreFileManager_.Create()) {
-        ignoreFileManager_.Read();
-    }
+    ignoreFileManager_.Init();
 }
 
 void Repository::InitCommitsManager() {
-    if (!commitsManager_.Read() &&
-        commitsManager_.Create()) {
-        commitsManager_.Read();
-    }
+    commitsManager_.Init();
 }
 
 void Repository::InitManagers() {
-    InitConfigManager();
-    InitIgnoreManager();
-    InitCommitsManager();
+    configManager_.Init();
+    ignoreFileManager_.Init();
+    commitsManager_.Init();
 }
 
 std::string Repository::Name() const {

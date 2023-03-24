@@ -51,7 +51,7 @@ bool RepositoriesManager::Read() {
     return true;
 }
 
-void RepositoriesManager::UpdateConfigFile() {
+void RepositoriesManager::Update() {
     std::ofstream ofs(repositoriesFile_);
     if (!ofs && !Create()) {
         std::cout << "Cannot create global config folder!\n";

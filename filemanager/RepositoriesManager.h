@@ -20,7 +20,7 @@ public:
 
     bool Read() override;
 
-    void UpdateConfigFile();
+    void Update();
 
 private:
     const std::string appConfigDirectory_;
