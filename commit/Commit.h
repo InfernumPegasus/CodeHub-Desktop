@@ -2,20 +2,20 @@
 #define CODEHUB_COMMIT_H
 
 #include "../file/File.h"
-#include <set>
+#include <unordered_set>
 #include <nlohmann/json.hpp>
 #include <utility>
 #include <ostream>
 
 class Commit {
 public:
-    Commit(const std::set<File> &files,
+    Commit(const std::unordered_set<File> &files,
            std::string_view message);
 
-    Commit(const std::set<std::string> &files,
+    Commit(const std::unordered_set<std::string> &files,
            std::string_view message);
 
-    Commit(std::set<File> files,
+    Commit(std::unordered_set<File> files,
            std::string_view message,
            int32_t checkSum);
 
@@ -31,7 +31,7 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const Commit &commit);
 
 public:
-    [[nodiscard]] std::set<File> Files() const;
+    [[nodiscard]] std::unordered_set<File> Files() const;
 
     [[nodiscard]] std::string Message() const;
 
@@ -44,7 +44,7 @@ public:
     bool operator==(const Commit &other) const = default;
 
 private:
-    std::set<File> files_;
+    std::unordered_set<File> files_;
     std::string message_;
     int32_t checkSum_;
 };

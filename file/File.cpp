@@ -26,12 +26,6 @@ FileStatus File::Status() const {
     return status_;
 }
 
-constexpr bool File::operator==(const File &rhs) const {
-    return name_ == rhs.name_ &&
-           hash_ == rhs.hash_ &&
-           status_ == rhs.status_;
-}
-
 bool File::operator<(const File &rhs) const {
     return hash_ < rhs.hash_;
 }

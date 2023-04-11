@@ -54,13 +54,14 @@ void VersionControlSystem::CheckStatus() const {
         std::cout << "Repository '" <<
                   name << "' status: ";
         if (auto changedFiles = repository.ChangedFiles();
-                changedFiles.empty()) {
+                changedFiles.empty() || repository.Commits().empty()) {
             std::cout << "Up-to-date.\n";
         } else {
             for (const auto &[fileName, hash]: changedFiles) {
-                std::cout << "\nfile: '" << fileName;
+                std::cout << "\n\tChanged:\t" <<
+                          std::filesystem::relative(fileName);
             }
-            std::cout << "\n\nTotal " << changedFiles.size() << " files changed.\n";
+            std::cout << "\n";
         }
     }
 }
@@ -80,7 +81,7 @@ void VersionControlSystem::DoCommit(std::string_view message) {
 void VersionControlSystem::DeleteRepository() {
     std::string currentDir = std::filesystem::current_path();
     erase_if(nameFolderMap_,
-             [&](auto &pair) { return pair.first == currentDir; });
+             [&](auto &pair) -> bool { return pair.first == currentDir; });
 }
 
 void VersionControlSystem::Init() {

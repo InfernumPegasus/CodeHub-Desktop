@@ -29,7 +29,7 @@ public:
     [[nodiscard]] FileStatus Status() const;
 
 public:
-    constexpr bool operator==(const File &rhs) const;
+    constexpr bool operator==(const File &rhs) const = default;
 
     bool operator<(const File &rhs) const;
 
@@ -45,6 +45,15 @@ private:
     int32_t hash_;
     FileStatus status_;
 };
+
+namespace std {
+    template <>
+    struct hash<File> {
+        std::size_t operator()(const File& file) const {
+            return File::CalculateHash(file.Name());
+        }
+    };
+}
 
 
 #endif //CODEHUB_FILE_H

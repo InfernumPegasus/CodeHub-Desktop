@@ -4,12 +4,14 @@
 #include "../filemanager/Configs.h"
 
 cpr::Cookies WebService::GetCookiesFromFile() {
+    std::cout << "in GetCookiesFromFile\n";
     std::ifstream ifs(CONFIG_COOKIES_FILE);
     cpr::Cookies cookies;
     if (ifs && !std::filesystem::is_empty(CONFIG_COOKIES_FILE)) {
         nlohmann::json cookiesJson = nlohmann::json::parse(ifs);
         cookies = JsonSerializer::CookiesFromJson(cookiesJson);
     }
+    std::cout << "end GetCookiesFromFile\n";
     return cookies;
 }
 
@@ -46,6 +48,35 @@ size_t WebService::GetCurrentUser() {
 
 /* Commits */
 
+cpr::Response WebService::PostCommit(const Commit &commit) {
+    std::cout << "in PostCommit\n";
+    auto ids = WebService::PostFiles(commit.Files());
+
+    nlohmann::json payload;
+    payload["files"] = ids;
+    payload["message"] = commit.Message();
+
+    std::cout << "end PostCommit\n";
+    return cpr::Post(
+            cpr::Url{BASE_COMMITS_URL},
+            cpr::Header{{"Content-Type", "application/json"}},
+            cpr::Body{payload.dump()}
+    );
+}
+
+std::vector<size_t> WebService::PostCommits(const std::vector<Commit> &commits) {
+    std::cout << "in PostCommits\n";
+    std::vector<size_t> ids;
+    for (const auto &commit: commits) {
+        auto response = PostCommit(commit);
+        nlohmann::json json = nlohmann::json::parse(response.text);
+        int id = json["id"];
+        ids.push_back(id);
+    }
+    std::cout << "end PostCommits\n";
+    return ids;
+}
+
 Commit WebService::GetCommit(size_t id) {
     auto response = cpr::Get(
             cpr::Url{BASE_COMMITS_URL},
@@ -66,16 +97,32 @@ std::vector<Commit> WebService::GetCommits(const std::vector<size_t> &ids) {
 
 /* Files */
 
-void WebService::PostFiles(const std::unordered_set<File> &files) {
+std::vector<size_t> WebService::PostFiles(const std::unordered_set<File> &files) {
+    std::cout << "in PostFiles\n";
+    std::vector<size_t> ids;
     for (const auto &file: files) {
         auto response = PostFile(file);
+        std::cout << 1 << "\n";
+        nlohmann::json json = nlohmann::json::parse(response.text);
+        std::cout << 2 << "\n";
+        int id = json["id"];
+        ids.push_back(id);
     }
+    std::cout << "end PostFiles\n";
+    return ids;
 }
 
 cpr::Response WebService::PostFile(const File &file) {
-    return cpr::Post(
+    auto payload = JsonSerializer::FileToJson(file);
+    std::cout << payload.dump(2) << "\n";
+    auto response = cpr::Post(
             cpr::Url{BASE_FILES_URL},
+//            cpr::Header{{"Content-Type", "multipart/form-data"}},
             GetCookiesFromFile(),
+//            cpr::Body{
+//                payload.dump()
+//            },
+//            cpr::File{file.Name()}
             cpr::Multipart{
                     {"file_name",   file.Name()},
                     {"file_status", static_cast<int>(file.Status())},
@@ -83,6 +130,8 @@ cpr::Response WebService::PostFile(const File &file) {
                     {"file",        cpr::File(file.Name())}
             }
     );
+    std::cout << "end PostFile\n";
+    return response;
 }
 
 /* Refresh */
@@ -135,24 +184,35 @@ cpr::Response WebService::PostRepository(
         const Repository &repository,
         bool isPrivate) {
     auto userId = GetCurrentUser();
+    std::cout << "user: " << userId << "\n";
     auto payload = JsonSerializer::RepositoryToJson(repository);
+//    nlohmann::json payload;
+    payload["repo_name"] = repository.Name();
     payload["owner"] = userId;
     payload["is_private"] = isPrivate;
+
+    std::cout << payload.dump(2) << "\n";
+    std::cout << "before PostCommits\n";
+    auto commitsIds = WebService::PostCommits(repository.Commits());
+
+    // TODO
+    payload["commits"] = 2;
+
     std::cout << payload.dump(2) << "\n";
 
     auto filesSet = repository.MapToFilenames();
-    auto files = AttachFiles(filesSet);
+//    auto files = AttachFiles(filesSet);
 
     return cpr::Post(
-            cpr::Url{BASE_REPOSITORIES_URL},
+            cpr::Url{BASE_REPOSITORIES_URL}
 //            cpr::Header{{"Content-Type", "multipart/form-data"}},
 //            cpr::Body{
 //                    payload.dump()
 //            },
-            cpr::Multipart{
-                    {"json_data", payload.dump(), "application/json"},
-                    {"file_data", files}
-            }
+//            cpr::Multipart{
+//                    {"json_data", payload.dump(), "application/json"},
+//                    {"file_data", files}
+//            }
     );
 }
 

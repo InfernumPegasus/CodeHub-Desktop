@@ -18,12 +18,16 @@ public:
     static size_t GetCurrentUser();
 
 public:
+    static cpr::Response PostCommit(const Commit &commit);
+
+    static std::vector<size_t> PostCommits(const std::vector<Commit> &commits);
+
     static Commit GetCommit(size_t id);
 
     static std::vector<Commit> GetCommits(const std::vector<size_t> &ids);
 
 public:
-    static void PostFiles(const std::unordered_set<File> &files);
+    static std::vector<size_t> PostFiles(const std::unordered_set<File> &files);
 
     static cpr::Response PostFile(const File &file);
 

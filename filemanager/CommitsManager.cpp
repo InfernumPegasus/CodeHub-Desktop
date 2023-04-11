@@ -39,12 +39,3 @@ void CommitsManager::Update() const {
     auto repoJson = JsonSerializer::CommitsToJson(commitsRef_).dump(2);
     ofs << repoJson;
 }
-
-//bool CommitsManager::Init() {
-//    if (!Read() &&
-//        Create() &&
-//        Read()) {
-//        return true;
-//    }
-//    return false;
-//}

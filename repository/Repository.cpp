@@ -64,7 +64,7 @@ FileHashMap Repository::CollectFiles() const {
 }
 
 void Repository::DoCommit(std::string_view message) {
-    std::set<File> toInsert;
+    std::unordered_set<File> toInsert;
     auto collectedFiles = CollectFiles();
     for (const auto &[filename, hash]: collectedFiles) {
         if (fileHashMap_.contains(filename)) {
@@ -104,19 +104,20 @@ void Repository::DoCommit(std::string_view message) {
         }
     }
 
-    if (!toInsert.empty()) {
-        Commit commit(toInsert, message);
-        commits_.push_back(commit);
-        commitsManager_.Update();
-        configManager_.Update();
-
-        std::cout << "Commit created:\n";
-        for (const auto &file: toInsert) {
-            std::cout << "file: '" << file.Name() << "'\n"
-                      << "status: " << static_cast<int>(file.Status()) << "\n\n";
-        }
-    } else {
+    if (toInsert.empty()) {
         std::cout << "Nothing to commit!\n";
+        return;
+    }
+
+    Commit commit(toInsert, message);
+    commits_.push_back(commit);
+    commitsManager_.Update();
+    configManager_.Update();
+
+    std::cout << "Commit created:\n";
+    for (const auto &file: toInsert) {
+        std::cout << "file: '" << file.Name() << "'\n"
+                  << "status: " << static_cast<int>(file.Status()) << "\n\n";
     }
 }
 

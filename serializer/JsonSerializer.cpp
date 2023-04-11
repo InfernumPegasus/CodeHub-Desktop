@@ -29,7 +29,7 @@ nlohmann::json JsonSerializer::CommitToJson(const Commit &commit) {
 }
 
 Commit JsonSerializer::CommitFromJson(nlohmann::json json) {
-    std::set<File> files;
+    std::unordered_set<File> files;
     for (auto &file: json["files"]) {
         files.insert(FileFromJson(file));
     }

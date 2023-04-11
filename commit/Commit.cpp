@@ -1,6 +1,6 @@
 #include "Commit.h"
 
-Commit::Commit(const std::set<File> &files,
+Commit::Commit(const std::unordered_set<File> &files,
                std::string_view message) :
         message_(message) {
     for (const auto &file: files) {
@@ -9,7 +9,7 @@ Commit::Commit(const std::set<File> &files,
     checkSum_ = CalculateCheckSum();
 }
 
-Commit::Commit(const std::set<std::string> &files,
+Commit::Commit(const std::unordered_set<std::string> &files,
                std::string_view message) :
         message_(message) {
     for (const auto &file: files) {
@@ -18,7 +18,7 @@ Commit::Commit(const std::set<std::string> &files,
     checkSum_ = CalculateCheckSum();
 }
 
-Commit::Commit(std::set<File> files,
+Commit::Commit(std::unordered_set<File> files,
                std::string_view message,
                int32_t checkSum) :
         files_(std::move(files)),
@@ -31,7 +31,7 @@ std::ostream &operator<<(std::ostream &os, const Commit &commit) {
     return os;
 }
 
-std::set<File> Commit::Files() const {
+std::unordered_set<File> Commit::Files() const {
     return files_;
 }
 
