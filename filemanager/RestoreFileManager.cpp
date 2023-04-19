@@ -30,14 +30,14 @@ void RestoreFileManager::CopyFiles(
 }
 
 void RestoreFileManager::CopyRecursive(
-        const fs::path &src,
-        const fs::path &target) {
+        const fs::path &from,
+        const fs::path &to) {
     try {
-        fs::copy(src,
-                 target,
-                 fs::copy_options::overwrite_existing |
+        fs::copy(from,
+                 to,
+                 fs::copy_options::update_existing |
                  fs::copy_options::recursive);
     } catch (std::exception &e) {
-        std::cout << e.what();
+        std::cout << e.what() << "\n";
     }
 }

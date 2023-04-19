@@ -14,8 +14,8 @@ public:
                           const fs::path &from,
                           const fs::path &to);
 
-    static void CopyRecursive(const fs::path &src,
-                              const fs::path &target);
+    static void CopyRecursive(const fs::path &from,
+                              const fs::path &to);
 };
 
 

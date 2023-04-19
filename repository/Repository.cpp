@@ -78,6 +78,8 @@ void Repository::DoCommit(std::string_view message) {
     commitsManager_.Update();
     configManager_.Update();
 
+    SaveCommitFiles(commit);
+
     std::cout << "Commit created:\n";
     for (const auto &file: collectedFiles) {
         std::cout << "file: '" << file.Name() << "'\n"
@@ -85,12 +87,20 @@ void Repository::DoCommit(std::string_view message) {
     }
 }
 
-void Repository::SaveCommit(const Commit &commit) {
-    auto recoveryFolder = VCS_CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
+void Repository::SaveCommitFiles(const Commit &commit) {
+    auto recoveryFolder =
+            VCS_CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
     RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(),
                                   fs::current_path(),
                                   recoveryFolder);
+}
+
+void Repository::RestoreCommitFiles(int32_t checksum) {
+    RestoreFileManager::CopyRecursive(
+            VCS_CONFIG_DIRECTORY + "/" + std::to_string(checksum),
+            fs::current_path()
+    );
 }
 
 void Repository::InitConfigManager() {
@@ -182,4 +192,5 @@ std::unordered_set<File> Repository::FilterCollectedFiles(
 
     return toInsert;
 }
+
 

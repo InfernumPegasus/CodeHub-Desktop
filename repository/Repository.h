@@ -14,14 +14,14 @@ public:
 
 public:
     Repository(std::string repositoryName,
-               const std::string& repositoryFolder);
+               const std::string &repositoryFolder);
 
     Repository(std::string repositoryName,
-               const std::string& repositoryFolder,
+               const std::string &repositoryFolder,
                FileHashMap files);
 
     Repository(std::string repositoryName,
-               const std::string& repositoryFolder,
+               const std::string &repositoryFolder,
                const std::vector<Commit> &commits);
 
     ~Repository();
@@ -32,8 +32,15 @@ public:
 private:
     [[nodiscard]] FileHashMap CollectFiles() const;
 
+    std::unordered_set<File> FilterCollectedFiles(
+            const FileHashMap &collectedFiles);
+
 public:
     void DoCommit(std::string_view message);
+
+    static void SaveCommitFiles(const Commit &commit);
+
+    static void RestoreCommitFiles(int32_t checksum);
 
 public:
     void InitConfigManager();
@@ -50,6 +57,8 @@ public:
     [[nodiscard]] std::string Folder() const;
 
     [[nodiscard]] std::vector<Commit> Commits() const;
+
+    [[nodiscard]] Commit LastCommit() const;
 
     [[nodiscard]] FileHashMap Map() const;
 

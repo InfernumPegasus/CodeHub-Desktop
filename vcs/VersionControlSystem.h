@@ -41,6 +41,9 @@ public:
 public:
     void Init();
 
+public:
+    static void RestoreFiles(int32_t checksum);
+
 private:
     NameFolderMap nameFolderMap_;
 

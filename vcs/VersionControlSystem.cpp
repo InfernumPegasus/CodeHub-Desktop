@@ -4,6 +4,7 @@
 #include "../serializer/JsonSerializer.h"
 #include "../filemanager/Configs.h"
 #include "../web/WebService.h"
+#include "../filemanager/RestoreFileManager.h"
 
 VersionControlSystem::VersionControlSystem() :
         repositoriesManager_(&nameFolderMap_) {}
@@ -33,7 +34,6 @@ void VersionControlSystem::CreateRepository(
     }
 
     nameFolderMap_.emplace(repositoryName, repositoryFolder);
-
     Repository repository(repositoryName, repositoryFolder);
     if (initRepository) {
         repository.InitManagers();
@@ -45,21 +45,19 @@ void VersionControlSystem::CreateRepository(
 
 void VersionControlSystem::CheckStatus() const {
     for (const auto &[name, folder]: nameFolderMap_) {
-        if (!(folder == std::filesystem::current_path())) continue;
+        if (folder != fs::current_path()) continue;
 
         Repository repository(name, folder);
-        repository.InitConfigManager();
-        repository.InitIgnoreManager();
+        repository.InitManagers();
 
-        std::cout << "Repository '" <<
-                  name << "' status: ";
+        std::cout << "Repository '" << name << "' status: ";
         if (auto changedFiles = repository.ChangedFiles();
                 changedFiles.empty() || repository.Commits().empty()) {
             std::cout << "Up-to-date.\n";
         } else {
             for (const auto &[fileName, hash]: changedFiles) {
                 std::cout << "\n\tChanged:\t" <<
-                          std::filesystem::relative(fileName);
+                          fs::relative(fileName);
             }
             std::cout << "\n";
         }
@@ -73,13 +71,13 @@ void VersionControlSystem::DoCommit(std::string_view message) {
     }
 
     auto repository = JsonSerializer::GetRepositoryByFolder(
-            std::filesystem::current_path());
+            fs::current_path());
     repository.InitManagers();
     repository.DoCommit(message);
 }
 
 void VersionControlSystem::DeleteRepository() {
-    std::string currentDir = std::filesystem::current_path();
+    std::string currentDir = fs::current_path();
     erase_if(nameFolderMap_,
              [&](auto &pair) -> bool { return pair.first == currentDir; });
 }
@@ -92,18 +90,24 @@ VersionControlSystem::NameFolderMap VersionControlSystem::NameAndFolderMap() con
     return nameFolderMap_;
 }
 
-bool VersionControlSystem::ExistsByName(std::string_view repositoryName) const {
+bool VersionControlSystem::ExistsByName(
+        std::string_view repositoryName) const {
     return nameFolderMap_.contains(repositoryName.data());
 }
 
-bool VersionControlSystem::ExistsByFolder(std::string_view repositoryFolder) const {
+bool VersionControlSystem::ExistsByFolder(
+        std::string_view repositoryFolder) const {
     return std::ranges::any_of(
             nameFolderMap_.cbegin(), nameFolderMap_.cend(),
-            [&](auto &pair) { return pair.first != repositoryFolder; }
+            [&](auto &pair) { return pair.first == repositoryFolder; }
     );
 }
 
 void VersionControlSystem::ShowRepositories() const {
+    if (nameFolderMap_.empty()) {
+        std::cout << "No repositories yet.\n";
+        return;
+    }
     for (const auto &[name, folder]: nameFolderMap_) {
         if (ExistsByName(name) &&
             ExistsByFolder(folder)) {
@@ -114,7 +118,7 @@ void VersionControlSystem::ShowRepositories() const {
 
 void VersionControlSystem::CommitsLog() {
     auto repository = JsonSerializer::GetRepositoryByFolder(
-            std::filesystem::current_path());
+            fs::current_path());
     repository.InitCommitsManager();
 
     for (const auto &commit: repository.Commits()) {
@@ -127,11 +131,12 @@ void VersionControlSystem::CommitsLog() {
  */
 void VersionControlSystem::Push() {
     auto repository = JsonSerializer::GetRepositoryByFolder(
-            std::filesystem::current_path());
+            fs::current_path());
     repository.InitCommitsManager();
 
-//    auto response = WebService::PostCommit(repository.Commits().back());
-//    std::cout << response.text << "\n";
+    auto response =
+            WebService::PostCommit(repository.Commits().back());
+    std::cout << response.text << "\n";
 }
 
 /*
@@ -140,5 +145,26 @@ void VersionControlSystem::Push() {
 std::vector<Commit> VersionControlSystem::CommitsToPush() {
     std::vector<Commit> commits;
     return commits;
+}
+
+void VersionControlSystem::RestoreFiles(int32_t checksum) {
+    auto repository = JsonSerializer::GetRepositoryByFolder(
+            fs::current_path()
+    );
+    repository.InitCommitsManager();
+    repository.InitConfigManager();
+    auto commits = repository.Commits();
+    for (const auto &item: commits) {
+        std::cout << item << "\n";
+    }
+    auto found = std::find_if(commits.cbegin(),
+                              commits.cend(),
+                              [checksum](const Commit &c) {
+                                  return c.Checksum() == checksum;
+                              });
+    if (found == commits.cend()) return;
+
+    std::cout << "Commit found.\n";
+    Repository::RestoreCommitFiles(checksum);
 }
 
