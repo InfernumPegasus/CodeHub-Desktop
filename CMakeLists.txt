@@ -30,6 +30,7 @@ add_executable(CodeHub
         filemanager/RepositoriesManager.cpp
         filemanager/Configs.h
         filemanager/IFileManager.h
+        filemanager/RestoreFileManager.cpp
 
         validation/Validator.cpp
         vcs/VersionControlSystem.cpp
