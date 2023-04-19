@@ -19,14 +19,6 @@ public:
            std::string_view message,
            int32_t checkSum);
 
-    Commit(const Commit &rhs) = default;
-
-    Commit &operator=(const Commit &rhs) = default;
-
-    Commit(Commit &&rhs) noexcept = default;
-
-    Commit &operator=(Commit &&rhs) noexcept = default;
-
 public:
     friend std::ostream &operator<<(std::ostream &os, const Commit &commit);
 
