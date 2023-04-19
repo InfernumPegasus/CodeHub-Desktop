@@ -10,24 +10,24 @@ class WebService {
 public:
     static cpr::Cookies GetCookiesFromFile();
 
-    static void SaveCookiesInFile(const cpr::Cookies& cookies);
+    static void SaveCookiesInFile(const cpr::Cookies &cookies);
 
 public:
     static cpr::Response PostLogin();
 
-    static size_t GetCurrentUser();
+    static int GetCurrentUser();
 
 public:
     static cpr::Response PostCommit(const Commit &commit);
 
-    static std::vector<size_t> PostCommits(const std::vector<Commit> &commits);
+    static std::vector<int> PostCommits(const std::vector<Commit> &commits);
 
-    static Commit GetCommit(size_t id);
+    static Commit GetCommit(int id);
 
-    static std::vector<Commit> GetCommits(const std::vector<size_t> &ids);
+    static std::vector<Commit> GetCommits(const std::vector<int> &ids);
 
 public:
-    static std::vector<size_t> PostFiles(const std::unordered_set<File> &files);
+    static std::vector<int> PostFiles(const std::unordered_set<File> &files);
 
     static cpr::Response PostFile(const File &file);
 
@@ -45,9 +45,6 @@ public:
     static cpr::Response PatchRepository(std::string_view repoName,
                                          const Repository &repository,
                                          bool isPrivate);
-
-public:
-    static cpr::Files AttachFiles(const std::unordered_set<std::string> &filesVector);
 };
 
 

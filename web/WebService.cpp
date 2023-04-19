@@ -35,7 +35,7 @@ cpr::Response WebService::PostLogin() {
     return response;
 }
 
-size_t WebService::GetCurrentUser() {
+int WebService::GetCurrentUser() {
     auto response = cpr::Get(
             cpr::Url{std::string{BASE_USERS_URL} + "me"},
             GetCookiesFromFile()
@@ -52,8 +52,9 @@ cpr::Response WebService::PostCommit(const Commit &commit) {
     nlohmann::json payload;
     payload["files"] = ids;
     payload["message"] = commit.Message();
+    payload["commit_hash"] = commit.Checksum();
 
-//    std::cout << payload.dump(2) << "\n";
+    std::cout << payload.dump(2) << "\n";
 
     return cpr::Post(
             cpr::Url{BASE_COMMITS_URL},
@@ -62,8 +63,8 @@ cpr::Response WebService::PostCommit(const Commit &commit) {
     );
 }
 
-std::vector<size_t> WebService::PostCommits(const std::vector<Commit> &commits) {
-    std::vector<size_t> ids;
+std::vector<int> WebService::PostCommits(const std::vector<Commit> &commits) {
+    std::vector<int> ids;
     for (const auto &commit: commits) {
         auto response = PostCommit(commit);
         nlohmann::json json = nlohmann::json::parse(response.text);
@@ -73,7 +74,7 @@ std::vector<size_t> WebService::PostCommits(const std::vector<Commit> &commits) 
     return ids;
 }
 
-Commit WebService::GetCommit(size_t id) {
+Commit WebService::GetCommit(int id) {
     auto response = cpr::Get(
             cpr::Url{BASE_COMMITS_URL},
             GetCookiesFromFile(),
@@ -83,7 +84,7 @@ Commit WebService::GetCommit(size_t id) {
     return JsonSerializer::CommitFromJson(json);
 }
 
-std::vector<Commit> WebService::GetCommits(const std::vector<size_t> &ids) {
+std::vector<Commit> WebService::GetCommits(const std::vector<int> &ids) {
     std::vector<Commit> commits;
     for (const auto &id: ids) {
         commits.push_back(GetCommit(id));
@@ -93,11 +94,10 @@ std::vector<Commit> WebService::GetCommits(const std::vector<size_t> &ids) {
 
 /* Files */
 
-std::vector<size_t> WebService::PostFiles(const std::unordered_set<File> &files) {
-    std::vector<size_t> ids;
+std::vector<int> WebService::PostFiles(const std::unordered_set<File> &files) {
+    std::vector<int> ids;
     for (const auto &file: files) {
         auto response = PostFile(file);
-//        std::cout << response.text << "\n";
         nlohmann::json json = nlohmann::json::parse(response.text);
         int id = json["id"];
         ids.push_back(id);
@@ -114,7 +114,6 @@ cpr::Response WebService::PostFile(const File &file) {
 //            cpr::Body{
 //                payload.dump()
 //            },
-//            cpr::File{file.Name()}
             cpr::Multipart{
                     {"file_name",   file.Name()},
                     {"file_status", static_cast<int>(file.Status())},
@@ -179,14 +178,7 @@ cpr::Response WebService::PostRepository(
     payload["repo_name"] = repository.Name();
     payload["owner"] = userId;
     payload["is_private"] = isPrivate;
-
-    auto commitsIds = WebService::PostCommits(repository.Commits());
-    payload["commits"] = commitsIds;
-
-//    std::cout << payload.dump(2) << "\n";
-
-    auto filesSet = repository.MapToFilenames();
-//    auto files = AttachFiles(filesSet);
+    payload["commits"] = WebService::PostCommits(repository.Commits());
 
     return cpr::Post(
             cpr::Url{BASE_REPOSITORIES_URL},
@@ -216,14 +208,5 @@ cpr::Response WebService::PatchRepository(
             cpr::Header{{"Content-Type", "application/json"}},
             cpr::Body{payload.dump()}
     );
-}
-
-cpr::Files WebService::AttachFiles(const std::unordered_set<std::string> &filesVector) {
-    cpr::Files files;
-    for (const auto &file: filesVector) {
-        cpr::File f(file);
-        files.emplace_back(f);
-    }
-    return files;
 }
 
