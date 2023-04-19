@@ -2,6 +2,7 @@
 #include <utility>
 #include "Repository.h"
 #include "../filemanager/Configs.h"
+#include "../filemanager/RestoreFileManager.h"
 
 using FileHashMap = Repository::FileHashMap;
 
@@ -64,8 +65,83 @@ FileHashMap Repository::CollectFiles() const {
 }
 
 void Repository::DoCommit(std::string_view message) {
+    std::unordered_set<File> collectedFiles =
+            FilterCollectedFiles(CollectFiles());
+
+    if (collectedFiles.empty()) {
+        std::cout << "Nothing to commit!\n";
+        return;
+    }
+
+    Commit commit(collectedFiles, message);
+    commits_.push_back(commit);
+    commitsManager_.Update();
+    configManager_.Update();
+
+    std::cout << "Commit created:\n";
+    for (const auto &file: collectedFiles) {
+        std::cout << "file: '" << file.Name() << "'\n"
+                  << "status: " << static_cast<int>(file.Status()) << "\n\n";
+    }
+}
+
+void Repository::SaveCommit(const Commit &commit) {
+    auto recoveryFolder = VCS_CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
+    RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
+    RestoreFileManager::CopyFiles(commit.Files(),
+                                  fs::current_path(),
+                                  recoveryFolder);
+}
+
+void Repository::InitConfigManager() {
+    configManager_.Init();
+}
+
+void Repository::InitIgnoreManager() {
+    ignoreFileManager_.Init();
+}
+
+void Repository::InitCommitsManager() {
+    commitsManager_.Init();
+}
+
+void Repository::InitManagers() {
+    configManager_.Init();
+    ignoreFileManager_.Init();
+    commitsManager_.Init();
+}
+
+std::string Repository::Name() const {
+    return repositoryName_;
+}
+
+std::string Repository::Folder() const {
+    return repositoryFolder_;
+}
+
+std::vector<Commit> Repository::Commits() const {
+    return commits_;
+}
+
+Commit Repository::LastCommit() const {
+    return commits_.back();
+}
+
+FileHashMap Repository::Map() const {
+    return fileHashMap_;
+}
+
+std::unordered_set<std::string> Repository::MapToFilenames() const {
+    std::unordered_set<std::string> files;
+    for (const auto &[name, _]: fileHashMap_) {
+        files.insert(name);
+    }
+    return files;
+}
+
+std::unordered_set<File> Repository::FilterCollectedFiles(
+        const FileHashMap &collectedFiles) {
     std::unordered_set<File> toInsert;
-    auto collectedFiles = CollectFiles();
     for (const auto &[filename, hash]: collectedFiles) {
         if (fileHashMap_.contains(filename)) {
             // File exists and modified
@@ -104,61 +180,6 @@ void Repository::DoCommit(std::string_view message) {
         }
     }
 
-    if (toInsert.empty()) {
-        std::cout << "Nothing to commit!\n";
-        return;
-    }
-
-    Commit commit(toInsert, message);
-    commits_.push_back(commit);
-    commitsManager_.Update();
-    configManager_.Update();
-
-    std::cout << "Commit created:\n";
-    for (const auto &file: toInsert) {
-        std::cout << "file: '" << file.Name() << "'\n"
-                  << "status: " << static_cast<int>(file.Status()) << "\n\n";
-    }
+    return toInsert;
 }
 
-void Repository::InitConfigManager() {
-    configManager_.Init();
-}
-
-void Repository::InitIgnoreManager() {
-    ignoreFileManager_.Init();
-}
-
-void Repository::InitCommitsManager() {
-    commitsManager_.Init();
-}
-
-void Repository::InitManagers() {
-    configManager_.Init();
-    ignoreFileManager_.Init();
-    commitsManager_.Init();
-}
-
-std::string Repository::Name() const {
-    return repositoryName_;
-}
-
-std::string Repository::Folder() const {
-    return repositoryFolder_;
-}
-
-std::vector<Commit> Repository::Commits() const {
-    return commits_;
-}
-
-FileHashMap Repository::Map() const {
-    return fileHashMap_;
-}
-
-std::unordered_set<std::string> Repository::MapToFilenames() const {
-    std::unordered_set<std::string> files;
-    for (const auto &[name, _]: fileHashMap_) {
-        files.insert(name);
-    }
-    return files;
-}
