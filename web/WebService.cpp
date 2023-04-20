@@ -54,7 +54,7 @@ cpr::Response WebService::PostCommit(const Commit &commit) {
     payload["message"] = commit.Message();
     payload["commit_hash"] = commit.Checksum();
 
-    std::cout << payload.dump(2) << "\n";
+//    std::cout << payload.dump(2) << "\n";
 
     return cpr::Post(
             cpr::Url{BASE_COMMITS_URL},
@@ -147,9 +147,9 @@ void WebService::GetRepositories() {
     for (const auto &repo: repositories) {
         std::string repoName = repo["repo_name"];
         auto commits = GetCommits(repo["commits"]);
-        std::cout << repoName << "\n";
+//        std::cout << repoName << "\n";
         for (const auto &commit: commits) {
-            std::cout << commit << "\n";
+//            std::cout << commit << "\n";
         }
     }
 }
@@ -164,7 +164,11 @@ Repository WebService::GetRepository(const std::string &repoName) {
             }
     );
     nlohmann::json json = nlohmann::json::parse(response.text);
-    return JsonSerializer::RepositoryFromJson(json);
+    auto repository = JsonSerializer::RepositoryFromJson(json);
+    if (!repository) {
+        throw std::invalid_argument("Cannot get repository");
+    }
+    return repository.value();
 }
 
 /*
