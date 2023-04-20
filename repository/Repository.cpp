@@ -4,8 +4,6 @@
 #include "../filemanager/Configs.h"
 #include "../filemanager/RestoreFileManager.h"
 
-using FileHashMap = Repository::FileHashMap;
-
 Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder) :
         repositoryName_(std::move(repositoryName)),

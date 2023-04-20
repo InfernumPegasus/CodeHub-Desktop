@@ -8,10 +8,9 @@
 #include "../filemanager/CommitsManager.h"
 #include "../filemanager/IgnoreFileManager.h"
 
-class Repository {
-public:
-    using FileHashMap = std::unordered_map<std::string, size_t>;
+using FileHashMap = std::unordered_map<std::string, size_t>;
 
+class Repository {
 public:
     Repository(std::string repositoryName,
                const std::string &repositoryFolder);
