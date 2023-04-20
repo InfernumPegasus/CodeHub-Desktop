@@ -35,10 +35,12 @@ bool RepositoryConfigManager::Read() {
     if (!ifs) return false;
 
     nlohmann::json j = nlohmann::json::parse(ifs);
+    if (j.empty()) return false;
+
     auto res = JsonSerializer::RepositoryFromConfigJson(j);
-    repositoryNameRef_ = res.Name();
-    repositoryFolderRef_ = res.Folder();
-    fileHashMapRef_ = res.Map();
+    repositoryNameRef_ = res->Name();
+    repositoryFolderRef_ = res->Folder();
+    fileHashMapRef_ = res->Map();
 
     return true;
 }
