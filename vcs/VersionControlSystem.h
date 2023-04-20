@@ -1,13 +1,13 @@
 #ifndef CODEHUB_VERSIONCONTROLSYSTEM_H
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
+#include <optional>
 #include "../repository/Repository.h"
 #include "../filemanager/RepositoriesManager.h"
 
-class VersionControlSystem {
-public:
-    using NameFolderMap = std::unordered_map<std::string, std::string>;
+using NameFolderMap = std::unordered_map<std::string, std::string>;
 
+class VersionControlSystem {
 public:
     VersionControlSystem();
 
@@ -17,6 +17,12 @@ public:
     void CreateRepository(std::string repositoryName,
                           bool initRepository);
 
+private:
+    bool IsUniqueRepositoryData(
+            const std::string& name,
+            const std::string &folder) const;
+
+public:
     void CheckStatus() const;
 
     static void DoCommit(std::string_view message);
