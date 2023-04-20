@@ -1,6 +1,7 @@
 #ifndef CODEHUB_JSONSERIALIZER_H
 #define CODEHUB_JSONSERIALIZER_H
 
+#include <optional>
 #include <nlohmann/json.hpp>
 #include "../repository/Repository.h"
 #include "cpr/cookies.h"
@@ -23,11 +24,11 @@ public:
     static nlohmann::json RepositoryToConfigJson(
             std::string_view name,
             std::string_view folder,
-            const Repository::FileHashMap &fileHashMap);
+            const FileHashMap &fileHashMap);
 
     static nlohmann::json CommitsToJson(const std::vector<Commit> &commits);
 
-    static Repository RepositoryFromConfigJson(nlohmann::json json);
+    static std::optional<Repository> RepositoryFromConfigJson(nlohmann::json json);
 
     static std::vector<Commit> CommitsFromJson(nlohmann::json json);
 
@@ -37,12 +38,12 @@ public:
     static NameFolderMap NameFolderFromJson(nlohmann::json json);
 
 public:
-    static Repository GetRepositoryByFolder(const std::string &folder);
+    static std::optional<Repository> GetRepositoryByFolder(const std::string &folder);
 
 public:
     static nlohmann::json RepositoryToJson(const Repository &repository);
 
-    static Repository RepositoryFromJson(nlohmann::json json);
+    static std::optional<Repository> RepositoryFromJson(nlohmann::json json);
 
 public:
     static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
