@@ -1,7 +1,7 @@
 #include <iostream>
 #include "WebService.h"
 #include "../serializer/JsonSerializer.h"
-#include "../filemanager/Configs.h"
+#include "../config/Configs.h"
 
 cpr::Cookies WebService::GetCookiesFromFile() {
     std::ifstream ifs(CONFIG_COOKIES_FILE);

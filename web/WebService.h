@@ -3,7 +3,7 @@
 
 #include <nlohmann/json.hpp>
 #include "cpr/cpr.h"
-#include "Endpoints.h"
+#include "../config/Endpoints.h"
 #include "../repository/Repository.h"
 
 class WebService {
