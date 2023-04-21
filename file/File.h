@@ -13,14 +13,6 @@ public:
 
     explicit File(std::string filename);
 
-    File(const File &rhs) = default;
-
-    File &operator=(const File &rhs) = default;
-
-    File(File &&rhs) noexcept = default;
-
-    File &operator=(File &&rhs) noexcept = default;
-
 public:
     [[nodiscard]] std::string Name() const;
 
