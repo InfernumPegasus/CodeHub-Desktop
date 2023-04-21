@@ -1,5 +1,5 @@
 #include "JsonSerializer.h"
-#include "../filemanager/Configs.h"
+#include "../config/Configs.h"
 
 nlohmann::json JsonSerializer::FileToJson(
         const File &file) {

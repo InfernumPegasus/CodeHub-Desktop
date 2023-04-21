@@ -2,7 +2,7 @@
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
-#include "../filemanager/Configs.h"
+#include "../config/Configs.h"
 #include "../web/WebService.h"
 #include "../filemanager/RestoreFileManager.h"
 

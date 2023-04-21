@@ -16,6 +16,7 @@ void RestoreFileManager::CopyFiles(
         const fs::path &to) {
     try {
         for (const auto &file: files) {
+            if (file.Status() == FileStatus::Deleted) continue;
             const auto targetParentPath =
                     to / fs::relative(file.Name(), from).parent_path();
             fs::create_directories(targetParentPath);
@@ -35,7 +36,7 @@ void RestoreFileManager::CopyRecursive(
     try {
         fs::copy(from,
                  to,
-                 fs::copy_options::update_existing |
+                 fs::copy_options::overwrite_existing |
                  fs::copy_options::recursive);
     } catch (std::exception &e) {
         std::cout << e.what() << "\n";

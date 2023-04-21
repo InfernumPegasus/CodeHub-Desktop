@@ -1,6 +1,6 @@
 #include "RepositoryConfigManager.h"
 #include "../serializer/JsonSerializer.h"
-#include "Configs.h"
+#include "../config/Configs.h"
 
 RepositoryConfigManager::RepositoryConfigManager(
         std::string configFile,
