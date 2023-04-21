@@ -28,14 +28,14 @@ add_executable(CodeHub
         filemanager/CommitsManager.cpp
         filemanager/IgnoreFileManager.cpp
         filemanager/RepositoriesManager.cpp
-        filemanager/Configs.h
+        config/Configs.h
         filemanager/IFileManager.h
         filemanager/RestoreFileManager.cpp
 
         validation/Validator.cpp
         vcs/VersionControlSystem.cpp
 
-        web/Endpoints.h
+        config/Endpoints.h
         web/WebService.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
