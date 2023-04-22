@@ -19,7 +19,7 @@ public:
 
 private:
     bool IsUniqueRepositoryData(
-            const std::string& name,
+            const std::string &name,
             const std::string &folder) const;
 
 public:
@@ -39,10 +39,13 @@ public:
 
     static void Push();
 
-    static std::vector<Commit> CommitsToPush();
+    static std::optional<std::vector<Commit>> CommitsToPush();
+
+    static std::vector<Commit> CommitsDifference(const std::vector<Commit> &vec1,
+                                                 const std::vector<Commit> &vec2);
 
 public:
-    NameFolderMap NameAndFolderMap() const;
+    const NameFolderMap &NameAndFolderMap() const;
 
 public:
     void Init();

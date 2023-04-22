@@ -14,7 +14,7 @@ File::File(std::string filename) :
         hash_(CalculateHash(name_)),
         status_(FileStatus::Unknown) {}
 
-std::string File::Name() const {
+const std::string &File::Name() const {
     return name_;
 }
 

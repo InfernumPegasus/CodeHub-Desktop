@@ -14,7 +14,7 @@ public:
     explicit File(std::string filename);
 
 public:
-    [[nodiscard]] std::string Name() const;
+    [[nodiscard]] const std::string &Name() const;
 
     [[nodiscard]] int32_t Hash() const;
 
@@ -39,9 +39,9 @@ private:
 };
 
 namespace std {
-    template <>
+    template<>
     struct hash<File> {
-        std::size_t operator()(const File& file) const {
+        std::size_t operator()(const File &file) const {
             return File::CalculateHash(file.Name());
         }
     };

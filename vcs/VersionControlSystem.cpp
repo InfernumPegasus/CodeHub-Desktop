@@ -2,7 +2,7 @@
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
-#include "../config/Configs.h"
+#include "../config/ConfigFiles.h"
 #include "../web/WebService.h"
 #include "../filemanager/RestoreFileManager.h"
 
@@ -89,14 +89,16 @@ void VersionControlSystem::DoCommit(std::string_view message) {
 void VersionControlSystem::DeleteRepository() {
     std::string currentDir = fs::current_path();
     erase_if(nameFolderMap_,
-             [&](auto &pair) -> bool { return pair.second == currentDir; });
+             [&](auto &pair) -> bool {
+                 return pair.second == currentDir;
+             });
 }
 
 void VersionControlSystem::Init() {
     repositoriesManager_.Init();
 }
 
-NameFolderMap VersionControlSystem::NameAndFolderMap() const {
+const NameFolderMap &VersionControlSystem::NameAndFolderMap() const {
     return nameFolderMap_;
 }
 
@@ -148,16 +150,37 @@ void VersionControlSystem::Push() {
 
     repository->InitCommitsManager();
     auto response =
-            WebService::PostCommit(repository->LastCommit());
-    std::cout << response.text << "\n";
+            WebService::PostCommits(
+                    CommitsToPush().value()
+            );
 }
 
-/*
- * TODO доделать
- */
-std::vector<Commit> VersionControlSystem::CommitsToPush() {
-    std::vector<Commit> commits;
-    return commits;
+std::optional<std::vector<Commit>> VersionControlSystem::CommitsToPush() {
+    auto repository =
+            JsonSerializer::GetRepositoryByFolder(fs::current_path());
+    if (!repository.has_value()) return {};
+
+    auto localCommits = repository->Commits();
+    std::vector<Commit> pushedCommits =
+            WebService::GetRepository(repository->Name()).Commits();
+    return CommitsDifference(
+            pushedCommits,
+            localCommits
+    );
+}
+
+std::vector<Commit> VersionControlSystem::CommitsDifference(
+        const std::vector<Commit> &vec1,
+        const std::vector<Commit> &vec2) {
+    std::vector<Commit> result;
+    std::copy_if(vec1.cbegin(), vec1.cend(),
+                 std::back_inserter(result),
+                 [&vec2](const Commit &c) {
+                     return (std::find(vec2.cbegin(), vec2.cend(), c)
+                             == vec2.cend());
+                 }
+    );
+    return result;
 }
 
 void VersionControlSystem::RestoreFiles(int32_t checksum) {
