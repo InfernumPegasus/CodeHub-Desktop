@@ -37,6 +37,9 @@ private:
 public:
     void DoCommit(std::string_view message);
 
+    static std::tuple<int, int, int> CountFilesStatuses(
+            const std::unordered_set<File> &files);
+
     static void SaveCommitFiles(const Commit &commit);
 
     static void RestoreCommitFiles(int32_t checksum);
@@ -51,15 +54,15 @@ public:
     void InitManagers();
 
 public:
-    [[nodiscard]] std::string Name() const;
+    [[nodiscard]] const std::string &Name() const;
 
-    [[nodiscard]] std::string Folder() const;
+    [[nodiscard]] const std::string &Folder() const;
 
-    [[nodiscard]] std::vector<Commit> Commits() const;
+    [[nodiscard]] const std::vector<Commit> &Commits() const;
 
-    [[nodiscard]] Commit LastCommit() const;
+    [[nodiscard]] const Commit &LastCommit() const;
 
-    [[nodiscard]] FileHashMap Map() const;
+    [[nodiscard]] const FileHashMap &Map() const;
 
 public:
     std::unordered_set<std::string> MapToFilenames() const;

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <utility>
 #include "Repository.h"
-#include "../config/Configs.h"
+#include "../config/ConfigFiles.h"
 #include "../filemanager/RestoreFileManager.h"
 
 Repository::Repository(std::string repositoryName,
@@ -78,12 +78,35 @@ void Repository::DoCommit(std::string_view message) {
 
     SaveCommitFiles(commit);
 
-    std::cout << "Commit created:\n";
-    for (const auto &file: collectedFiles) {
-        std::cout << "file: '" << file.Name() << "'\n"
-                  << "status: " << static_cast<int>(file.Status()) << "\n\n";
-    }
+    auto statuses = CountFilesStatuses(collectedFiles);
+    std::cout << "Commit '" << commit.Message() << "'\n"
+              << get<0>(statuses) << " creations, "
+              << get<1>(statuses) << " modifications, "
+              << get<2>(statuses) << " deletions\n";
 }
+
+std::tuple<int, int, int> Repository::CountFilesStatuses(
+        const std::unordered_set<File> &files) {
+    int creations{}, modifications{}, deletions{};
+    for (const auto &file: files) {
+        switch (file.Status()) {
+            case FileStatus::Created:
+                creations++;
+                break;
+            case FileStatus::Modified:
+                modifications++;
+                break;
+            case FileStatus::Deleted:
+                deletions++;
+                break;
+            case FileStatus::Unknown:
+            default:
+                break;
+        }
+    }
+    return {creations, modifications, deletions};
+}
+
 
 void Repository::SaveCommitFiles(const Commit &commit) {
     auto recoveryFolder =
@@ -114,28 +137,28 @@ void Repository::InitCommitsManager() {
 }
 
 void Repository::InitManagers() {
-    configManager_.Init();
-    ignoreFileManager_.Init();
-    commitsManager_.Init();
+    InitConfigManager();
+    InitIgnoreManager();
+    InitCommitsManager();
 }
 
-std::string Repository::Name() const {
+const std::string &Repository::Name() const {
     return repositoryName_;
 }
 
-std::string Repository::Folder() const {
+const std::string &Repository::Folder() const {
     return repositoryFolder_;
 }
 
-std::vector<Commit> Repository::Commits() const {
+const std::vector<Commit> &Repository::Commits() const {
     return commits_;
 }
 
-Commit Repository::LastCommit() const {
+const Commit &Repository::LastCommit() const {
     return commits_.back();
 }
 
-FileHashMap Repository::Map() const {
+const FileHashMap &Repository::Map() const {
     return fileHashMap_;
 }
 
