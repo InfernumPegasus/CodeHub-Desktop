@@ -1,5 +1,5 @@
-#ifndef CODEHUB_CONFIGS_H
-#define CODEHUB_CONFIGS_H
+#ifndef CODEHUB_CONFIGFILES_H
+#define CODEHUB_CONFIGFILES_H
 
 #include <string>
 
@@ -16,4 +16,4 @@ const std::string CONFIG_USER_FILE = VCS_CONFIG_DIRECTORY + "/" + USER_FILE;
 constexpr std::string COOKIES_FILE = ".cookies.json";
 const std::string CONFIG_COOKIES_FILE = VCS_CONFIG_DIRECTORY + "/" + COOKIES_FILE;
 
-#endif //CODEHUB_CONFIGS_H
+#endif //CODEHUB_CONFIGFILES_H

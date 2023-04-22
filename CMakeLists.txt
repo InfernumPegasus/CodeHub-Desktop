@@ -28,7 +28,7 @@ add_executable(CodeHub
         filemanager/CommitsManager.cpp
         filemanager/IgnoreFileManager.cpp
         filemanager/RepositoriesManager.cpp
-        config/Configs.h
+        config/ConfigFiles.h
         filemanager/IFileManager.h
         filemanager/RestoreFileManager.cpp
 
