@@ -31,11 +31,11 @@ std::ostream &operator<<(std::ostream &os, const Commit &commit) {
     return os;
 }
 
-std::unordered_set<File> Commit::Files() const {
+const std::unordered_set<File> &Commit::Files() const {
     return files_;
 }
 
-std::string Commit::Message() const {
+const std::string &Commit::Message() const {
     return message_;
 }
 

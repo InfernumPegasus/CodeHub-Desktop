@@ -20,12 +20,13 @@ public:
            int32_t checkSum);
 
 public:
-    friend std::ostream &operator<<(std::ostream &os, const Commit &commit);
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const Commit &commit);
 
 public:
-    [[nodiscard]] std::unordered_set<File> Files() const;
+    [[nodiscard]] const std::unordered_set<File> &Files() const;
 
-    [[nodiscard]] std::string Message() const;
+    [[nodiscard]] const std::string &Message() const;
 
     [[nodiscard]] int32_t Checksum() const;
 
