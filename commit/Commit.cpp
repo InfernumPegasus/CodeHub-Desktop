@@ -20,7 +20,7 @@ Commit::Commit(const std::unordered_set<std::string> &files,
 
 Commit::Commit(std::unordered_set<File> files,
                std::string_view message,
-               int32_t checkSum) :
+               size_t checkSum) :
         files_(std::move(files)),
         message_(message),
         checkSum_(checkSum) {}
@@ -39,16 +39,16 @@ const std::string &Commit::Message() const {
     return message_;
 }
 
-int32_t Commit::Checksum() const {
+size_t Commit::Checksum() const {
     return checkSum_;
 }
 
-int32_t Commit::CalculateCheckSum() const {
+size_t Commit::CalculateCheckSum() const {
     size_t checkSum = 0;
     auto size = files_.size();
     for (const auto &file: files_) {
         checkSum += file.Hash() + (size << 2) + (size >> 5);
     }
     checkSum += std::hash<std::string>{}(message_);
-    return static_cast<int32_t>(checkSum);
+    return checkSum;
 }

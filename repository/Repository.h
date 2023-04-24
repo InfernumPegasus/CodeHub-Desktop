@@ -42,7 +42,7 @@ public:
 
     static void SaveCommitFiles(const Commit &commit);
 
-    static void RestoreCommitFiles(int32_t checksum);
+    static void RestoreCommitFiles(size_t checksum);
 
 public:
     void InitConfigManager();
@@ -60,12 +60,7 @@ public:
 
     [[nodiscard]] const std::vector<Commit> &Commits() const;
 
-    [[nodiscard]] const Commit &LastCommit() const;
-
     [[nodiscard]] const FileHashMap &Map() const;
-
-public:
-    std::unordered_set<std::string> MapToFilenames() const;
 
 private:
     std::string repositoryName_;

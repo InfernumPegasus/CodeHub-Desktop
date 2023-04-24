@@ -17,7 +17,7 @@ public:
 
     Commit(std::unordered_set<File> files,
            std::string_view message,
-           int32_t checkSum);
+           size_t checkSum);
 
 public:
     friend std::ostream &operator<<(std::ostream &os,
@@ -28,10 +28,10 @@ public:
 
     [[nodiscard]] const std::string &Message() const;
 
-    [[nodiscard]] int32_t Checksum() const;
+    [[nodiscard]] size_t Checksum() const;
 
 public:
-    [[nodiscard]] int32_t CalculateCheckSum() const;
+    [[nodiscard]] size_t CalculateCheckSum() const;
 
 public:
     bool operator==(const Commit &other) const = default;
@@ -39,7 +39,7 @@ public:
 private:
     std::unordered_set<File> files_;
     std::string message_;
-    int32_t checkSum_;
+    size_t checkSum_;
 };
 
 
