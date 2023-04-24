@@ -5,8 +5,6 @@
 
 class Validator {
 public:
-    static bool IsValidEmail(std::string_view email);
-
     static bool IsValidRepositoryName(std::string_view repositoryName);
 
 public:
@@ -17,9 +15,6 @@ public:
                         std::string_view to);
 
     static void ValidateRepositoryName(std::string &name);
-
-public:
-
 };
 
 
