@@ -7,7 +7,7 @@
 Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder) :
         repositoryName_(std::move(repositoryName)),
-        repositoryFolder_(std::filesystem::absolute(repositoryFolder)),
+        repositoryFolder_(fs::absolute(repositoryFolder)),
         configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
                        &repositoryName_,
                        &repositoryFolder_,
@@ -15,7 +15,7 @@ Repository::Repository(std::string repositoryName,
         commitsManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE,
                         &commits_),
         ignoreFileManager_(repositoryFolder_,
-                           repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_IGNORE_FILE,
+                           repositoryFolder_ + "/" + VCS_IGNORE_FILE,
                            &ignoredFiles_) {}
 
 Repository::Repository(std::string repositoryName,
@@ -49,12 +49,12 @@ FileHashMap Repository::ChangedFiles() const {
 FileHashMap Repository::CollectFiles() const {
     FileHashMap collectedFiles;
 
-    for (auto &file:
-            std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-        auto filename = std::filesystem::absolute(file).string();
+    for (const auto &file:
+            fs::recursive_directory_iterator(repositoryFolder_)) {
+        const auto filename = fs::relative(file).string();
 
         if (!ignoredFiles_.contains(filename) &&
-            !std::filesystem::is_directory(filename)) {
+            !fs::is_directory(filename)) {
             collectedFiles.emplace(filename, File::CalculateHash(filename));
         }
     }
@@ -63,7 +63,7 @@ FileHashMap Repository::CollectFiles() const {
 }
 
 void Repository::DoCommit(std::string_view message) {
-    std::unordered_set<File> collectedFiles =
+    const std::unordered_set<File> collectedFiles =
             FilterCollectedFiles(CollectFiles());
 
     if (collectedFiles.empty()) {
@@ -78,7 +78,7 @@ void Repository::DoCommit(std::string_view message) {
 
     SaveCommitFiles(commit);
 
-    auto statuses = CountFilesStatuses(collectedFiles);
+    const auto statuses = CountFilesStatuses(collectedFiles);
     std::cout << "Commit '" << commit.Message() << "'\n"
               << get<0>(statuses) << " creations, "
               << get<1>(statuses) << " modifications, "
@@ -109,7 +109,7 @@ std::tuple<int, int, int> Repository::CountFilesStatuses(
 
 
 void Repository::SaveCommitFiles(const Commit &commit) {
-    auto recoveryFolder =
+    const auto recoveryFolder =
             VCS_CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
     RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(),
@@ -117,7 +117,7 @@ void Repository::SaveCommitFiles(const Commit &commit) {
                                   recoveryFolder);
 }
 
-void Repository::RestoreCommitFiles(int32_t checksum) {
+void Repository::RestoreCommitFiles(size_t checksum) {
     RestoreFileManager::CopyRecursive(
             VCS_CONFIG_DIRECTORY + "/" + std::to_string(checksum),
             fs::current_path()
@@ -154,20 +154,8 @@ const std::vector<Commit> &Repository::Commits() const {
     return commits_;
 }
 
-const Commit &Repository::LastCommit() const {
-    return commits_.back();
-}
-
 const FileHashMap &Repository::Map() const {
     return fileHashMap_;
-}
-
-std::unordered_set<std::string> Repository::MapToFilenames() const {
-    std::unordered_set<std::string> files;
-    for (const auto &[name, _]: fileHashMap_) {
-        files.insert(name);
-    }
-    return files;
 }
 
 std::unordered_set<File> Repository::FilterCollectedFiles(
@@ -177,7 +165,7 @@ std::unordered_set<File> Repository::FilterCollectedFiles(
         if (fileHashMap_.contains(filename)) {
             // File exists and modified
             if (fileHashMap_.at(filename) != hash) {
-                auto calcHash = File::CalculateHash(filename);
+                const auto calcHash = File::CalculateHash(filename);
                 // Add file to new commit
                 toInsert.emplace(filename,
                                  calcHash,
@@ -187,7 +175,7 @@ std::unordered_set<File> Repository::FilterCollectedFiles(
                 fileHashMap_.at(filename) = calcHash;
             }
         } else {
-            auto calcHash = File::CalculateHash(filename);
+            const auto calcHash = File::CalculateHash(filename);
             // File created
             toInsert.emplace(filename,
                              calcHash,
@@ -200,7 +188,7 @@ std::unordered_set<File> Repository::FilterCollectedFiles(
     auto iter = fileHashMap_.begin();
     while (iter != fileHashMap_.end()) {
         // File deleted
-        if (!std::filesystem::exists(iter->first)) {
+        if (!fs::exists(iter->first)) {
             toInsert.emplace(iter->first,
                              File::CalculateHash(iter->first),
                              FileStatus::Deleted);
@@ -213,5 +201,3 @@ std::unordered_set<File> Repository::FilterCollectedFiles(
 
     return toInsert;
 }
-
-

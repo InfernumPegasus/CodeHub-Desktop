@@ -6,7 +6,7 @@
 constexpr std::string VCS_CONFIG_DIRECTORY = ".codehub_config";
 constexpr std::string VCS_CONFIG_FILE = ".repo_info.json";
 constexpr std::string VCS_COMMITS_FILE = ".commits.json";
-constexpr std::string VCS_IGNORE_FILE = ".ignore";
+constexpr std::string VCS_IGNORE_FILE = "code_hub_ignore";
 
 constexpr std::string VCS_REPOSITORIES_FILE = "repos.json";
 

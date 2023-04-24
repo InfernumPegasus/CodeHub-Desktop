@@ -1,7 +1,6 @@
 #ifndef CODEHUB_FILESTATUS_H
 #define CODEHUB_FILESTATUS_H
 
-// TODO юзнуть либу magic_enum для понятных enum-ов
 enum class FileStatus {
     Unknown = -1,   // Should never be
     Created = 0,

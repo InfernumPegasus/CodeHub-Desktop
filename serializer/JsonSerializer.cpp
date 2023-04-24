@@ -13,7 +13,7 @@ nlohmann::json JsonSerializer::FileToJson(
 File JsonSerializer::FileFromJson(
         nlohmann::json json) {
     std::string name = json["file_name"];
-    int32_t hash = json["file_hash"];
+    size_t hash = json["file_hash"];
     FileStatus status = json["file_status"];
     return {name, hash, status};
 }
@@ -38,7 +38,7 @@ Commit JsonSerializer::CommitFromJson(
         files.insert(FileFromJson(file));
     }
     std::string message = json["message"];
-    int32_t checkSum = json["commit_hash"];
+    size_t checkSum = json["commit_hash"];
     return {files, message, checkSum};
 }
 
@@ -94,14 +94,11 @@ JsonSerializer::NameFolderMap JsonSerializer::NameFolderFromJson(
     return json["map"];
 }
 
-// TODO юзнуть std::optional
 std::optional<Repository> JsonSerializer::GetRepositoryByFolder(
         const std::string &folder) {
     std::ifstream ifs(folder + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE);
-    if (!ifs) {
-        return {};
-//        throw std::invalid_argument("Wrong folder provided!");
-    }
+    if (!ifs) return {};
+
     auto j = nlohmann::json::parse(ifs);
     return RepositoryFromConfigJson(j);
 }

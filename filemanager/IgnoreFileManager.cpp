@@ -14,9 +14,9 @@ bool IgnoreFileManager::Create() {
     std::unordered_set<std::string> files;
     for (auto &file:
             std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-        if (auto filename = std::filesystem::absolute(file).filename().string();
+        if (auto filename = std::filesystem::relative(file).filename().string();
                 filename.starts_with(".") || filename.starts_with("_")) {
-            files.insert(std::filesystem::absolute(file).string());
+            files.insert(filename);
         }
     }
 
@@ -45,7 +45,7 @@ bool IgnoreFileManager::Read() {
 
         for (auto &file:
                 std::filesystem::recursive_directory_iterator(readFilename)) {
-            auto filename = std::filesystem::absolute(file).string();
+            auto filename = std::filesystem::relative(file).string();
             ignoredFilesRef_.insert(filename);
         }
     }
