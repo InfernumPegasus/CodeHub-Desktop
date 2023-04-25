@@ -30,6 +30,23 @@ bool File::operator<(const File &rhs) const {
     return hash_ < rhs.hash_;
 }
 
+std::vector<char> File::LoadContent(std::string_view filename) {
+    std::vector<char> content;
+    std::ifstream ifs(filename.data());
+
+    return {
+            std::istreambuf_iterator<char>(ifs),
+            std::istreambuf_iterator<char>()
+    };
+}
+
 size_t File::CalculateHash(std::string_view filename) {
-    return std::filesystem::hash_value(filename);
+    auto content = LoadContent(filename);
+    auto res = content.size();
+    std::string file = filename.data();
+    for (auto &c: content) {
+        res ^= c + std::hash<std::string>{}(file) +
+               0x9e3779b9 + (res << 6) + (res >> 2);
+    }
+    return res;
 }

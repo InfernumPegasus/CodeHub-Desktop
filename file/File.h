@@ -26,6 +26,8 @@ public:
     bool operator<(const File &rhs) const;
 
 public:
+    static std::vector<char> LoadContent(std::string_view filename);
+
     static size_t CalculateHash(std::string_view filename);
 
 private:
