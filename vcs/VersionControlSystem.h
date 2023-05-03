@@ -13,45 +13,45 @@ public:
 
     ~VersionControlSystem();
 
-public:
-    void CreateRepository(std::string repositoryName,
-                          bool initRepository);
-
 private:
     bool IsUniqueRepositoryData(
             const std::string &name,
             const std::string &folder) const;
 
 public:
-    void CheckStatus() const;
-
-    static void DoCommit(std::string_view message);
-
-    void DeleteRepository();
-
     bool ExistsByName(std::string_view repositoryName) const;
 
     bool ExistsByFolder(std::string_view repositoryFolder) const;
 
-    void ShowRepositories() const;
+public:
+    void CreateRepository(std::string repositoryName);
 
-    static void CommitsLog();
+public:
+    void CheckStatus() const;
 
-    static void Push();
+    void DoCommit(std::string_view message);
+
+    void Push();
 
     static std::optional<std::vector<Commit>> CommitsToPush();
 
     static std::vector<Commit> CommitsDifference(const std::vector<Commit> &vec1,
                                                  const std::vector<Commit> &vec2);
 
-public:
-    const NameFolderMap &NameAndFolderMap() const;
+    void ShowRepositories() const;
+
+    void CommitsLog();
 
 public:
     void Init();
 
 public:
-    static void RestoreFiles(int32_t checksum);
+    void RestoreFiles(size_t checksum);
+
+public:
+    void Clone(std::string_view repositoryName);
+
+    void Pull();
 
 private:
     NameFolderMap nameFolderMap_;

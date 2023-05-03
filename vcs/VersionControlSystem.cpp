@@ -13,10 +13,32 @@ VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.Update();
 }
 
+bool VersionControlSystem::IsUniqueRepositoryData(
+        const std::string &name,
+        const std::string &folder) const {
+    return Validator::IsValidRepositoryName(name) &&
+           !ExistsByFolder(folder) &&
+           !ExistsByName(name);
+}
+
+bool VersionControlSystem::ExistsByName(
+        std::string_view repositoryName) const {
+    return nameFolderMap_.contains(repositoryName.data());
+}
+
+bool VersionControlSystem::ExistsByFolder(
+        std::string_view repositoryFolder) const {
+    return std::ranges::any_of(
+            nameFolderMap_.cbegin(), nameFolderMap_.cend(),
+            [&](auto &pair) {
+                return pair.second == repositoryFolder;
+            }
+    );
+}
+
 void VersionControlSystem::CreateRepository(
-        std::string repositoryName,
-        bool initRepository) {
-    std::string repositoryFolder = std::filesystem::current_path().string();
+        std::string repositoryName) {
+    const auto repositoryFolder = std::filesystem::current_path();
     Validator::ValidateRepositoryName(repositoryName);
     if (!IsUniqueRepositoryData(repositoryName, repositoryFolder)) {
         std::cout << "Cannot create repository.\n"
@@ -26,20 +48,10 @@ void VersionControlSystem::CreateRepository(
 
     nameFolderMap_.emplace(repositoryName, repositoryFolder);
     Repository repository(repositoryName, repositoryFolder);
-    if (initRepository) {
-        repository.InitManagers();
-    }
+    repository.InitManagers();
 
     std::cout << "Repository '" << repositoryName
               << "' created in folder '" << repositoryFolder << "'.\n";
-}
-
-bool VersionControlSystem::IsUniqueRepositoryData(
-        const std::string &name,
-        const std::string &folder) const {
-    return Validator::IsValidRepositoryName(name) &&
-           !ExistsByFolder(folder) &&
-           !ExistsByName(name);
 }
 
 void VersionControlSystem::CheckStatus() const {
@@ -47,8 +59,8 @@ void VersionControlSystem::CheckStatus() const {
             nameFolderMap_.cbegin(),
             nameFolderMap_.cend(),
             [&](const auto &pair) -> bool {
-                std::string name = pair.first;
-                std::string folder = pair.second;
+                const std::string name = pair.first;
+                const std::string folder = pair.second;
                 if (folder != fs::current_path()) return false;
 
                 Repository repository(name, folder);
@@ -77,82 +89,49 @@ void VersionControlSystem::DoCommit(std::string_view message) {
         std::cout << "Commit message cannot be empty.\n";
         return;
     }
+    if (nameFolderMap_.empty()) {
+        std::cout << "You have no repositories.\n";
+        return;
+    }
 
-    auto repository = JsonSerializer::GetRepositoryByFolder(
-            fs::current_path());
+    auto repository =
+            JsonSerializer::GetRepositoryByFolder(fs::current_path());
     if (!repository.has_value()) return;
 
     repository->InitManagers();
     repository->DoCommit(message);
 }
 
-void VersionControlSystem::DeleteRepository() {
-    std::string currentDir = fs::current_path();
-    erase_if(nameFolderMap_,
-             [&](auto &pair) -> bool {
-                 return pair.second == currentDir;
-             });
-}
-
-void VersionControlSystem::Init() {
-    repositoriesManager_.Init();
-}
-
-const NameFolderMap &VersionControlSystem::NameAndFolderMap() const {
-    return nameFolderMap_;
-}
-
-bool VersionControlSystem::ExistsByName(
-        std::string_view repositoryName) const {
-    return nameFolderMap_.contains(repositoryName.data());
-}
-
-bool VersionControlSystem::ExistsByFolder(
-        std::string_view repositoryFolder) const {
-    return std::ranges::any_of(
-            nameFolderMap_.cbegin(), nameFolderMap_.cend(),
-            [&](auto &pair) { return pair.second == repositoryFolder; }
-    );
-}
-
-void VersionControlSystem::ShowRepositories() const {
+void VersionControlSystem::Push() {
     if (nameFolderMap_.empty()) {
-        std::cout << "No repositories yet.\n";
+        std::cout << "You have no repositories.\n";
         return;
     }
-    for (const auto &[name, folder]: nameFolderMap_) {
-        if (ExistsByName(name) &&
-            ExistsByFolder(folder)) {
-            std::cout << "'" << name << "' : '" << folder << "'\n";
-        }
-    }
-}
 
-void VersionControlSystem::CommitsLog() {
     auto repository =
             JsonSerializer::GetRepositoryByFolder(fs::current_path());
     if (!repository.has_value()) return;
 
     repository->InitCommitsManager();
-
-    for (const auto &commit: repository->Commits()) {
-        std::cout << commit << "\n";
+    if (const auto repo =
+                WebService::GetRepository(repository->Name());
+            !repo.has_value()) {
+        WebService::PostRepository(repository.value());
+        return;
     }
-}
-
-/*
- * TODO переделать
- */
-void VersionControlSystem::Push() {
-    auto repository =
-            JsonSerializer::GetRepositoryByFolder(fs::current_path());
-    if (!repository.has_value()) return;
 
     repository->InitCommitsManager();
-    auto response =
-            WebService::PostCommits(
-                    CommitsToPush().value()
-            );
+    const auto commitsOpt = CommitsToPush();
+    if (!commitsOpt.has_value() ||
+        commitsOpt.value().empty()) {
+        std::cout << "No commits!\n";
+        return;
+    }
+
+    WebService::PatchRepository(repository->Name(),
+                                repository.value(),
+                                false,
+                                commitsOpt.value());
 }
 
 std::optional<std::vector<Commit>> VersionControlSystem::CommitsToPush() {
@@ -160,13 +139,20 @@ std::optional<std::vector<Commit>> VersionControlSystem::CommitsToPush() {
             JsonSerializer::GetRepositoryByFolder(fs::current_path());
     if (!repository.has_value()) return {};
 
-    auto localCommits = repository->Commits();
-    std::vector<Commit> pushedCommits =
-            WebService::GetRepository(repository->Name()).Commits();
-    return CommitsDifference(
-            pushedCommits,
-            localCommits
+    repository->InitCommitsManager();
+    const auto localCommits = repository->Commits();
+    auto pushedCommits =
+            WebService::GetRepository(repository->Name())->Commits();
+
+    const auto difference = CommitsDifference(
+            localCommits,
+            pushedCommits
     );
+    for (const auto &item: difference) {
+        pushedCommits.emplace_back(item);
+    }
+
+    return pushedCommits;
 }
 
 std::vector<Commit> VersionControlSystem::CommitsDifference(
@@ -183,20 +169,71 @@ std::vector<Commit> VersionControlSystem::CommitsDifference(
     return result;
 }
 
-void VersionControlSystem::RestoreFiles(int32_t checksum) {
+void VersionControlSystem::ShowRepositories() const {
+    if (nameFolderMap_.empty()) {
+        std::cout << "You have no repositories.\n";
+        return;
+    }
+    for (const auto &[name, folder]: nameFolderMap_) {
+        if (ExistsByName(name) &&
+            ExistsByFolder(folder)) {
+            std::cout << "'" << name << "' : '" << folder << "'\n";
+        }
+    }
+}
+
+void VersionControlSystem::CommitsLog() {
+    if (nameFolderMap_.empty()) {
+        std::cout << "You have no repositories.\n";
+        return;
+    }
+    auto repository =
+            JsonSerializer::GetRepositoryByFolder(fs::current_path());
+    if (!repository.has_value()) return;
+
+    repository->InitCommitsManager();
+
+    for (const auto &commit: repository->Commits()) {
+        std::cout << commit << "\n";
+    }
+}
+
+void VersionControlSystem::Init() {
+    repositoriesManager_.Init();
+}
+
+void VersionControlSystem::RestoreFiles(size_t checksum) {
+    if (nameFolderMap_.empty()) {
+        std::cout << "You have no repositories.\n";
+        return;
+    }
     auto repository =
             JsonSerializer::GetRepositoryByFolder(fs::current_path());
     if (!repository.has_value()) return;
 
     repository->InitCommitsManager();
     repository->InitConfigManager();
-    auto commits = repository->Commits();
-    auto found = std::find_if(commits.cbegin(),
-                              commits.cend(),
-                              [checksum](const Commit &c) {
-                                  return c.Checksum() == checksum;
-                              });
+    const auto commits = repository->Commits();
+    const auto found = std::find_if(commits.cbegin(),
+                                    commits.cend(),
+                                    [checksum](const Commit &c) {
+                                        return c.Checksum() == checksum;
+                                    });
     if (found == commits.cend()) return;
     Repository::RestoreCommitFiles(checksum);
+}
+
+// TODO
+void VersionControlSystem::Clone(std::string_view repositoryName) {
+    if (ExistsByName(repositoryName) ||
+        ExistsByFolder(fs::current_path().string())) {
+        std::cout << "There is another repo in this folder.\n";
+        return;
+    }
+}
+
+// TODO
+void VersionControlSystem::Pull() {
+
 }
 
