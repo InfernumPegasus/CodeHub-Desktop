@@ -14,9 +14,16 @@ FetchContent_MakeAvailable(cpr)
 #include_directories(tests/lib/googletest/googletest/include)
 
 # Include boost
-find_package(Boost COMPONENTS program_options filesystem REQUIRED)
+find_package(Boost COMPONENTS program_options REQUIRED)
 
-add_executable(CodeHub
+add_library(MANAGERS
+        filemanager/RepositoryConfigManager.cpp
+        filemanager/CommitsManager.cpp
+        filemanager/IgnoreFileManager.cpp
+        filemanager/RepositoriesManager.cpp
+        filemanager/RestoreFileManager.cpp)
+
+add_executable(${PROJECT_NAME}
         main.cpp
         file/File.cpp
         commit/Commit.cpp
@@ -24,21 +31,13 @@ add_executable(CodeHub
 
         serializer/JsonSerializer.cpp
 
-        filemanager/RepositoryConfigManager.cpp
-        filemanager/CommitsManager.cpp
-        filemanager/IgnoreFileManager.cpp
-        filemanager/RepositoriesManager.cpp
-        config/ConfigFiles.h
-        filemanager/IFileManager.h
-        filemanager/RestoreFileManager.cpp
-
         validation/Validator.cpp
+
         vcs/VersionControlSystem.cpp
 
-        config/Endpoints.h
         web/WebService.cpp)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE cpr::cpr ${Boost_LIBRARIES} MANAGERS)
 
 ##Tests
 #add_executable(Tests
