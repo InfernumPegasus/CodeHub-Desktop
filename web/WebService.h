@@ -1,6 +1,7 @@
 #ifndef CODEHUB_WEBSERVICE_H
 #define CODEHUB_WEBSERVICE_H
 
+#include <optional>
 #include <nlohmann/json.hpp>
 #include "cpr/cpr.h"
 #include "../config/Endpoints.h"
@@ -22,29 +23,22 @@ public:
 
     static std::vector<int> PostCommits(const std::vector<Commit> &commits);
 
-    static Commit GetCommit(int id);
-
-    static std::vector<Commit> GetCommits(const std::vector<int> &ids);
-
 public:
     static std::vector<int> PostFiles(const std::unordered_set<File> &files);
 
     static cpr::Response PostFile(const File &file);
 
 public:
-    static cpr::Response GetRefresh();
+    static std::optional<Repository> GetRepository(const std::string &repoName);
 
-public:
-    static void GetRepositories();
+    static nlohmann::json GetRepositoryJson(const std::string &repoName);
 
-    static Repository GetRepository(const std::string &repoName);
-
-    static cpr::Response PostRepository(const Repository &repository,
-                                        bool isPrivate);
+    static cpr::Response PostRepository(const Repository &repository);
 
     static cpr::Response PatchRepository(std::string_view repoName,
                                          const Repository &repository,
-                                         bool isPrivate);
+                                         bool isPrivate,
+                                         const std::vector<Commit>& commits);
 };
 
 
