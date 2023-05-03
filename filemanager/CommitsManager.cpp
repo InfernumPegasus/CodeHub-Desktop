@@ -23,7 +23,7 @@ bool CommitsManager::Read() {
 
     nlohmann::json j = nlohmann::json::parse(ifs);
     auto readCommits = JsonSerializer::CommitsFromJson(j);
-    for (const auto &commit: readCommits) {
+    for (const auto &commit: *readCommits) {
         commitsRef_.push_back(commit);
     }
 
