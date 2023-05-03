@@ -15,10 +15,14 @@ public:
 
     static File FileFromJson(nlohmann::json json);
 
+    static File FileFromWebJson(nlohmann::json json);
+
 public:
     static nlohmann::json CommitToJson(const Commit &commit);
 
     static Commit CommitFromJson(nlohmann::json json);
+
+    static Commit CommitFromWebJson(nlohmann::json json);
 
 public:
     static nlohmann::json RepositoryToConfigJson(
@@ -30,7 +34,9 @@ public:
 
     static std::optional<Repository> RepositoryFromConfigJson(nlohmann::json json);
 
-    static std::vector<Commit> CommitsFromJson(nlohmann::json json);
+    static std::optional<std::vector<Commit>> CommitsFromJson(nlohmann::json json);
+
+    static std::optional<std::vector<Commit>> CommitsFromWebJson(nlohmann::json json);
 
 public:
     static nlohmann::json NameFolderToJson(const NameFolderMap &map);
@@ -44,6 +50,8 @@ public:
     static nlohmann::json RepositoryToJson(const Repository &repository);
 
     static std::optional<Repository> RepositoryFromJson(nlohmann::json json);
+
+    static std::optional<Repository> RepositoryFromWebJson(nlohmann::json json);
 
 public:
     static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
