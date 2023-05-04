@@ -8,14 +8,14 @@ Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder) :
         repositoryName_(std::move(repositoryName)),
         repositoryFolder_(fs::absolute(repositoryFolder)),
-        configManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE,
+        configManager_(repositoryFolder_ + "/" + CONFIG_DIRECTORY + "/" + CONFIG_FILE,
                        &repositoryName_,
                        &repositoryFolder_,
                        &fileHashMap_),
-        commitsManager_(repositoryFolder_ + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_COMMITS_FILE,
+        commitsManager_(repositoryFolder_ + "/" + CONFIG_DIRECTORY + "/" + COMMITS_FILE,
                         &commits_),
         ignoreFileManager_(repositoryFolder_,
-                           repositoryFolder_ + "/" + VCS_IGNORE_FILE,
+                           repositoryFolder_ + "/" + IGNORE_FILE,
                            &ignoredFiles_) {}
 
 Repository::Repository(std::string repositoryName,
@@ -110,7 +110,7 @@ std::tuple<int, int, int> Repository::CountFilesStatuses(
 
 void Repository::SaveCommitFiles(const Commit &commit) {
     const auto recoveryFolder =
-            VCS_CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
+            CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
     RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(),
                                   fs::current_path(),
@@ -119,7 +119,7 @@ void Repository::SaveCommitFiles(const Commit &commit) {
 
 void Repository::RestoreCommitFiles(size_t checksum) {
     RestoreFileManager::CopyRecursive(
-            VCS_CONFIG_DIRECTORY + "/" + std::to_string(checksum),
+            CONFIG_DIRECTORY + "/" + std::to_string(checksum),
             fs::current_path()
     );
 }
