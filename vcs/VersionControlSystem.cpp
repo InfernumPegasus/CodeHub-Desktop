@@ -46,15 +46,20 @@ void VersionControlSystem::CreateRepository(
         return;
     }
 
-    nameFolderMap_.emplace(repositoryName, repositoryFolder);
     Repository repository(repositoryName, repositoryFolder);
     repository.InitManagers();
+    nameFolderMap_.emplace(repositoryName, repositoryFolder);
 
     std::cout << "Repository '" << repositoryName
               << "' created in folder '" << repositoryFolder << "'.\n";
 }
 
 void VersionControlSystem::CheckStatus() const {
+    if (nameFolderMap_.empty()) {
+        std::cout << "You have no repositories.\n";
+        return;
+    }
+
     std::ranges::find_if(
             nameFolderMap_.cbegin(),
             nameFolderMap_.cend(),
@@ -108,65 +113,36 @@ void VersionControlSystem::Push() {
         return;
     }
 
-    auto repository =
+    auto localRepository =
             JsonSerializer::GetRepositoryByFolder(fs::current_path());
-    if (!repository.has_value()) return;
-
-    repository->InitCommitsManager();
-    if (const auto repo =
-                WebService::GetRepository(repository->Name());
-            !repo.has_value()) {
-        WebService::PostRepository(repository.value());
+    if (!localRepository.has_value()) {
+        std::cout << "There is no repository in this folder.\n";
         return;
     }
 
-    repository->InitCommitsManager();
-    const auto commitsOpt = CommitsToPush();
-    if (!commitsOpt.has_value() ||
-        commitsOpt.value().empty()) {
-        std::cout << "No commits!\n";
+    const auto foundRepository =
+            WebService::GetRepository(localRepository->Name());
+    // Repo exists in DB
+    if (!foundRepository.has_value()) {
+        WebService::PostRepository(localRepository.value());
         return;
     }
 
-    WebService::PatchRepository(repository->Name(),
-                                repository.value(),
+    auto foundCommits = foundRepository->Commits();
+    // Repo exists locally only
+    localRepository->InitCommitsManager();
+    const auto localCommits = localRepository->Commits();
+
+    if (localCommits.empty() ||
+        localCommits.size() == foundCommits.size()) {
+        std::cout << "No commits to push!\n";
+        return;
+    }
+
+    WebService::PatchRepository(localRepository->Name(),
+                                localRepository.value(),
                                 false,
-                                commitsOpt.value());
-}
-
-std::optional<std::vector<Commit>> VersionControlSystem::CommitsToPush() {
-    auto repository =
-            JsonSerializer::GetRepositoryByFolder(fs::current_path());
-    if (!repository.has_value()) return {};
-
-    repository->InitCommitsManager();
-    const auto localCommits = repository->Commits();
-    auto pushedCommits =
-            WebService::GetRepository(repository->Name())->Commits();
-
-    const auto difference = CommitsDifference(
-            localCommits,
-            pushedCommits
-    );
-    for (const auto &item: difference) {
-        pushedCommits.emplace_back(item);
-    }
-
-    return pushedCommits;
-}
-
-std::vector<Commit> VersionControlSystem::CommitsDifference(
-        const std::vector<Commit> &vec1,
-        const std::vector<Commit> &vec2) {
-    std::vector<Commit> result;
-    std::copy_if(vec1.cbegin(), vec1.cend(),
-                 std::back_inserter(result),
-                 [&vec2](const Commit &c) {
-                     return (std::find(vec2.cbegin(), vec2.cend(), c)
-                             == vec2.cend());
-                 }
-    );
-    return result;
+                                localCommits);
 }
 
 void VersionControlSystem::ShowRepositories() const {

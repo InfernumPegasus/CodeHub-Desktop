@@ -33,11 +33,6 @@ public:
 
     void Push();
 
-    static std::optional<std::vector<Commit>> CommitsToPush();
-
-    static std::vector<Commit> CommitsDifference(const std::vector<Commit> &vec1,
-                                                 const std::vector<Commit> &vec2);
-
     void ShowRepositories() const;
 
     void CommitsLog();
