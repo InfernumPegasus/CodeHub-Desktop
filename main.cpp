@@ -32,30 +32,27 @@ int main(int argc, char *argv[]) {
             std::cout << description << std::endl;
         } else if (vm.count("init")) {
             versionControlSystem.CreateRepository(
-                    vm["init"].as<std::string>(),
-                    true);
+                    vm["init"].as<std::string>());
         } else if (vm.count("status")) {
             versionControlSystem.CheckStatus();
         } else if (vm.count("repositories")) {
             versionControlSystem.ShowRepositories();
         } else if (vm.count("log")) {
-            VersionControlSystem::CommitsLog();
+            versionControlSystem.CommitsLog();
         } else if (vm.count("commit")) {
-            VersionControlSystem::DoCommit(
-                    vm["commit"].as<std::string>()
-            );
+            versionControlSystem.DoCommit(
+                    vm["commit"].as<std::string>());
         } else if (vm.count("push")) {
             WebService::PostLogin();
-            VersionControlSystem::Push();
+            versionControlSystem.Push();
         } else if (vm.count("restore")) {
-            VersionControlSystem::RestoreFiles(
-                    vm["restore"].as<int32_t>()
-            );
+            versionControlSystem.RestoreFiles(
+                    vm["restore"].as<size_t>());
         }
     } catch (po::unknown_option &unknownOption) {
         std::cout << description << std::endl;
-    } catch (po::invalid_command_line_syntax &invalidCommandLineSyntax) {
-        std::cout << description << std::endl;
+    } catch (std::exception &exception) {
+        std::cout << exception.what() << std::endl;
     }
 
     return 0;
