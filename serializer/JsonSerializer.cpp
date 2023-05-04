@@ -111,13 +111,6 @@ std::optional<std::vector<Commit>> JsonSerializer::CommitsFromWebJson(nlohmann::
     return commits;
 }
 
-nlohmann::json JsonSerializer::NameFolderToJson(
-        const JsonSerializer::NameFolderMap &map) {
-    nlohmann::json j;
-    j["map"] = map;
-    return j;
-}
-
 JsonSerializer::NameFolderMap JsonSerializer::NameFolderFromJson(
         nlohmann::json json) {
     return json["map"];
@@ -138,15 +131,6 @@ nlohmann::json JsonSerializer::RepositoryToJson(
     json["repo_name"] = repository.Name();
     json["commits"] = CommitsToJson(repository.Commits())["commits"];
     return json;
-}
-
-std::optional<Repository> JsonSerializer::RepositoryFromJson(
-        nlohmann::json json) {
-    if (json.empty()) return {};
-    std::string name = json["repo_name"];
-    auto folder = std::filesystem::current_path().string();
-    auto commits = CommitsFromJson(json);
-    return std::make_optional<Repository>(name, folder, commits.value());
 }
 
 std::optional<Repository> JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {

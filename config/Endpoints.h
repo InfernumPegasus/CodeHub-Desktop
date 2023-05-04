@@ -1,7 +1,7 @@
 #ifndef CODEHUB_ENDPOINTS_H
 #define CODEHUB_ENDPOINTS_H
 
-#include <string_view>
+#include <string>
 
 /* USERS endpoints */
 
@@ -22,10 +22,6 @@ const std::string BASE_TOKENS_URL =
 
 const std::string BASE_FILES_URL =
         "http://localhost:8000/files/";
-
-/* REFRESH endpoints */
-const std::string BASE_REFRESH_URL =
-        "http://localhost:8000/refresh/";
 
 /* REPOSITORIES endpoints */
 const std::string BASE_REPOSITORIES_URL =

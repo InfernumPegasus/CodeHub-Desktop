@@ -39,8 +39,6 @@ public:
     static std::optional<std::vector<Commit>> CommitsFromWebJson(nlohmann::json json);
 
 public:
-    static nlohmann::json NameFolderToJson(const NameFolderMap &map);
-
     static NameFolderMap NameFolderFromJson(nlohmann::json json);
 
 public:
@@ -48,8 +46,6 @@ public:
 
 public:
     static nlohmann::json RepositoryToJson(const Repository &repository);
-
-    static std::optional<Repository> RepositoryFromJson(nlohmann::json json);
 
     static std::optional<Repository> RepositoryFromWebJson(nlohmann::json json);
 
