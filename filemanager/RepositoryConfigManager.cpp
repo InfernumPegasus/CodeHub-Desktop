@@ -13,7 +13,7 @@ RepositoryConfigManager::RepositoryConfigManager(
         fileHashMapRef_(*fileHashMapRef) {}
 
 bool RepositoryConfigManager::Create() {
-    std::string configDirectory = repositoryFolderRef_ + "/" + VCS_CONFIG_DIRECTORY;
+    std::string configDirectory = repositoryFolderRef_ + "/" + CONFIG_DIRECTORY;
     std::ofstream file;
     if ((std::filesystem::exists(configDirectory) &&
          !std::filesystem::exists(configFile_)) ||
