@@ -9,12 +9,11 @@
 
 class WebService {
 public:
-    static cpr::Cookies GetCookiesFromFile();
-
-    static void SaveCookiesInFile(const cpr::Cookies &cookies);
+    static bool NoErrorsInResponseCode(long statusCode);
 
 public:
-    static cpr::Response PostLogin();
+    static cpr::Response PostLogin(std::string_view email,
+                                   std::string_view password);
 
     static int GetCurrentUser();
 
@@ -38,7 +37,7 @@ public:
     static cpr::Response PatchRepository(std::string_view repoName,
                                          const Repository &repository,
                                          bool isPrivate,
-                                         const std::vector<Commit>& commits);
+                                         const std::vector<Commit> &commits);
 };
 
 

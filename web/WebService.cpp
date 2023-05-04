@@ -3,37 +3,22 @@
 #include "../serializer/JsonSerializer.h"
 #include "../config/ConfigFiles.h"
 
-cpr::Cookies WebService::GetCookiesFromFile() {
-    std::ifstream ifs(CONFIG_COOKIES_FILE);
-    if (!ifs ||
-        !fs::exists(CONFIG_COOKIES_FILE) ||
-        fs::is_empty(CONFIG_COOKIES_FILE))
-        return {};
-
-    cpr::Cookies cookies;
-    if (ifs && !std::filesystem::is_empty(CONFIG_COOKIES_FILE)) {
-        nlohmann::json cookiesJson = nlohmann::json::parse(ifs);
-        cookies = JsonSerializer::CookiesFromJson(cookiesJson);
-    }
-    return cookies;
-}
-
-void WebService::SaveCookiesInFile(const cpr::Cookies &cookies) {
-    std::ofstream ofs(CONFIG_COOKIES_FILE);
-    auto json = JsonSerializer::CookiesToJson(cookies);
-    ofs << json.dump(2);
+bool WebService::NoErrorsInResponseCode(
+        long statusCode) {
+    using namespace cpr::status;
+    const auto code = static_cast<int32_t>(statusCode);
+    std::cout << !is_client_error(code) << " " << !is_server_error(code) << "\n";
+    return !is_client_error(code) && !is_server_error(code);
 }
 
 /* Users */
 
-cpr::Response WebService::PostLogin() {
-    if (!fs::exists(CONFIG_USER_FILE) ||
-        fs::is_empty(CONFIG_USER_FILE)) {
-        std::cout << "No user.\n";
-        return {};
-    }
-    std::ifstream ifs(CONFIG_USER_FILE);
-    nlohmann::json j = nlohmann::json::parse(ifs);
+cpr::Response WebService::PostLogin(
+        std::string_view email,
+        std::string_view password) {
+    nlohmann::json j;
+    j["email"] = email;
+    j["password"] = password;
     auto response = cpr::Post(
             cpr::Url{BASE_TOKENS_URL},
             cpr::Header{{"Content-Type", "application/json"}},
@@ -41,14 +26,14 @@ cpr::Response WebService::PostLogin() {
     );
 
     nlohmann::json cookiesJson = nlohmann::json::parse(response.text);
-    SaveCookiesInFile(JsonSerializer::CookiesFromJson(cookiesJson));
+    JsonSerializer::SaveCookiesInFile(JsonSerializer::CookiesFromJson(cookiesJson));
     return response;
 }
 
 int WebService::GetCurrentUser() {
     auto response = cpr::Get(
             cpr::Url{BASE_USERS_URL + "me"},
-            GetCookiesFromFile()
+            JsonSerializer::GetCookiesFromFile()
     );
     nlohmann::json json = nlohmann::json::parse(response.text);
     return json["id"];
@@ -102,7 +87,7 @@ cpr::Response WebService::PostFile(const File &file) {
     auto payload = JsonSerializer::FileToJson(file);
     auto response = cpr::Post(
             cpr::Url{BASE_FILES_URL},
-            GetCookiesFromFile(),
+            JsonSerializer::GetCookiesFromFile(),
             cpr::Multipart{
                     {"file_name",   file.Name()},
                     {"file_status", static_cast<int>(file.Status())},
@@ -128,7 +113,7 @@ std::optional<Repository> WebService::GetRepository(
 }
 
 nlohmann::json WebService::GetRepositoryJson(const std::string &repoName) {
-    auto cookies = GetCookiesFromFile();
+    auto cookies = JsonSerializer::GetCookiesFromFile();
     auto response = cpr::Get(
             cpr::Url{std::string{BASE_REPOSITORIES_URL}},
             cookies,
@@ -151,7 +136,7 @@ cpr::Response WebService::PostRepository(
             cpr::Url{BASE_REPOSITORIES_URL},
             cpr::Header{{"Content-Type", "application/json"}},
             cpr::Body{payload.dump()},
-            GetCookiesFromFile()
+            JsonSerializer::GetCookiesFromFile()
     );
 }
 
@@ -172,7 +157,7 @@ cpr::Response WebService::PatchRepository(
     auto url = BASE_REPOSITORIES_URL;
     return cpr::Patch(
             cpr::Url{url.append(std::to_string(repoId)).append("/")},
-            GetCookiesFromFile(),
+            JsonSerializer::GetCookiesFromFile(),
             cpr::Header{{"Content-Type", "application/json"}},
             cpr::Body{payload.dump()}
     );
