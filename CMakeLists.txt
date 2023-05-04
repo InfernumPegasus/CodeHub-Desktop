@@ -21,7 +21,8 @@ add_library(MANAGERS
         filemanager/CommitsManager.cpp
         filemanager/IgnoreFileManager.cpp
         filemanager/RepositoriesManager.cpp
-        filemanager/RestoreFileManager.cpp)
+        filemanager/RestoreFileManager.cpp
+        filemanager/UserFileManager.cpp)
 
 add_executable(${PROJECT_NAME}
         main.cpp
