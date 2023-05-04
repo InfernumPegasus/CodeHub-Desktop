@@ -3,17 +3,16 @@
 
 #include <string>
 
-constexpr std::string VCS_CONFIG_DIRECTORY = ".codehub_config";
-constexpr std::string VCS_CONFIG_FILE = ".repo_info.json";
-constexpr std::string VCS_COMMITS_FILE = ".commits.json";
-constexpr std::string VCS_IGNORE_FILE = "code_hub_ignore";
+constexpr std::string CONFIG_DIRECTORY = ".codehub_config";
+constexpr std::string CONFIG_FILE = ".repo_info.json";
+constexpr std::string COMMITS_FILE = ".commits.json";
+constexpr std::string IGNORE_FILE = "code_hub_ignore";
 
 constexpr std::string VCS_REPOSITORIES_FILE = "repos.json";
 
-constexpr std::string USER_FILE = "user.json";
-const std::string CONFIG_USER_FILE = VCS_CONFIG_DIRECTORY + "/" + USER_FILE;
+constexpr std::string VCS_USER_FILE = "user.json";
 
 constexpr std::string COOKIES_FILE = ".cookies.json";
-const std::string CONFIG_COOKIES_FILE = VCS_CONFIG_DIRECTORY + "/" + COOKIES_FILE;
+const std::string CONFIG_COOKIES_FILE = CONFIG_DIRECTORY + "/" + COOKIES_FILE;
 
 #endif //CODEHUB_CONFIGFILES_H
