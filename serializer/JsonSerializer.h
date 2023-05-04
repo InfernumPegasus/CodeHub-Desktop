@@ -53,6 +53,10 @@ public:
     static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
 
     static cpr::Cookies CookiesFromJson(nlohmann::json json);
+
+    static cpr::Cookies GetCookiesFromFile();
+
+    static void SaveCookiesInFile(const cpr::Cookies &cookies);
 };
 
 

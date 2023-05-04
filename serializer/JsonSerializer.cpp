@@ -118,7 +118,7 @@ JsonSerializer::NameFolderMap JsonSerializer::NameFolderFromJson(
 
 std::optional<Repository> JsonSerializer::GetRepositoryByFolder(
         const std::string &folder) {
-    std::ifstream ifs(folder + "/" + VCS_CONFIG_DIRECTORY + "/" + VCS_CONFIG_FILE);
+    std::ifstream ifs(folder + "/" + CONFIG_DIRECTORY + "/" + CONFIG_FILE);
     if (!ifs) return {};
 
     auto j = nlohmann::json::parse(ifs);
@@ -160,5 +160,26 @@ cpr::Cookies JsonSerializer::CookiesFromJson(
     cookies.emplace_back({"access-token", json["access-token"]});
     cookies.emplace_back({"refresh-token", json["refresh-token"]});
     return cookies;
+}
+
+cpr::Cookies JsonSerializer::GetCookiesFromFile() {
+    std::ifstream ifs(CONFIG_COOKIES_FILE);
+    if (!ifs ||
+        !std::filesystem::exists(CONFIG_COOKIES_FILE) ||
+        std::filesystem::is_empty(CONFIG_COOKIES_FILE))
+        return {};
+
+    cpr::Cookies cookies;
+    if (ifs && !std::filesystem::is_empty(CONFIG_COOKIES_FILE)) {
+        nlohmann::json cookiesJson = nlohmann::json::parse(ifs);
+        cookies = JsonSerializer::CookiesFromJson(cookiesJson);
+    }
+    return cookies;
+}
+
+void JsonSerializer::SaveCookiesInFile(const cpr::Cookies &cookies) {
+    std::ofstream ofs(CONFIG_COOKIES_FILE);
+    auto json = JsonSerializer::CookiesToJson(cookies);
+    ofs << json.dump(2);
 }
 
