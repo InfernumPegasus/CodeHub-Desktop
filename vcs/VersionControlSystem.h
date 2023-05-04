@@ -4,6 +4,7 @@
 #include <optional>
 #include "../repository/Repository.h"
 #include "../filemanager/RepositoriesManager.h"
+#include "../filemanager/UserFileManager.h"
 
 using NameFolderMap = std::unordered_map<std::string, std::string>;
 
@@ -52,6 +53,8 @@ private:
     NameFolderMap nameFolderMap_;
 
     RepositoriesManager repositoriesManager_;
+
+    UserFileManager userManager_;
 };
 
 

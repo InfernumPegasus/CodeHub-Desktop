@@ -2,7 +2,6 @@
 #include "VersionControlSystem.h"
 #include "../validation/Validator.h"
 #include "../serializer/JsonSerializer.h"
-#include "../config/ConfigFiles.h"
 #include "../web/WebService.h"
 #include "../filemanager/RestoreFileManager.h"
 
@@ -120,12 +119,25 @@ void VersionControlSystem::Push() {
         return;
     }
 
+    auto loginResponse = WebService::PostLogin(
+            userManager_.Email(),
+            userManager_.Password());
+    std::cout << loginResponse.status_code << "\n";
+    if (!WebService::NoErrorsInResponseCode(loginResponse.status_code)) {
+        std::cout << "Cannot save repository on server 1.\n";
+        return;
+    }
+
     const auto foundRepository =
             WebService::GetRepository(localRepository->Name());
     // Repo exists in DB
     if (!foundRepository.has_value()) {
-        WebService::PostRepository(localRepository.value());
-        return;
+        auto response =
+                WebService::PostRepository(localRepository.value());
+        if (!WebService::NoErrorsInResponseCode(response.status_code)) {
+            std::cout << "Cannot save repository on server 2.\n";
+            return;
+        }
     }
 
     auto foundCommits = foundRepository->Commits();
@@ -139,10 +151,15 @@ void VersionControlSystem::Push() {
         return;
     }
 
-    WebService::PatchRepository(localRepository->Name(),
-                                localRepository.value(),
-                                false,
-                                localCommits);
+    auto response =
+            WebService::PatchRepository(
+                    localRepository->Name(),
+                    localRepository.value(),
+                    false,
+                    localCommits);
+    if (!WebService::NoErrorsInResponseCode(response.status_code)) {
+        std::cout << "Cannot push commits.\n";
+    }
 }
 
 void VersionControlSystem::ShowRepositories() const {
@@ -176,6 +193,7 @@ void VersionControlSystem::CommitsLog() {
 
 void VersionControlSystem::Init() {
     repositoriesManager_.Init();
+    userManager_.Init();
 }
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
