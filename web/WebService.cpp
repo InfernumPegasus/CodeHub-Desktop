@@ -146,7 +146,6 @@ cpr::Response WebService::PostRepository(
     payload["repo_name"] = repository.Name();
     payload["is_private"] = true;
     payload["commits"] = WebService::PostCommits(repository.Commits());
-    std::cout << payload.dump(2) << "\n";
 
     return cpr::Post(
             cpr::Url{BASE_REPOSITORIES_URL},
@@ -156,9 +155,6 @@ cpr::Response WebService::PostRepository(
     );
 }
 
-/*
- * TODO перделать (зачем?)
- */
 cpr::Response WebService::PatchRepository(
         std::string_view repoName,
         const Repository &repository,
@@ -167,16 +163,15 @@ cpr::Response WebService::PatchRepository(
     const auto commitsIds = PostCommits(commits);
     const auto repoJson = GetRepositoryJson(repoName.data());
     const int repoId = repoJson["id"];
-//    auto currentRepo =
-//            JsonSerializer::RepositoryFromWebJson(repoJson);
     const int userId = GetCurrentUser();
     auto payload = JsonSerializer::RepositoryToJson(repository);
     payload["owner"] = userId;
     payload["is_private"] = isPrivate;
     payload["commits"] = commitsIds;
 
+    auto url = BASE_REPOSITORIES_URL;
     return cpr::Patch(
-            cpr::Url{BASE_REPOSITORIES_URL + std::to_string(repoId) + '/'},
+            cpr::Url{url.append(std::to_string(repoId)).append("/")},
             GetCookiesFromFile(),
             cpr::Header{{"Content-Type", "application/json"}},
             cpr::Body{payload.dump()}
