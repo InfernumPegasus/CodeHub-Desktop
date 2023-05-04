@@ -13,9 +13,6 @@ public:
     explicit RepositoriesManager(NameFolderMap *nameAndFolderMap_);
 
 public:
-    static std::string GetHomeDirectory();
-
-public:
     bool Create() override;
 
     bool Read() override;

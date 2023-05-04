@@ -1,8 +1,6 @@
 #include "RepositoriesManager.h"
 #include "../serializer/JsonSerializer.h"
 #include "../config/ConfigFiles.h"
-#include <pwd.h>
-#include <unistd.h>
 #include <filesystem>
 #include <iostream>
 
@@ -11,12 +9,6 @@ RepositoriesManager::RepositoriesManager(
         appConfigDirectory_(GetHomeDirectory()),
         repositoriesFile_(appConfigDirectory_ + "/" + VCS_REPOSITORIES_FILE),
         nameAndFolderMap_(*nameAndFolderMap_) {}
-
-
-std::string RepositoriesManager::GetHomeDirectory() {
-    auto dir = std::getenv("HOME");
-    return dir == nullptr ? dir : getpwuid(getuid())->pw_dir;
-}
 
 bool RepositoriesManager::Create() {
     std::ofstream file;
@@ -39,12 +31,12 @@ bool RepositoriesManager::Read() {
     std::ifstream ifs(repositoriesFile_);
     if (!ifs) return false;
 
-    nlohmann::json j = nlohmann::json::parse(ifs);
+    const nlohmann::json j = nlohmann::json::parse(ifs);
     nameAndFolderMap_ = JsonSerializer::NameFolderFromJson(j);
     std::erase_if(nameAndFolderMap_,
-                  [](auto &kv) {
+                  [](const auto &kv) {
                       return !std::filesystem::exists(
-                              kv.second + "/" + VCS_CONFIG_DIRECTORY
+                              kv.second + "/" + CONFIG_DIRECTORY
                       );
                   });
 
