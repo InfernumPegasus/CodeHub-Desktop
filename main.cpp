@@ -1,7 +1,6 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include "vcs/VersionControlSystem.h"
-#include "web/WebService.h"
 
 namespace po = boost::program_options;
 
@@ -20,14 +19,13 @@ int main(int argc, char *argv[]) {
             ("log", "show commits history")
             ("commit", po::value<std::string>(), "store changes")
             ("push", "update external links and objects")
-            ("restore", po::value<int32_t>(),
+            ("restore", po::value<size_t>(),
              "remove file from index or get it back to committed condition");
 
     try {
         po::variables_map vm;
         po::store(po::parse_command_line(argc, argv,
                                          description), vm);
-
         if (vm.empty() || vm.count("help")) {
             std::cout << description << std::endl;
         } else if (vm.count("init")) {
@@ -43,7 +41,6 @@ int main(int argc, char *argv[]) {
             versionControlSystem.DoCommit(
                     vm["commit"].as<std::string>());
         } else if (vm.count("push")) {
-            WebService::PostLogin();
             versionControlSystem.Push();
         } else if (vm.count("restore")) {
             versionControlSystem.RestoreFiles(
