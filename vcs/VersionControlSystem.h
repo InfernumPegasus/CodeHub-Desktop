@@ -14,6 +14,8 @@ public:
 
     ~VersionControlSystem();
 
+    void Init();
+
 private:
     bool IsUniqueRepositoryData(
             const std::string &name,
@@ -37,9 +39,6 @@ public:
     void ShowRepositories() const;
 
     void CommitsLog();
-
-public:
-    void Init();
 
 public:
     void RestoreFiles(size_t checksum);

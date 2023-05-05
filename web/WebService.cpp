@@ -7,7 +7,6 @@ bool WebService::NoErrorsInResponseCode(
         long statusCode) {
     using namespace cpr::status;
     const auto code = static_cast<int32_t>(statusCode);
-    std::cout << !is_client_error(code) << " " << !is_server_error(code) << "\n";
     return !is_client_error(code) && !is_server_error(code);
 }
 
@@ -76,16 +75,17 @@ std::vector<int> WebService::PostFiles(
     std::vector<int> ids;
     for (const auto &file: files) {
         auto response = PostFile(file);
-        nlohmann::json json = nlohmann::json::parse(response.text);
-        int id = json["id"];
-        ids.push_back(id);
+        try {
+            nlohmann::json json = nlohmann::json::parse(response.text);
+            int id = json["id"];
+            ids.push_back(id);
+        } catch (nlohmann::json::exception &e) {}
     }
     return ids;
 }
 
 cpr::Response WebService::PostFile(const File &file) {
-    auto payload = JsonSerializer::FileToJson(file);
-    auto response = cpr::Post(
+    return cpr::Post(
             cpr::Url{BASE_FILES_URL},
             JsonSerializer::GetCookiesFromFile(),
             cpr::Multipart{
@@ -95,7 +95,6 @@ cpr::Response WebService::PostFile(const File &file) {
                     {"file",        cpr::File(file.Name())}
             }
     );
-    return response;
 }
 
 /* Repositories */
@@ -113,10 +112,9 @@ std::optional<Repository> WebService::GetRepository(
 }
 
 nlohmann::json WebService::GetRepositoryJson(const std::string &repoName) {
-    auto cookies = JsonSerializer::GetCookiesFromFile();
     auto response = cpr::Get(
             cpr::Url{std::string{BASE_REPOSITORIES_URL}},
-            cookies,
+            JsonSerializer::GetCookiesFromFile(),
             cpr::Payload{
                     {"repo_name", repoName}
             }

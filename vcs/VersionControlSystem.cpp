@@ -12,6 +12,11 @@ VersionControlSystem::~VersionControlSystem() {
     repositoriesManager_.Update();
 }
 
+void VersionControlSystem::Init() {
+    repositoriesManager_.Init();
+    userManager_.Init();
+}
+
 bool VersionControlSystem::IsUniqueRepositoryData(
         const std::string &name,
         const std::string &folder) const {
@@ -122,7 +127,6 @@ void VersionControlSystem::Push() {
     auto loginResponse = WebService::PostLogin(
             userManager_.Email(),
             userManager_.Password());
-    std::cout << loginResponse.status_code << "\n";
     if (!WebService::NoErrorsInResponseCode(loginResponse.status_code)) {
         std::cout << "Cannot save repository on server 1.\n";
         return;
@@ -132,7 +136,7 @@ void VersionControlSystem::Push() {
             WebService::GetRepository(localRepository->Name());
     // Repo exists in DB
     if (!foundRepository.has_value()) {
-        auto response =
+        const auto response =
                 WebService::PostRepository(localRepository.value());
         if (!WebService::NoErrorsInResponseCode(response.status_code)) {
             std::cout << "Cannot save repository on server 2.\n";
@@ -189,11 +193,6 @@ void VersionControlSystem::CommitsLog() {
     for (const auto &commit: repository->Commits()) {
         std::cout << commit << "\n";
     }
-}
-
-void VersionControlSystem::Init() {
-    repositoriesManager_.Init();
-    userManager_.Init();
 }
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
