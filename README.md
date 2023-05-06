@@ -1,4 +1,4 @@
-# CODEHUB
+# CodeHub
 **CodeHub** is a git-like version control system.
 
 ## Features
