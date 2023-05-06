@@ -30,5 +30,4 @@ private:
     FileHashMap &fileHashMapRef_;
 };
 
-
 #endif //CODEHUB_REPOSITORYCONFIGMANAGER_H

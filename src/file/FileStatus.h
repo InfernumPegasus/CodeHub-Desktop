@@ -8,5 +8,4 @@ enum class FileStatus {
     Deleted = 2,
 };
 
-
 #endif //CODEHUB_FILESTATUS_H

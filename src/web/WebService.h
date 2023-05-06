@@ -40,5 +40,4 @@ public:
                                          const std::vector<Commit> &commits);
 };
 
-
 #endif //CODEHUB_WEBSERVICE_H

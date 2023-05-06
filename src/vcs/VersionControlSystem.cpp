@@ -227,6 +227,4 @@ void VersionControlSystem::Clone(std::string_view repositoryName) {
 
 // TODO
 void VersionControlSystem::Pull() {
-
 }
-

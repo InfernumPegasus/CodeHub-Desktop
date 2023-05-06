@@ -23,5 +23,4 @@ public:
     }
 };
 
-
 #endif //CODEHUB_IFILEMANAGER_H

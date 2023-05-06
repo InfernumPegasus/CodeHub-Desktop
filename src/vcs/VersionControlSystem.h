@@ -56,5 +56,4 @@ private:
     UserFileManager userManager_;
 };
 
-
 #endif //CODEHUB_VERSIONCONTROLSYSTEM_H

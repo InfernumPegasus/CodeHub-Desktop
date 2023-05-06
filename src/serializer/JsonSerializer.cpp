@@ -182,4 +182,3 @@ void JsonSerializer::SaveCookiesInFile(const cpr::Cookies &cookies) {
     auto json = JsonSerializer::CookiesToJson(cookies);
     ofs << json.dump(2);
 }
-

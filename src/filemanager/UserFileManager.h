@@ -1,7 +1,6 @@
 #ifndef CODEHUB_USERFILEMANAGER_H
 #define CODEHUB_USERFILEMANAGER_H
 
-
 #include "IFileManager.h"
 #include "../config/ConfigFiles.h"
 
@@ -24,6 +23,5 @@ private:
     std::string email_;
     std::string password_;
 };
-
 
 #endif //CODEHUB_USERFILEMANAGER_H

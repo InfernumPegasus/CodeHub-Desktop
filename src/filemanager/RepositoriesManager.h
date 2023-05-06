@@ -26,5 +26,4 @@ private:
     NameFolderMap &nameAndFolderMap_;
 };
 
-
 #endif //CODEHUB_REPOSITORIESMANAGER_H

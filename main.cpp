@@ -1,6 +1,6 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "vcs/VersionControlSystem.h"
+#include "src/vcs/VersionControlSystem.h"
 
 namespace po = boost::program_options;
 
@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
             ("repositories", "show all repositories")
             ("log", "show commits history")
             ("commit", po::value<std::string>(), "store changes")
-            ("push", "update external links and objects")
             ("restore", po::value<size_t>(),
-             "remove file from index or get it back to committed condition");
+             "remove file from index or get it back to committed condition")
+            ("push", "update external links and objects");
 
     try {
         po::variables_map vm;

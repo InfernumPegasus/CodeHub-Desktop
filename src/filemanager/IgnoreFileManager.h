@@ -23,5 +23,4 @@ private:
     std::unordered_set<std::string> &ignoredFilesRef_;
 };
 
-
 #endif //CODEHUB_IGNOREFILEMANAGER_H

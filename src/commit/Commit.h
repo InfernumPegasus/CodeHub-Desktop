@@ -42,5 +42,4 @@ private:
     size_t checkSum_;
 };
 
-
 #endif //CODEHUB_COMMIT_H

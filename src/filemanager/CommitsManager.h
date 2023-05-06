@@ -23,5 +23,4 @@ private:
     std::vector<Commit> &commitsRef_;
 };
 
-
 #endif //CODEHUB_COMMITSMANAGER_H

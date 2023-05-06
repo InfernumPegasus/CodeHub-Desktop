@@ -18,5 +18,4 @@ public:
                               const fs::path &to);
 };
 
-
 #endif //CODEHUB_RESTOREFILEMANAGER_H

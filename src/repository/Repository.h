@@ -76,5 +76,4 @@ private:
     FileHashMap fileHashMap_;
 };
 
-
 #endif //CODEHUB_REPOSITORY_H

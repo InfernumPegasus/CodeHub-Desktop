@@ -50,7 +50,7 @@ public:
     static std::optional<Repository> RepositoryFromWebJson(nlohmann::json json);
 
 public:
-    static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
+    static nlohmann::json CookiesToJson(const cpr::Cookies &cookies);
 
     static cpr::Cookies CookiesFromJson(nlohmann::json json);
 
@@ -58,6 +58,5 @@ public:
 
     static void SaveCookiesInFile(const cpr::Cookies &cookies);
 };
-
 
 #endif //CODEHUB_JSONSERIALIZER_H

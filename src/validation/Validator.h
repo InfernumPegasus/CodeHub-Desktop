@@ -17,5 +17,4 @@ public:
     static void ValidateRepositoryName(std::string &name);
 };
 
-
 #endif //CODEHUB_VALIDATOR_H

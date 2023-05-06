@@ -27,4 +27,3 @@ void Validator::ValidateRepositoryName(std::string &name) {
     Trim(name);
     Replace(name, " ", "_");
 }
-

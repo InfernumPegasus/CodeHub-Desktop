@@ -160,4 +160,3 @@ cpr::Response WebService::PatchRepository(
             cpr::Body{payload.dump()}
     );
 }
-
