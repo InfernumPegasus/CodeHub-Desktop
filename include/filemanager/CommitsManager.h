@@ -2,25 +2,25 @@
 #define CODEHUB_COMMITSMANAGER_H
 
 #include <string>
-#include "commit/Commit.h"
+
 #include "IFileManager.h"
+#include "commit/Commit.h"
 
 class CommitsManager : public IFileManager {
-public:
-    CommitsManager(std::string commitsFile,
-                   std::vector<Commit> *commits);
+ public:
+  CommitsManager(std::string commitsFile, std::vector<Commit>* commits);
 
-public:
-    bool Create() override;
+ public:
+  bool Create() override;
 
-    bool Read() override;
+  bool Read() override;
 
-    void Update() const;
+  void Update() const;
 
-private:
-    std::string commitsFile_;
+ private:
+  std::string commitsFile_;
 
-    std::vector<Commit> &commitsRef_;
+  std::vector<Commit>& commitsRef_;
 };
 
-#endif //CODEHUB_COMMITSMANAGER_H
+#endif  // CODEHUB_COMMITSMANAGER_H

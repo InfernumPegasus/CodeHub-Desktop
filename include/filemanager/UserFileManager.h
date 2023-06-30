@@ -5,23 +5,23 @@
 #include "config/ConfigFiles.h"
 
 class UserFileManager : public IFileManager {
-public:
-    bool Create() override;
+ public:
+  bool Create() override;
 
-    bool Read() override;
+  bool Read() override;
 
-    void Init() override;
+  void Init() override;
 
-public:
-    [[nodiscard]] std::string_view Email() const;
+ public:
+  [[nodiscard]] std::string_view Email() const;
 
-    [[nodiscard]] std::string_view Password() const;
+  [[nodiscard]] std::string_view Password() const;
 
-private:
-    const std::string userFile_{GetHomeDirectory() + "/" + VCS_USER_FILE};
+ private:
+  const std::string userFile_{GetHomeDirectory() + "/" + VCS_USER_FILE};
 
-    std::string email_;
-    std::string password_;
+  std::string email_;
+  std::string password_;
 };
 
-#endif //CODEHUB_USERFILEMANAGER_H
+#endif  // CODEHUB_USERFILEMANAGER_H

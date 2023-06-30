@@ -15,4 +15,4 @@ constexpr std::string VCS_USER_FILE = "user.json";
 constexpr std::string COOKIES_FILE = ".cookies.json";
 const std::string CONFIG_COOKIES_FILE = CONFIG_DIRECTORY + "/" + COOKIES_FILE;
 
-#endif //CODEHUB_CONFIGFILES_H
+#endif  // CODEHUB_CONFIGFILES_H

@@ -2,62 +2,61 @@
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
 #include <optional>
-#include "repository/Repository.h"
+
 #include "filemanager/RepositoriesManager.h"
 #include "filemanager/UserFileManager.h"
+#include "repository/Repository.h"
 
 using NameFolderMap = std::unordered_map<std::string, std::string>;
 
 class VersionControlSystem {
-public:
-    VersionControlSystem();
+ public:
+  VersionControlSystem();
 
-    ~VersionControlSystem();
+  ~VersionControlSystem();
 
-    void Init();
+  void Init();
 
-private:
-    bool IsUniqueRepositoryData(
-            const std::string &name,
-            const std::string &folder) const;
+ private:
+  bool IsUniqueRepositoryData(const std::string& name, const std::string& folder) const;
 
-    void CheckRepositoriesExist() const;
+  void CheckRepositoriesExist() const;
 
-public:
-    bool ExistsByName(std::string_view repositoryName) const;
+ public:
+  bool ExistsByName(std::string_view repositoryName) const;
 
-    bool ExistsByFolder(std::string_view repositoryFolder) const;
+  bool ExistsByFolder(std::string_view repositoryFolder) const;
 
-public:
-    void CreateRepository(std::string repositoryName);
+ public:
+  void CreateRepository(std::string repositoryName);
 
-public:
-    void CheckStatus() const;
+ public:
+  void CheckStatus() const;
 
-    void DoCommit(std::string_view message);
+  void DoCommit(std::string_view message);
 
-    void Push();
+  void Push();
 
-    void ShowRepositories() const;
+  void ShowRepositories() const;
 
-    void CommitsLog() const;
+  void CommitsLog() const;
 
-    void ShowFileDifference(std::string_view filename) ;
+  void ShowFileDifference(std::string_view filename);
 
-public:
-    void RestoreFiles(size_t checksum);
+ public:
+  void RestoreFiles(size_t checksum);
 
-public:
-    void Clone(std::string_view repositoryName);
+ public:
+  void Clone(std::string_view repositoryName);
 
-    void Pull();
+  void Pull();
 
-private:
-    NameFolderMap nameFolderMap_;
+ private:
+  NameFolderMap nameFolderMap_;
 
-    RepositoriesManager repositoriesManager_;
+  RepositoriesManager repositoriesManager_;
 
-    UserFileManager userManager_;
+  UserFileManager userManager_;
 };
 
-#endif //CODEHUB_VERSIONCONTROLSYSTEM_H
+#endif  // CODEHUB_VERSIONCONTROLSYSTEM_H
