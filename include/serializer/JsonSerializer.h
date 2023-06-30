@@ -43,7 +43,8 @@ class JsonSerializer {
   static NameFolderMap NameFolderFromJson(nlohmann::json json);
 
  public:
-  static std::optional<Repository> GetRepositoryByFolder(const std::string& folder);
+  static std::optional<Repository> GetRepositoryByFolder(
+      const std::filesystem::path& folder);
 
  public:
   static nlohmann::json RepositoryToJson(const Repository& repository);

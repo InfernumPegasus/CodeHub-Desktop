@@ -19,9 +19,7 @@ FileComparator::FileDifference FileComparator::Compare(const std::filesystem::pa
   while (true) {
     ++current;
 
-    bool eof1 = f1.eof();
-    bool eof2 = f2.eof();
-    if (eof1 && eof2) {
+    if (f1.eof() && f2.eof()) {
       break;
     }
 

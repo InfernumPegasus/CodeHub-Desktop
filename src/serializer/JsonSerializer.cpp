@@ -111,8 +111,8 @@ JsonSerializer::NameFolderMap JsonSerializer::NameFolderFromJson(nlohmann::json 
 }
 
 std::optional<Repository> JsonSerializer::GetRepositoryByFolder(
-    const std::string& folder) {
-  std::ifstream ifs(folder + "/" + CONFIG_DIRECTORY + "/" + CONFIG_FILE);
+    const std::filesystem::path& folder) {
+  std::ifstream ifs(folder / CONFIG_DIRECTORY / CONFIG_FILE);
   if (!ifs) return {};
 
   auto j = nlohmann::json::parse(ifs);
