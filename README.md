@@ -15,8 +15,8 @@ Using CodeHub you can use key features of `git` such as:
 ## Requirements
 To build this code you need to have installed:
 * [nlohmann::json library](https://github.com/nlohmann/json)
-* [cpr library](https://github.com/libcpr/cpr) (included in CMake as submodule)
-* [boost](https://www.boost.org/) (for program_options)
+* [cpr library](https://github.com/libcpr/cpr)
+* [boost](https://www.boost.org/)
 
 ## Building
 This project in running by `cmake`.
@@ -33,6 +33,7 @@ Allowed options:
   --help                produce help message
   --init arg            init new repository
   --status              get repository status
+  --diff arg            shows file difference with last committed one
   --repositories        show all repositories
   --log                 show commits history
   --commit arg          store changes
@@ -78,6 +79,23 @@ If repository is up-to-date:
 Repository 'My_best_repo' status: Up-to-date.
 ```
 
+* `--diff arg`
+
+Prints difference between current version of file and last committed one:
+```
+[LineNumber]:
+        content1
+        content2
+
+[254]:
+        #############################################
+        
+[255]:
+        # Print all primary targets available.
+        #############################################
+```
+
+
 * `--repositories`
 
 Prints all initialised repositories in
@@ -107,7 +125,7 @@ commit 13900782043146834854
         change
 ```
 
-* `--commit ard`
+* `--commit arg`
 
 Here, `arg` is commit message.
 Creates in hidden config folder
