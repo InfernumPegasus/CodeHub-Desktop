@@ -1,12 +1,7 @@
 #include "commit/Commit.h"
 
 Commit::Commit(const std::unordered_set<File>& files, std::string_view message)
-    : message_(message) {
-  for (const auto& file : files) {
-    files_.emplace(file);
-  }
-  checkSum_ = CalculateCheckSum();
-}
+    : message_(message), files_(files), checkSum_(CalculateCheckSum()) {}
 
 Commit::Commit(const std::unordered_set<std::string>& files, std::string_view message)
     : message_(message) {
