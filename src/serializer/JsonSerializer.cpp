@@ -13,16 +13,16 @@ nlohmann::json JsonSerializer::FileToJson(const File& file) {
 }
 
 File JsonSerializer::FileFromJson(nlohmann::json json) {
-  std::string name = json["file_name"];
-  std::size_t hash = json["file_hash"];
-  FileStatus status = json["file_status"];
+  const std::string name = json["file_name"];
+  const std::size_t hash = json["file_hash"];
+  const FileStatus status = json["file_status"];
   return {name, hash, status};
 }
 
 File JsonSerializer::FileFromWebJson(nlohmann::json json) {
-  std::string name = json["file_name"];
-  std::string hash = json["file_hash"];
-  FileStatus status = json["file_status"];
+  const std::string name = json["file_name"];
+  const std::string hash = json["file_hash"];
+  const FileStatus status = json["file_status"];
   return {name, std::stoull(hash), status};
 }
 
@@ -40,21 +40,21 @@ nlohmann::json JsonSerializer::CommitToJson(const Commit& commit) {
 
 Commit JsonSerializer::CommitFromJson(nlohmann::json json) {
   std::unordered_set<File> files;
-  for (auto& file : json["files"]) {
+  for (const auto& file : json["files"]) {
     files.insert(FileFromJson(file));
   }
-  std::string message = json["message"];
-  std::size_t checkSum = json["commit_hash"];
+  const std::string message = json["message"];
+  const std::size_t checkSum = json["commit_hash"];
   return {files, message, checkSum};
 }
 
 Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
   std::unordered_set<File> files;
-  for (auto& file : json["files"]) {
+  for (const auto& file : json["files"]) {
     files.insert(FileFromWebJson(file));
   }
-  std::string message = json["message"];
-  std::string checkSum = json["commit_hash"];
+  const std::string message = json["message"];
+  const std::string checkSum = json["commit_hash"];
   return {files, message, stoull(checkSum)};
 }
 
@@ -79,15 +79,15 @@ nlohmann::json JsonSerializer::CommitsToJson(const std::vector<Commit>& commits)
 }
 
 std::optional<Repository> JsonSerializer::RepositoryFromConfigJson(nlohmann::json json) {
-  std::string name = json["repo_name"];
-  std::string folder = json["repo_folder"];
-  auto map = json["map"];
+  const std::string name = json["repo_name"];
+  const std::string folder = json["repo_folder"];
+  const auto map = json["map"];
   return std::make_optional<Repository>(name, folder, map);
 }
 
 std::optional<std::vector<Commit>> JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
-  std::vector<nlohmann::json> commitsJson = json["commits"];
+  const std::vector<nlohmann::json> commitsJson = json["commits"];
   std::vector<Commit> commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromJson(commit));
@@ -98,7 +98,7 @@ std::optional<std::vector<Commit>> JsonSerializer::CommitsFromJson(nlohmann::jso
 std::optional<std::vector<Commit>> JsonSerializer::CommitsFromWebJson(
     nlohmann::json json) {
   if (json.empty()) return {};
-  std::vector<nlohmann::json> commitsJson = json["commits"];
+  const std::vector<nlohmann::json> commitsJson = json["commits"];
   std::vector<Commit> commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromWebJson(commit));
@@ -115,7 +115,7 @@ std::optional<Repository> JsonSerializer::GetRepositoryByFolder(
   std::ifstream ifs(folder / CONFIG_DIRECTORY / CONFIG_FILE);
   if (!ifs) return {};
 
-  auto j = nlohmann::json::parse(ifs);
+  const auto j = nlohmann::json::parse(ifs);
   return RepositoryFromConfigJson(j);
 }
 
@@ -128,9 +128,9 @@ nlohmann::json JsonSerializer::RepositoryToJson(const Repository& repository) {
 
 std::optional<Repository> JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {
   if (json.empty()) return {};
-  std::string name = json["repo_name"];
-  auto folder = std::filesystem::current_path().string();
-  auto commits = CommitsFromWebJson(json);
+  const std::string name = json["repo_name"];
+  const auto folder = std::filesystem::current_path().string();
+  const auto commits = CommitsFromWebJson(json);
   return std::make_optional<Repository>(name, folder, commits.value());
 }
 
@@ -169,6 +169,6 @@ cpr::Cookies JsonSerializer::GetCookiesFromFile() {
 
 void JsonSerializer::SaveCookiesInFile(const cpr::Cookies& cookies) {
   std::ofstream ofs(CONFIG_COOKIES_FILE);
-  auto json = JsonSerializer::CookiesToJson(cookies);
+  const auto json = JsonSerializer::CookiesToJson(cookies);
   ofs << json.dump(2);
 }

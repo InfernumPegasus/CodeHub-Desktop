@@ -18,7 +18,7 @@ class CommitsManager : public IFileManager {
   void Update() const;
 
  private:
-  std::string commitsFile_;
+  const std::string commitsFile_;
 
   std::vector<Commit>& commitsRef_;
 };

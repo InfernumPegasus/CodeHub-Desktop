@@ -1,11 +1,13 @@
 #include "filemanager/RepositoryConfigManager.h"
 
+#include <utility>
+
 #include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
 
-RepositoryConfigManager::RepositoryConfigManager(std::string configFile,
+RepositoryConfigManager::RepositoryConfigManager(fs::path configFile,
                                                  std::string* repositoryNameRef,
-                                                 std::string* repositoryFolderRef,
+                                                 fs::path* repositoryFolderRef,
                                                  FileHashMap* fileHashMapRef)
     : configFile_(std::move(configFile)),
       repositoryNameRef_(*repositoryNameRef),
@@ -13,7 +15,7 @@ RepositoryConfigManager::RepositoryConfigManager(std::string configFile,
       fileHashMapRef_(*fileHashMapRef) {}
 
 bool RepositoryConfigManager::Create() {
-  std::string configDirectory = repositoryFolderRef_ + "/" + CONFIG_DIRECTORY;
+  std::string configDirectory = repositoryFolderRef_ / CONFIG_DIRECTORY;
   std::ofstream file;
   if ((std::filesystem::exists(configDirectory) &&
        !std::filesystem::exists(configFile_)) ||
@@ -38,7 +40,7 @@ bool RepositoryConfigManager::Read() {
   nlohmann::json j = nlohmann::json::parse(ifs);
   if (j.empty()) return false;
 
-  auto res = JsonSerializer::RepositoryFromConfigJson(j);
+  const auto res = JsonSerializer::RepositoryFromConfigJson(j);
   repositoryNameRef_ = res->Name();
   repositoryFolderRef_ = res->Folder();
   fileHashMapRef_ = res->Map();
@@ -52,8 +54,9 @@ void RepositoryConfigManager::Update() {
     return;
   }
 
-  auto repoJson = JsonSerializer::RepositoryToConfigJson(
-                      repositoryNameRef_, repositoryFolderRef_, fileHashMapRef_)
-                      .dump(2);
+  const auto repoJson =
+      JsonSerializer::RepositoryToConfigJson(
+          repositoryNameRef_, repositoryFolderRef_.c_str(), fileHashMapRef_)
+          .dump(2);
   ofs << repoJson;
 }

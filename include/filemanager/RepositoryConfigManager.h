@@ -1,18 +1,21 @@
 #ifndef CODEHUB_REPOSITORYCONFIGMANAGER_H
 #define CODEHUB_REPOSITORYCONFIGMANAGER_H
 
+#include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 #include "IFileManager.h"
 
+namespace fs = std::filesystem;
+
 class RepositoryConfigManager : public IFileManager {
  public:
-  using FileHashMap = std::unordered_map<std::string, size_t>;
+  using FileHashMap = std::unordered_map<fs::path, size_t>;
 
  public:
-  RepositoryConfigManager(std::string configFile, std::string* repositoryNameRef,
-                          std::string* repositoryFolderRef, FileHashMap* fileHashMapRef);
+  RepositoryConfigManager(fs::path configFile, std::string* repositoryNameRef,
+                          fs::path* repositoryFolderRef, FileHashMap* fileHashMapRef);
 
  public:
   bool Create() override;
@@ -22,10 +25,10 @@ class RepositoryConfigManager : public IFileManager {
   void Update();
 
  private:
-  std::string configFile_;
+  const fs::path configFile_;
 
   std::string& repositoryNameRef_;
-  std::string& repositoryFolderRef_;
+  fs::path& repositoryFolderRef_;
   FileHashMap& fileHashMapRef_;
 };
 

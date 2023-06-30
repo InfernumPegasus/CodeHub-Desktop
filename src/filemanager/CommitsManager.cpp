@@ -21,7 +21,7 @@ bool CommitsManager::Read() {
   if (!ifs) return true;
 
   nlohmann::json j = nlohmann::json::parse(ifs);
-  auto readCommits = JsonSerializer::CommitsFromJson(j);
+  const auto readCommits = JsonSerializer::CommitsFromJson(j);
   for (const auto& commit : *readCommits) {
     commitsRef_.push_back(commit);
   }
@@ -35,6 +35,6 @@ void CommitsManager::Update() const {
     return;
   }
 
-  auto repoJson = JsonSerializer::CommitsToJson(commitsRef_).dump(2);
+  const auto repoJson = JsonSerializer::CommitsToJson(commitsRef_).dump(2);
   ofs << repoJson;
 }

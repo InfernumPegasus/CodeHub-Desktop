@@ -32,7 +32,7 @@ size_t Commit::Checksum() const { return checkSum_; }
 
 size_t Commit::CalculateCheckSum() const {
   size_t checkSum = 0;
-  auto size = files_.size();
+  const auto size = files_.size();
   for (const auto& file : files_) {
     checkSum += file.Hash() + (size << 2) + (size >> 5);
   }

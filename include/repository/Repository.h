@@ -9,22 +9,28 @@
 #include "filemanager/IgnoreFileManager.h"
 #include "filemanager/RepositoryConfigManager.h"
 
-using FileHashMap = std::unordered_map<std::string, size_t>;
+namespace fs = std::filesystem;
+
+using FileHashMap = std::unordered_map<fs::path, size_t>;
 
 class Repository {
  public:
-  Repository(std::string repositoryName, const std::string& repositoryFolder);
+  Repository(std::string repositoryName, const fs::path& repositoryFolder);
 
-  Repository(std::string repositoryName, const std::string& repositoryFolder,
+  Repository(std::string repositoryName, const fs::path& repositoryFolder,
              FileHashMap files);
 
-  Repository(std::string repositoryName, const std::string& repositoryFolder,
+  Repository(std::string repositoryName, const fs::path& repositoryFolder,
              const std::vector<Commit>& commits);
 
   ~Repository();
 
  public:
   FileHashMap ChangedFiles() const;
+
+  FileHashMap RemovedFiles() const;
+
+  FileHashMap CreatedFiles() const;
 
  private:
   [[nodiscard]] FileHashMap CollectFiles() const;
@@ -53,7 +59,7 @@ class Repository {
  public:
   [[nodiscard]] const std::string& Name() const;
 
-  [[nodiscard]] const std::string& Folder() const;
+  [[nodiscard]] const fs::path& Folder() const;
 
   [[nodiscard]] const std::vector<Commit>& Commits() const;
 
@@ -61,7 +67,7 @@ class Repository {
 
  private:
   std::string repositoryName_;
-  std::string repositoryFolder_;
+  fs::path repositoryFolder_;
 
   RepositoryConfigManager configManager_;
   CommitsManager commitsManager_;

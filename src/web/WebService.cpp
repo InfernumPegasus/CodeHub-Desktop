@@ -27,16 +27,16 @@ cpr::Response WebService::PostLogin(std::string_view email, std::string_view pas
 }
 
 int WebService::GetCurrentUser() {
-  auto response =
+  const auto response =
       cpr::Get(cpr::Url{BASE_USERS_URL + "me"}, JsonSerializer::GetCookiesFromFile());
-  nlohmann::json json = nlohmann::json::parse(response.text);
+  const nlohmann::json json = nlohmann::json::parse(response.text);
   return json["id"];
 }
 
 /* Commits */
 
 cpr::Response WebService::PostCommit(const Commit& commit) {
-  auto ids = WebService::PostFiles(commit.Files());
+  const auto ids = WebService::PostFiles(commit.Files());
 
   nlohmann::json payload;
   payload["files"] = ids;
@@ -51,9 +51,9 @@ cpr::Response WebService::PostCommit(const Commit& commit) {
 std::vector<int> WebService::PostCommits(const std::vector<Commit>& commits) {
   std::vector<int> ids;
   for (const auto& commit : commits) {
-    auto response = PostCommit(commit);
-    nlohmann::json json = nlohmann::json::parse(response.text);
-    int id = json["id"];
+    const auto response = PostCommit(commit);
+    const nlohmann::json json = nlohmann::json::parse(response.text);
+    const int id = json["id"];
     ids.push_back(id);
   }
   return ids;
@@ -64,10 +64,10 @@ std::vector<int> WebService::PostCommits(const std::vector<Commit>& commits) {
 std::vector<int> WebService::PostFiles(const std::unordered_set<File>& files) {
   std::vector<int> ids;
   for (const auto& file : files) {
-    auto response = PostFile(file);
+    const auto response = PostFile(file);
     try {
-      nlohmann::json json = nlohmann::json::parse(response.text);
-      int id = json["id"];
+      const nlohmann::json json = nlohmann::json::parse(response.text);
+      const int id = json["id"];
       ids.push_back(id);
     } catch (nlohmann::json::exception& e) {
     }
@@ -95,7 +95,7 @@ std::optional<Repository> WebService::GetRepository(const std::string& repoName)
 }
 
 nlohmann::json WebService::GetRepositoryJson(const std::string& repoName) {
-  auto response = cpr::Get(cpr::Url{std::string{BASE_REPOSITORIES_URL}},
+  const auto response = cpr::Get(cpr::Url{std::string{BASE_REPOSITORIES_URL}},
                            JsonSerializer::GetCookiesFromFile(),
                            cpr::Payload{{"repo_name", repoName}});
   nlohmann::json json = nlohmann::json::parse(response.text);

@@ -57,7 +57,7 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
 
 void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
-  std::ranges::find_if(
+  std::for_each(
       nameFolderMap_.cbegin(), nameFolderMap_.cend(), [&](const auto& pair) -> bool {
         const std::string name = pair.first;
         const std::string folder = pair.second;
@@ -70,13 +70,27 @@ void VersionControlSystem::CheckStatus() const {
         if (repository.Commits().empty()) {
           std::cout << "There are no commits yet.\n"
                        "Use --commit command to do commit.\n";
-        } else if (auto changedFiles = repository.ChangedFiles(); changedFiles.empty()) {
-          std::cout << "Up-to-date.\n";
+          return true;
         } else {
-          for (const auto& [fileName, hash] : changedFiles) {
-            std::cout << "\n\tChanged:\t" << fs::relative(fileName);
+          const auto createdFiles = repository.CreatedFiles();
+          const auto changedFiles = repository.ChangedFiles();
+          const auto removedFiles = repository.RemovedFiles();
+
+          if (changedFiles.empty() && removedFiles.empty()) {
+            std::cout << "Up-to-date.\n";
+            return true;
           }
-          std::cout << "\n";
+
+          const auto printFunc = [](std::string_view variant, const auto& files) {
+            for (const auto& [fileName, hash] : files) {
+              std::cout << "\n\t" << variant << ":\t" << fileName;
+            }
+            if (!files.empty()) std::cout << "\n";
+          };
+
+          printFunc("Created", createdFiles);
+          printFunc("Changed", changedFiles);
+          printFunc("Removed", removedFiles);
         }
         return true;
       });
@@ -98,14 +112,13 @@ void VersionControlSystem::DoCommit(std::string_view message) {
 
 void VersionControlSystem::Push() {
   CheckRepositoriesExist();
-
   auto localRepository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   if (!localRepository.has_value()) {
     std::cout << "There is no repository in this folder.\n";
     return;
   }
 
-  auto loginResponse =
+  const auto loginResponse =
       WebService::PostLogin(userManager_.Email(), userManager_.Password());
   if (!WebService::NoErrorsInResponse(loginResponse.status_code)) {
     std::cout << "Cannot save repository on server!\n";
@@ -122,7 +135,7 @@ void VersionControlSystem::Push() {
     }
   }
 
-  auto foundCommits = foundRepository->Commits();
+  const auto foundCommits = foundRepository->Commits();
   // Repo exists locally only
   localRepository->InitCommitsManager();
   const auto localCommits = localRepository->Commits();
@@ -132,7 +145,7 @@ void VersionControlSystem::Push() {
     return;
   }
 
-  auto response = WebService::PatchRepository(
+  const auto response = WebService::PatchRepository(
       localRepository->Name(), localRepository.value(), false, localCommits);
   if (!WebService::NoErrorsInResponse(response.status_code)) {
     std::cout << "Cannot push commits.\n";
@@ -173,21 +186,17 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
     return;
   }
 
-  if (repo.has_value()) {
-    repo->InitCommitsManager();
+  repo->InitCommitsManager();
+  if (repo->Commits().empty()) {
+    return;
+  }
 
-    if (repo->Commits().empty()) {
-      return;
-    }
+  const auto file = fs::path{repo->Folder()} / CONFIG_DIRECTORY /
+                    std::to_string(repo->Commits().back().Checksum()) / filename;
 
-    const auto file = fs::path{repo->Folder()} / CONFIG_DIRECTORY /
-                      std::to_string(repo->Commits().back().Checksum()) / filename;
-
-    const auto difference = FileComparator::Compare(file, filename);
-    for (const auto& [lineNumber, lines] : difference) {
-      printf("[%u]:\n\t%s\n\t%s\n", lineNumber, lines.first.c_str(),
-             lines.second.c_str());
-    }
+  const auto difference = FileComparator::Compare(file, filename);
+  for (const auto& [lineNumber, lines] : difference) {
+    printf("[%u]:\n\t%s\n\t%s\n", lineNumber, lines.first.c_str(), lines.second.c_str());
   }
 }
 

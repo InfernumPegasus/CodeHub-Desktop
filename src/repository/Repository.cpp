@@ -6,23 +6,22 @@
 #include "config/ConfigFiles.h"
 #include "filemanager/RestoreFileManager.h"
 
-Repository::Repository(std::string repositoryName, const std::string& repositoryFolder)
+Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder)
     : repositoryName_(std::move(repositoryName)),
       repositoryFolder_(fs::absolute(repositoryFolder)),
-      configManager_(repositoryFolder_ + "/" + CONFIG_DIRECTORY + "/" + CONFIG_FILE,
-                     &repositoryName_, &repositoryFolder_, &fileHashMap_),
-      commitsManager_(repositoryFolder_ + "/" + CONFIG_DIRECTORY + "/" + COMMITS_FILE,
-                      &commits_),
-      ignoreFileManager_(repositoryFolder_, repositoryFolder_ + "/" + IGNORE_FILE,
+      configManager_(repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE, &repositoryName_,
+                     &repositoryFolder_, &fileHashMap_),
+      commitsManager_(repositoryFolder_ / CONFIG_DIRECTORY / COMMITS_FILE, &commits_),
+      ignoreFileManager_(repositoryFolder_.string(), repositoryFolder_ / IGNORE_FILE,
                          &ignoredFiles_) {}
 
-Repository::Repository(std::string repositoryName, const std::string& repositoryFolder,
+Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        FileHashMap files)
     : Repository(std::move(repositoryName), repositoryFolder) {
   fileHashMap_ = std::move(files);
 }
 
-Repository::Repository(std::string repositoryName, const std::string& repositoryFolder,
+Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        const std::vector<Commit>& commits)
     : Repository(std::move(repositoryName), repositoryFolder) {
   commits_ = commits;
@@ -33,11 +32,33 @@ Repository::~Repository() { configManager_.Update(); }
 FileHashMap Repository::ChangedFiles() const {
   FileHashMap changedFiles;
   for (const auto& [file, hash] : fileHashMap_) {
-    if (File::CalculateHash(file) != hash) {
+    if (fs::exists(file) && File::CalculateHash(file.string()) != hash) {
       changedFiles.emplace(file, hash);
     }
   }
   return changedFiles;
+}
+
+FileHashMap Repository::RemovedFiles() const {
+  FileHashMap removedFiles;
+  for (const auto& [file, hash] : fileHashMap_) {
+    if (!fs::exists(file)) {
+      removedFiles.emplace(file, hash);
+    }
+  }
+  return removedFiles;
+}
+
+FileHashMap Repository::CreatedFiles() const {
+  FileHashMap createdFiles;
+  for (const auto& file : fs::recursive_directory_iterator(repositoryFolder_)) {
+    if (const auto filename = fs::relative(file);
+        !fileHashMap_.contains(filename) &&
+        !IgnoreFileManager::ShouldBeIgnored(filename.c_str())) {
+      createdFiles.emplace(filename, File::CalculateHash(filename));
+    }
+  }
+  return createdFiles;
 }
 
 FileHashMap Repository::CollectFiles() const {
@@ -62,7 +83,7 @@ void Repository::DoCommit(std::string_view message) {
     return;
   }
 
-  Commit commit(collectedFiles, message);
+  const Commit commit(collectedFiles, message);
   commits_.push_back(commit);
   commitsManager_.Update();
   configManager_.Update();
@@ -98,13 +119,14 @@ std::tuple<int, int, int> Repository::CountFilesStatuses(
 }
 
 void Repository::SaveCommitFiles(const Commit& commit) {
-  const auto recoveryFolder = CONFIG_DIRECTORY + "/" + std::to_string(commit.Checksum());
+  const auto recoveryFolder =
+      fs::path{CONFIG_DIRECTORY} / std::to_string(commit.Checksum());
   RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
   RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
 }
 
 void Repository::RestoreCommitFiles(size_t checksum) {
-  RestoreFileManager::CopyRecursive(CONFIG_DIRECTORY + "/" + std::to_string(checksum),
+  RestoreFileManager::CopyRecursive(fs::path{CONFIG_DIRECTORY} / std::to_string(checksum),
                                     fs::current_path());
 }
 
@@ -122,7 +144,7 @@ void Repository::InitManagers() {
 
 const std::string& Repository::Name() const { return repositoryName_; }
 
-const std::string& Repository::Folder() const { return repositoryFolder_; }
+const fs::path& Repository::Folder() const { return repositoryFolder_; }
 
 const std::vector<Commit>& Repository::Commits() const { return commits_; }
 

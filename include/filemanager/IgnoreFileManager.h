@@ -3,8 +3,11 @@
 
 #include <string>
 #include <unordered_set>
+#include <filesystem>
 
 #include "IFileManager.h"
+
+namespace fs = std::filesystem;
 
 class IgnoreFileManager : public IFileManager {
  public:
@@ -16,9 +19,12 @@ class IgnoreFileManager : public IFileManager {
 
   bool Read() override;
 
+ public:
+  static bool ShouldBeIgnored(std::string_view filename);
+
  private:
-  std::string_view repositoryFolder_;
-  std::string ignoreFile_;
+  const std::string_view repositoryFolder_;
+  const std::string ignoreFile_;
 
   std::unordered_set<std::string>& ignoredFilesRef_;
 };

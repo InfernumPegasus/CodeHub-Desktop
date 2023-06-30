@@ -31,7 +31,7 @@ bool UserFileManager::Read() {
     return false;
   }
 
-  json json = json::parse(ifs);
+  const json json = json::parse(ifs);
   if (json.empty()) return false;
   email_ = json["email"];
   password_ = json["password"];

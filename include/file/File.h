@@ -6,6 +6,8 @@
 
 #include "FileStatus.h"
 
+namespace fs = std::filesystem;
+
 class File {
  public:
   File(std::string filename, size_t hash, FileStatus status);
@@ -25,9 +27,9 @@ class File {
   bool operator<(const File& rhs) const;
 
  public:
-  static std::vector<char> LoadContent(std::string_view filename);
+  static std::vector<char> LoadContent(const fs::path& filename);
 
-  static size_t CalculateHash(std::string_view filename);
+  static size_t CalculateHash(const fs::path& filename);
 
  private:
   std::string name_;

@@ -19,18 +19,16 @@ FileStatus File::Status() const { return status_; }
 
 bool File::operator<(const File& rhs) const { return hash_ < rhs.hash_; }
 
-std::vector<char> File::LoadContent(std::string_view filename) {
-  std::vector<char> content;
-  std::ifstream ifs(filename.data());
-
+std::vector<char> File::LoadContent(const fs::path& filename) {
+  std::ifstream ifs(filename.c_str());
   return {std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 }
 
-size_t File::CalculateHash(std::string_view filename) {
-  auto content = LoadContent(filename);
+size_t File::CalculateHash(const fs::path& filename) {
+  const auto content = LoadContent(filename);
+  const std::string file = filename.c_str();
   auto res = content.size();
-  std::string file = filename.data();
-  for (auto& c : content) {
+  for (const auto& c : content) {
     res ^= c + std::hash<std::string>{}(file) + 0x9e3779b9 + (res << 6) + (res >> 2);
   }
   return res;

@@ -14,9 +14,10 @@ IgnoreFileManager::IgnoreFileManager(std::string_view repositoryFolder,
 
 bool IgnoreFileManager::Create() {
   std::unordered_set<std::string> files;
-  for (auto& file : std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-    if (auto filename = std::filesystem::relative(file).filename().string();
-        filename.starts_with(".") || filename.starts_with("_")) {
+  for (const auto& file :
+       std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
+    if (const auto filename = std::filesystem::relative(file).filename().c_str();
+        ShouldBeIgnored(filename)) {
       files.insert(filename);
     }
   }
@@ -47,10 +48,14 @@ bool IgnoreFileManager::Read() {
     ignoredFilesRef_.emplace(readFilename);
     if (!std::filesystem::is_directory(readFilename)) continue;
 
-    for (auto& file : std::filesystem::recursive_directory_iterator(readFilename)) {
-      auto filename = std::filesystem::relative(file).string();
+    for (const auto& file : std::filesystem::recursive_directory_iterator(readFilename)) {
+      const auto filename = std::filesystem::relative(file).string();
       ignoredFilesRef_.insert(filename);
     }
   }
   return true;
+}
+
+bool IgnoreFileManager::ShouldBeIgnored(std::string_view filename) {
+  return (fs::is_directory(filename)) || (filename.starts_with(".") || filename.starts_with("_"));
 }
