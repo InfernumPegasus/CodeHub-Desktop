@@ -1,4 +1,4 @@
-#include "Commit.h"
+#include "commit/Commit.h"
 
 Commit::Commit(const std::unordered_set<File> &files,
                std::string_view message) :

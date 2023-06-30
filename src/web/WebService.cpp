@@ -1,9 +1,9 @@
 #include <iostream>
-#include "WebService.h"
-#include "../serializer/JsonSerializer.h"
-#include "../config/ConfigFiles.h"
+#include "web/WebService.h"
+#include "serializer/JsonSerializer.h"
+#include "config/ConfigFiles.h"
 
-bool WebService::NoErrorsInResponseCode(
+bool WebService::NoErrorsInResponse(
         long statusCode) {
     using namespace cpr::status;
     const auto code = static_cast<int32_t>(statusCode);

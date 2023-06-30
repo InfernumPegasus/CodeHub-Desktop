@@ -3,13 +3,13 @@
 
 #include <optional>
 #include <nlohmann/json.hpp>
-#include "cpr/cpr.h"
-#include "../config/Endpoints.h"
-#include "../repository/Repository.h"
+#include <cpr/cpr.h>
+#include "config/Endpoints.h"
+#include "repository/Repository.h"
 
 class WebService {
 public:
-    static bool NoErrorsInResponseCode(long statusCode);
+    static bool NoErrorsInResponse(long statusCode);
 
 public:
     static cpr::Response PostLogin(std::string_view email,

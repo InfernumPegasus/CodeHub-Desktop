@@ -1,8 +1,8 @@
 #include <iostream>
 #include <utility>
-#include "Repository.h"
-#include "../config/ConfigFiles.h"
-#include "../filemanager/RestoreFileManager.h"
+#include "repository/Repository.h"
+#include "config/ConfigFiles.h"
+#include "filemanager/RestoreFileManager.h"
 
 Repository::Repository(std::string repositoryName,
                        const std::string &repositoryFolder) :

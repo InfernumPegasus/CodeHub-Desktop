@@ -2,7 +2,7 @@
 #define CODEHUB_COMMITSMANAGER_H
 
 #include <string>
-#include "../commit/Commit.h"
+#include "commit/Commit.h"
 #include "IFileManager.h"
 
 class CommitsManager : public IFileManager {

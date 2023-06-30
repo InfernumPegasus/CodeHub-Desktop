@@ -1,20 +1,22 @@
 #include <iostream>
 #include <boost/program_options.hpp>
-#include "src/vcs/VersionControlSystem.h"
+#include "vcs/VersionControlSystem.h"
 
 namespace po = boost::program_options;
 
 using namespace std::string_literals;
 
 int main(int argc, char *argv[]) {
-    VersionControlSystem versionControlSystem;
-    versionControlSystem.Init();
+    VersionControlSystem vcs;
+    vcs.Init();
 
     po::options_description description("Allowed options");
     description.add_options()
             ("help", "produce help message")
             ("init", po::value<std::string>(), "init new repository")
             ("status", "get repository status")
+            ("diff", po::value<std::string>(),
+             "shows file difference with last committed one")
             ("repositories", "show all repositories")
             ("log", "show commits history")
             ("commit", po::value<std::string>(), "store changes")
@@ -29,28 +31,28 @@ int main(int argc, char *argv[]) {
         if (vm.empty() || vm.count("help")) {
             std::cout << description << std::endl;
         } else if (vm.count("init")) {
-            versionControlSystem.CreateRepository(
-                    vm["init"].as<std::string>());
+            vcs.CreateRepository(vm["init"].as<std::string>());
         } else if (vm.count("status")) {
-            versionControlSystem.CheckStatus();
+            vcs.CheckStatus();
+        } else if (vm.count("diff")) {
+            vcs.ShowFileDifference(vm["diff"].as<std::string>());
         } else if (vm.count("repositories")) {
-            versionControlSystem.ShowRepositories();
+            vcs.ShowRepositories();
         } else if (vm.count("log")) {
-            versionControlSystem.CommitsLog();
+            vcs.CommitsLog();
         } else if (vm.count("commit")) {
-            versionControlSystem.DoCommit(
-                    vm["commit"].as<std::string>());
+            vcs.DoCommit(vm["commit"].as<std::string>());
         } else if (vm.count("push")) {
-            versionControlSystem.Push();
+            vcs.Push();
         } else if (vm.count("restore")) {
-            versionControlSystem.RestoreFiles(
-                    vm["restore"].as<size_t>());
+            vcs.RestoreFiles(vm["restore"].as<size_t>());
         }
     } catch (po::unknown_option &unknownOption) {
         std::cout << description << std::endl;
+        return EXIT_FAILURE;
     } catch (std::exception &exception) {
         std::cout << exception.what() << std::endl;
+        return EXIT_FAILURE;
     }
-
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 #include <fstream>
 #include <filesystem>
-#include "IgnoreFileManager.h"
-#include "../config/ConfigFiles.h"
+#include "filemanager/IgnoreFileManager.h"
+#include "config/ConfigFiles.h"
 
 IgnoreFileManager::IgnoreFileManager(
         std::string_view repositoryFolder,
@@ -28,7 +28,6 @@ bool IgnoreFileManager::Create() {
     for (const auto &file: files) {
         ofs << file << "\n";
     }
-    ofs << CONFIG_DIRECTORY << "\n";
     ofs << COMMITS_FILE << "\n";
     ofs << VCS_REPOSITORIES_FILE << "\n";
     ofs << VCS_USER_FILE << "\n";

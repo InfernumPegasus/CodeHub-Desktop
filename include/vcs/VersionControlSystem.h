@@ -2,9 +2,9 @@
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
 #include <optional>
-#include "../repository/Repository.h"
-#include "../filemanager/RepositoriesManager.h"
-#include "../filemanager/UserFileManager.h"
+#include "repository/Repository.h"
+#include "filemanager/RepositoriesManager.h"
+#include "filemanager/UserFileManager.h"
 
 using NameFolderMap = std::unordered_map<std::string, std::string>;
 
@@ -20,6 +20,8 @@ private:
     bool IsUniqueRepositoryData(
             const std::string &name,
             const std::string &folder) const;
+
+    void CheckRepositoriesExist() const;
 
 public:
     bool ExistsByName(std::string_view repositoryName) const;
@@ -38,7 +40,9 @@ public:
 
     void ShowRepositories() const;
 
-    void CommitsLog();
+    void CommitsLog() const;
+
+    void ShowFileDifference(std::string_view filename) ;
 
 public:
     void RestoreFiles(size_t checksum);

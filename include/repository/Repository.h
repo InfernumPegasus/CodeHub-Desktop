@@ -3,10 +3,10 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include "../commit/Commit.h"
-#include "../filemanager/RepositoryConfigManager.h"
-#include "../filemanager/CommitsManager.h"
-#include "../filemanager/IgnoreFileManager.h"
+#include "commit/Commit.h"
+#include "filemanager/RepositoryConfigManager.h"
+#include "filemanager/CommitsManager.h"
+#include "filemanager/IgnoreFileManager.h"
 
 using FileHashMap = std::unordered_map<std::string, size_t>;
 

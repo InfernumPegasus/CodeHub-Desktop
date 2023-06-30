@@ -1,6 +1,6 @@
 #include <fstream>
-#include "CommitsManager.h"
-#include "../serializer/JsonSerializer.h"
+#include "filemanager/CommitsManager.h"
+#include "serializer/JsonSerializer.h"
 
 CommitsManager::CommitsManager(std::string commitsFile,
                                std::vector<Commit> *commits) :

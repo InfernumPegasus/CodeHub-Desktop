@@ -1,6 +1,6 @@
-#include "RepositoriesManager.h"
-#include "../serializer/JsonSerializer.h"
-#include "../config/ConfigFiles.h"
+#include "filemanager/RepositoriesManager.h"
+#include "serializer/JsonSerializer.h"
+#include "config/ConfigFiles.h"
 #include <filesystem>
 #include <iostream>
 

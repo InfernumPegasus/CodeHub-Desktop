@@ -3,8 +3,8 @@
 
 #include <optional>
 #include <nlohmann/json.hpp>
-#include "../repository/Repository.h"
-#include "cpr/cookies.h"
+#include <cpr/cookies.h>
+#include "repository/Repository.h"
 
 class JsonSerializer {
 public:

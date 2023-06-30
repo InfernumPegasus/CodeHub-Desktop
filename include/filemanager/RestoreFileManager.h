@@ -1,7 +1,7 @@
 #ifndef CODEHUB_RESTOREFILEMANAGER_H
 #define CODEHUB_RESTOREFILEMANAGER_H
 
-#include "../commit/Commit.h"
+#include "commit/Commit.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;

@@ -2,7 +2,7 @@
 #define CODEHUB_USERFILEMANAGER_H
 
 #include "IFileManager.h"
-#include "../config/ConfigFiles.h"
+#include "config/ConfigFiles.h"
 
 class UserFileManager : public IFileManager {
 public:
