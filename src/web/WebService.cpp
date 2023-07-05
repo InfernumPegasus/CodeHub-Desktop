@@ -48,7 +48,7 @@ cpr::Response WebService::PostCommit(const Commit& commit) {
                    cpr::Body{payload.dump()});
 }
 
-std::vector<int> WebService::PostCommits(const std::vector<Commit>& commits) {
+std::vector<int> WebService::PostCommits(const std::list<Commit>& commits) {
   std::vector<int> ids;
   for (const auto& commit : commits) {
     const auto response = PostCommit(commit);
@@ -115,7 +115,7 @@ cpr::Response WebService::PostRepository(const Repository& repository) {
 
 cpr::Response WebService::PatchRepository(std::string_view repoName,
                                           const Repository& repository, bool isPrivate,
-                                          const std::vector<Commit>& commits) {
+                                          const std::list<Commit>& commits) {
   const auto commitsIds = PostCommits(commits);
   const auto repoJson = GetRepositoryJson(repoName.data());
   const int repoId = repoJson["id"];

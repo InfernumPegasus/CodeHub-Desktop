@@ -18,7 +18,7 @@ void VersionControlSystem::Init() {
 }
 
 bool VersionControlSystem::IsUniqueRepositoryData(const std::string& name,
-                                                  const std::string& folder) const {
+                                                  const fs::path& folder) const {
   return Validator::IsValidRepositoryName(name) && !ExistsByFolder(folder) &&
          !ExistsByName(name);
 }
@@ -33,7 +33,7 @@ bool VersionControlSystem::ExistsByName(std::string_view repositoryName) const {
   return nameFolderMap_.contains(repositoryName.data());
 }
 
-bool VersionControlSystem::ExistsByFolder(std::string_view repositoryFolder) const {
+bool VersionControlSystem::ExistsByFolder(const fs::path& repositoryFolder) const {
   return std::ranges::any_of(nameFolderMap_.cbegin(), nameFolderMap_.cend(),
                              [&](auto& pair) { return pair.second == repositoryFolder; });
 }

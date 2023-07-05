@@ -1,6 +1,7 @@
 #ifndef CODEHUB_REPOSITORY_H
 #define CODEHUB_REPOSITORY_H
 
+#include <list>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -18,7 +19,7 @@ class Repository {
              FileHashMap files);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             const std::vector<Commit>& commits);
+             const std::list<Commit>& commits);
 
   ~Repository();
 
@@ -56,7 +57,7 @@ class Repository {
 
   [[nodiscard]] const fs::path& Folder() const;
 
-  [[nodiscard]] const std::vector<Commit>& Commits() const;
+  [[nodiscard]] const std::list<Commit>& Commits() const;
 
   [[nodiscard]] const FileHashMap& Map() const;
 
@@ -69,7 +70,7 @@ class Repository {
   FilesManager filesManager_;
   //  IgnoreFileManager ignoreFileManager_;
 
-  std::vector<Commit> commits_;
+  std::list<Commit> commits_;
   std::unordered_set<fs::path> ignoredFiles_;
 
   FileHashMap fileHashMap_;

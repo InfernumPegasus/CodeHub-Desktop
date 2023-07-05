@@ -18,14 +18,14 @@ class VersionControlSystem {
   void Init();
 
  private:
-  bool IsUniqueRepositoryData(const std::string& name, const std::string& folder) const;
+  bool IsUniqueRepositoryData(const std::string& name, const fs::path& folder) const;
 
   void CheckRepositoriesExist() const;
 
  public:
   bool ExistsByName(std::string_view repositoryName) const;
 
-  bool ExistsByFolder(std::string_view repositoryFolder) const;
+  bool ExistsByFolder(const fs::path& repositoryFolder) const;
 
  public:
   void CreateRepository(std::string repositoryName);

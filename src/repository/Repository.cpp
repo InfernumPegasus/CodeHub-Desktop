@@ -22,7 +22,7 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
 }
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       const std::vector<Commit>& commits)
+                       const std::list<Commit>& commits)
     : Repository(std::move(repositoryName), repositoryFolder) {
   commits_ = commits;
 }
@@ -103,7 +103,7 @@ const std::string& Repository::Name() const { return repositoryName_; }
 
 const fs::path& Repository::Folder() const { return repositoryFolder_; }
 
-const std::vector<Commit>& Repository::Commits() const { return commits_; }
+const std::list<Commit>& Repository::Commits() const { return commits_; }
 
 const FileHashMap& Repository::Map() const { return fileHashMap_; }
 

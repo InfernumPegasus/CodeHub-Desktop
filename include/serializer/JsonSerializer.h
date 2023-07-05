@@ -31,13 +31,13 @@ class JsonSerializer {
                                                std::string_view folder,
                                                const FileHashMap& fileHashMap);
 
-  static nlohmann::json CommitsToJson(const std::vector<Commit>& commits);
+  static nlohmann::json CommitsToJson(const std::list<Commit>& commits);
 
   static std::optional<Repository> RepositoryFromConfigJson(nlohmann::json json);
 
-  static std::optional<std::vector<Commit>> CommitsFromJson(nlohmann::json json);
+  static std::optional<std::list<Commit>> CommitsFromJson(nlohmann::json json);
 
-  static std::optional<std::vector<Commit>> CommitsFromWebJson(nlohmann::json json);
+  static std::optional<std::list<Commit>> CommitsFromWebJson(nlohmann::json json);
 
  public:
   static NameFolderMap NameFolderFromJson(nlohmann::json json);

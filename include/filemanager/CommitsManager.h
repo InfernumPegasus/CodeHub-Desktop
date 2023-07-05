@@ -1,6 +1,7 @@
 #ifndef CODEHUB_COMMITSMANAGER_H
 #define CODEHUB_COMMITSMANAGER_H
 
+#include <list>
 #include <string>
 
 #include "IFileManager.h"
@@ -8,7 +9,7 @@
 
 class CommitsManager : public IFileManager {
  public:
-  CommitsManager(std::string commitsFile, std::vector<Commit>* commits);
+  CommitsManager(std::string commitsFile, std::list<Commit>* commits);
 
  public:
   bool Create() override;
@@ -20,7 +21,7 @@ class CommitsManager : public IFileManager {
  private:
   const std::string commitsFile_;
 
-  std::vector<Commit>& commitsRef_;
+  std::list<Commit>& commitsRef_;
 };
 
 #endif  // CODEHUB_COMMITSMANAGER_H

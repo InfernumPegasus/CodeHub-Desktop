@@ -28,7 +28,7 @@ File JsonSerializer::FileFromWebJson(nlohmann::json json) {
 
 nlohmann::json JsonSerializer::CommitToJson(const Commit& commit) {
   nlohmann::json j;
-  std::vector<nlohmann::json> files;
+  std::list<nlohmann::json> files;
   for (const auto& file : commit.Files()) {
     files.push_back(FileToJson(file));
   }
@@ -68,9 +68,9 @@ nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view name,
   return j;
 }
 
-nlohmann::json JsonSerializer::CommitsToJson(const std::vector<Commit>& commits) {
+nlohmann::json JsonSerializer::CommitsToJson(const std::list<Commit>& commits) {
   nlohmann::json j;
-  std::vector<nlohmann::json> commitsJson;
+  std::list<nlohmann::json> commitsJson;
   for (const auto& commit : commits) {
     commitsJson.push_back(CommitToJson(commit));
   }
@@ -85,21 +85,21 @@ std::optional<Repository> JsonSerializer::RepositoryFromConfigJson(nlohmann::jso
   return std::make_optional<Repository>(name, folder, map);
 }
 
-std::optional<std::vector<Commit>> JsonSerializer::CommitsFromJson(nlohmann::json json) {
+std::optional<std::list<Commit>> JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
-  const std::vector<nlohmann::json> commitsJson = json["commits"];
-  std::vector<Commit> commits;
+  const std::list<nlohmann::json> commitsJson = json["commits"];
+  std::list<Commit> commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromJson(commit));
   }
   return commits;
 }
 
-std::optional<std::vector<Commit>> JsonSerializer::CommitsFromWebJson(
+std::optional<std::list<Commit>> JsonSerializer::CommitsFromWebJson(
     nlohmann::json json) {
   if (json.empty()) return {};
-  const std::vector<nlohmann::json> commitsJson = json["commits"];
-  std::vector<Commit> commits;
+  const std::list<nlohmann::json> commitsJson = json["commits"];
+  std::list<Commit> commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromWebJson(commit));
   }

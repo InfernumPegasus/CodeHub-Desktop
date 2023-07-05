@@ -9,6 +9,7 @@
 
 namespace fs = std::filesystem;
 
+// TODO add regexes support
 class IgnoreFileManager : public IFileManager {
  public:
   IgnoreFileManager(std::string_view repositoryFolder, std::string ignoreFile,

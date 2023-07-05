@@ -4,7 +4,7 @@
 
 #include "serializer/JsonSerializer.h"
 
-CommitsManager::CommitsManager(std::string commitsFile, std::vector<Commit>* commits)
+CommitsManager::CommitsManager(std::string commitsFile, std::list<Commit>* commits)
     : commitsFile_(std::move(commitsFile)), commitsRef_(*commits) {}
 
 bool CommitsManager::Create() {

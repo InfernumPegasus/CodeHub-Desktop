@@ -21,7 +21,7 @@ class WebService {
  public:
   static cpr::Response PostCommit(const Commit& commit);
 
-  static std::vector<int> PostCommits(const std::vector<Commit>& commits);
+  static std::vector<int> PostCommits(const std::list<Commit>& commits);
 
  public:
   static std::vector<int> PostFiles(const std::unordered_set<File>& files);
@@ -37,7 +37,7 @@ class WebService {
 
   static cpr::Response PatchRepository(std::string_view repoName,
                                        const Repository& repository, bool isPrivate,
-                                       const std::vector<Commit>& commits);
+                                       const std::list<Commit>& commits);
 };
 
 #endif  // CODEHUB_WEBSERVICE_H
