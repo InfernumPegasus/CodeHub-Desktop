@@ -12,8 +12,8 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
       configManager_(repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE, &repositoryName_,
                      &repositoryFolder_, &fileHashMap_),
       commitsManager_(repositoryFolder_ / CONFIG_DIRECTORY / COMMITS_FILE, &commits_),
-      ignoreFileManager_(repositoryFolder_.string(), repositoryFolder_ / IGNORE_FILE,
-                         &ignoredFiles_) {}
+      filesManager_(repositoryFolder, &fileHashMap_, repositoryFolder_ / IGNORE_FILE,
+                    &ignoredFiles_) {}
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        FileHashMap files)
@@ -29,54 +29,14 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
 
 Repository::~Repository() { configManager_.Update(); }
 
-FileHashMap Repository::ChangedFiles() const {
-  FileHashMap changedFiles;
-  for (const auto& [file, hash] : fileHashMap_) {
-    if (fs::exists(file) && File::CalculateHash(file.string()) != hash) {
-      changedFiles.emplace(file, hash);
-    }
-  }
-  return changedFiles;
-}
+FileHashMap Repository::ChangedFiles() const { return filesManager_.ChangedFiles(); }
 
-FileHashMap Repository::RemovedFiles() const {
-  FileHashMap removedFiles;
-  for (const auto& [file, hash] : fileHashMap_) {
-    if (!fs::exists(file)) {
-      removedFiles.emplace(file, hash);
-    }
-  }
-  return removedFiles;
-}
+FileHashMap Repository::RemovedFiles() const { return filesManager_.RemovedFiles(); }
 
-FileHashMap Repository::CreatedFiles() const {
-  FileHashMap createdFiles;
-  for (const auto& file : fs::recursive_directory_iterator(repositoryFolder_)) {
-    if (const auto filename = fs::relative(file);
-        !fileHashMap_.contains(filename) &&
-        !IgnoreFileManager::ShouldBeIgnored(filename.c_str())) {
-      createdFiles.emplace(filename, File::CalculateHash(filename));
-    }
-  }
-  return createdFiles;
-}
-
-FileHashMap Repository::CollectFiles() const {
-  FileHashMap collectedFiles;
-
-  for (const auto& file : fs::recursive_directory_iterator(repositoryFolder_)) {
-    const auto filename = fs::relative(file).string();
-
-    if (!ignoredFiles_.contains(filename) && !fs::is_directory(filename)) {
-      collectedFiles.emplace(filename, File::CalculateHash(filename));
-    }
-  }
-
-  return collectedFiles;
-}
+FileHashMap Repository::CreatedFiles() const { return filesManager_.CreatedFiles(); }
 
 void Repository::DoCommit(std::string_view message) {
-  const std::unordered_set<File> collectedFiles = FilterCollectedFiles(CollectFiles());
+  const auto collectedFiles = FilterCollectedFiles(filesManager_.CollectFiles());
 
   if (collectedFiles.empty()) {
     std::cout << "Nothing to commit!\n";
@@ -132,13 +92,10 @@ void Repository::RestoreCommitFiles(size_t checksum) {
 
 void Repository::InitConfigManager() { configManager_.Init(); }
 
-void Repository::InitIgnoreManager() { ignoreFileManager_.Init(); }
-
 void Repository::InitCommitsManager() { commitsManager_.Init(); }
 
 void Repository::InitManagers() {
   InitConfigManager();
-  InitIgnoreManager();
   InitCommitsManager();
 }
 

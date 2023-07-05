@@ -21,14 +21,17 @@ add_library(mylib
         src/filemanager/RepositoryConfigManager.cpp
         src/filemanager/RestoreFileManager.cpp
         src/filemanager/UserFileManager.cpp
+        src/filemanager/FilesManager.cpp
 
         src/serializer/JsonSerializer.cpp
 
         src/validation/Validator.cpp
 
+        src/web/WebService.cpp
+
         src/vcs/VersionControlSystem.cpp
 
-        src/web/WebService.cpp
+#        src/branch/Branch.cpp
         )
 
 target_include_directories(mylib PUBLIC include)

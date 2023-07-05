@@ -57,43 +57,44 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
 
 void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
-  std::for_each(
-      nameFolderMap_.cbegin(), nameFolderMap_.cend(), [&](const auto& pair) -> bool {
-        const std::string name = pair.first;
-        const std::string folder = pair.second;
-        if (folder != fs::current_path()) return false;
+  const auto folder = fs::current_path();
+  auto repository = JsonSerializer::GetRepositoryByFolder(folder);
+  if (!nameFolderMap_.contains(repository->Name()) ||
+      !JsonSerializer::GetRepositoryByFolder(folder).has_value()) {
+    throw std::runtime_error("Cannot open repository.");
+  }
 
-        Repository repository(name, folder);
-        repository.InitManagers();
+  repository->InitManagers();
 
-        std::cout << "Repository '" << name << "' status: ";
-        if (repository.Commits().empty()) {
-          std::cout << "There are no commits yet.\n"
-                       "Use --commit command to do commit.\n";
-          return true;
-        } else {
-          const auto createdFiles = repository.CreatedFiles();
-          const auto changedFiles = repository.ChangedFiles();
-          const auto removedFiles = repository.RemovedFiles();
+  const auto printFunc = [](std::string_view status, const auto& files) {
+    for (const auto& [fileName, hash] : files) {
+      std::cout << "\n\t" << status << ":\t" << fileName;
+    }
+    if (!files.empty()) std::cout << "\n";
+  };
 
-          if (changedFiles.empty() && removedFiles.empty()) {
-            std::cout << "Up-to-date.\n";
-            return true;
-          }
+  std::cout << "Repository '" << repository->Name() << "' status: ";
+  if (repository->Commits().empty()) {
+    std::cout << "There are no commits yet.\n"
+                 "Use --commit command to do commit.\n";
+    if (const auto createdFiles = repository->CreatedFiles(); !createdFiles.empty()) {
+      std::cout << "\nYou have " << createdFiles.size() << " files to commit:";
+      printFunc("Created", createdFiles);
+    }
+  } else {
+    const auto createdFiles = repository->CreatedFiles();
+    const auto changedFiles = repository->ChangedFiles();
+    const auto removedFiles = repository->RemovedFiles();
 
-          const auto printFunc = [](std::string_view variant, const auto& files) {
-            for (const auto& [fileName, hash] : files) {
-              std::cout << "\n\t" << variant << ":\t" << fileName;
-            }
-            if (!files.empty()) std::cout << "\n";
-          };
+    if (changedFiles.empty() && removedFiles.empty()) {
+      std::cout << "Up-to-date.\n";
+      return;
+    }
 
-          printFunc("Created", createdFiles);
-          printFunc("Changed", changedFiles);
-          printFunc("Removed", removedFiles);
-        }
-        return true;
-      });
+    printFunc("Created", createdFiles);
+    printFunc("Changed", changedFiles);
+    printFunc("Removed", removedFiles);
+  }
 }
 
 void VersionControlSystem::DoCommit(std::string_view message) {

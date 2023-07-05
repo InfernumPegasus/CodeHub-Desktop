@@ -7,7 +7,7 @@
 
 IgnoreFileManager::IgnoreFileManager(std::string_view repositoryFolder,
                                      std::string ignoreFile,
-                                     std::unordered_set<std::string>* ignoredFiles)
+                                     std::unordered_set<fs::path>* ignoredFiles)
     : repositoryFolder_(repositoryFolder),
       ignoreFile_(std::move(ignoreFile)),
       ignoredFilesRef_(*ignoredFiles) {}
@@ -56,6 +56,8 @@ bool IgnoreFileManager::Read() {
   return true;
 }
 
-bool IgnoreFileManager::ShouldBeIgnored(std::string_view filename) {
-  return (fs::is_directory(filename)) || (filename.starts_with(".") || filename.starts_with("_"));
+bool IgnoreFileManager::ShouldBeIgnored(std::string_view filename) const {
+  return (fs::is_directory(filename)) ||
+         (filename.starts_with(".") || filename.starts_with("_")) ||
+         ignoredFilesRef_.contains(filename.data());
 }

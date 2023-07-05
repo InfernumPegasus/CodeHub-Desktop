@@ -6,12 +6,9 @@
 
 #include "commit/Commit.h"
 #include "filemanager/CommitsManager.h"
+#include "filemanager/FilesManager.h"
 #include "filemanager/IgnoreFileManager.h"
 #include "filemanager/RepositoryConfigManager.h"
-
-namespace fs = std::filesystem;
-
-using FileHashMap = std::unordered_map<fs::path, size_t>;
 
 class Repository {
  public:
@@ -33,8 +30,6 @@ class Repository {
   FileHashMap CreatedFiles() const;
 
  private:
-  [[nodiscard]] FileHashMap CollectFiles() const;
-
   std::unordered_set<File> FilterCollectedFiles(const FileHashMap& collectedFiles);
 
  public:
@@ -50,7 +45,7 @@ class Repository {
  public:
   void InitConfigManager();
 
-  void InitIgnoreManager();
+  //  void InitIgnoreManager();
 
   void InitCommitsManager();
 
@@ -71,10 +66,11 @@ class Repository {
 
   RepositoryConfigManager configManager_;
   CommitsManager commitsManager_;
-  IgnoreFileManager ignoreFileManager_;
+  FilesManager filesManager_;
+  //  IgnoreFileManager ignoreFileManager_;
 
   std::vector<Commit> commits_;
-  std::unordered_set<std::string> ignoredFiles_;
+  std::unordered_set<fs::path> ignoredFiles_;
 
   FileHashMap fileHashMap_;
 };
