@@ -6,7 +6,9 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
+#include "commit/Commit.h"
 #include "config/Endpoints.h"
+#include "config/Types.h"
 #include "repository/Repository.h"
 
 class WebService {
@@ -21,10 +23,10 @@ class WebService {
  public:
   static cpr::Response PostCommit(const Commit& commit);
 
-  static std::vector<int> PostCommits(const std::list<Commit>& commits);
+  static std::vector<int> PostCommits(const types::Commits& commits);
 
  public:
-  static std::vector<int> PostFiles(const std::unordered_set<File>& files);
+  static std::vector<int> PostFiles(const types::FilesSet& files);
 
   static cpr::Response PostFile(const File& file);
 
@@ -37,7 +39,7 @@ class WebService {
 
   static cpr::Response PatchRepository(std::string_view repoName,
                                        const Repository& repository, bool isPrivate,
-                                       const std::list<Commit>& commits);
+                                       const types::Commits& commits);
 };
 
 #endif  // CODEHUB_WEBSERVICE_H

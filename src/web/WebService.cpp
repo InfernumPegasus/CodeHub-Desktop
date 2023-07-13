@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
 
 bool WebService::NoErrorsInResponse(long statusCode) {
@@ -48,7 +47,7 @@ cpr::Response WebService::PostCommit(const Commit& commit) {
                    cpr::Body{payload.dump()});
 }
 
-std::vector<int> WebService::PostCommits(const std::list<Commit>& commits) {
+std::vector<int> WebService::PostCommits(const types::Commits& commits) {
   std::vector<int> ids;
   for (const auto& commit : commits) {
     const auto response = PostCommit(commit);
@@ -59,9 +58,9 @@ std::vector<int> WebService::PostCommits(const std::list<Commit>& commits) {
   return ids;
 }
 
-/* Files */
+/* FilesSet */
 
-std::vector<int> WebService::PostFiles(const std::unordered_set<File>& files) {
+std::vector<int> WebService::PostFiles(const types::FilesSet& files) {
   std::vector<int> ids;
   for (const auto& file : files) {
     const auto response = PostFile(file);
@@ -96,8 +95,8 @@ std::optional<Repository> WebService::GetRepository(const std::string& repoName)
 
 nlohmann::json WebService::GetRepositoryJson(const std::string& repoName) {
   const auto response = cpr::Get(cpr::Url{std::string{BASE_REPOSITORIES_URL}},
-                           JsonSerializer::GetCookiesFromFile(),
-                           cpr::Payload{{"repo_name", repoName}});
+                                 JsonSerializer::GetCookiesFromFile(),
+                                 cpr::Payload{{"repo_name", repoName}});
   nlohmann::json json = nlohmann::json::parse(response.text);
   return json;
 }
@@ -115,7 +114,7 @@ cpr::Response WebService::PostRepository(const Repository& repository) {
 
 cpr::Response WebService::PatchRepository(std::string_view repoName,
                                           const Repository& repository, bool isPrivate,
-                                          const std::list<Commit>& commits) {
+                                          const types::Commits& commits) {
   const auto commitsIds = PostCommits(commits);
   const auto repoJson = GetRepositoryJson(repoName.data());
   const int repoId = repoJson["id"];
