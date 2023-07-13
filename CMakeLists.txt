@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 # Include boost
 find_package(Boost COMPONENTS program_options REQUIRED)
 
-add_library(mylib
+add_library(global
         src/file/File.cpp
 
         src/filecomparator/FileComparator.cpp
@@ -30,12 +30,12 @@ add_library(mylib
         src/web/WebService.cpp
 
         src/vcs/VersionControlSystem.cpp
-
-#        src/branch/Branch.cpp
         )
 
-target_include_directories(mylib PUBLIC include)
-target_include_directories(mylib PRIVATE src)
+#add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion)
+
+target_include_directories(global PUBLIC include)
+target_include_directories(global PRIVATE src)
 
 add_executable(
         ${PROJECT_NAME}
@@ -45,5 +45,5 @@ add_executable(
 target_link_libraries(${PROJECT_NAME} PRIVATE
         cpr
         ${Boost_LIBRARIES}
-        mylib
+        global
         )
