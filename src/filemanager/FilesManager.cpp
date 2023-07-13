@@ -2,25 +2,27 @@
 
 #include "file/File.h"
 
-FilesManager::FilesManager(const fs::path& folder, FileHashMap* fileHashMap,
-                           const fs::path& ignoreFile,
-                           std::unordered_set<fs::path>* ignoredFiles)
+FilesManager::FilesManager(const fs::path& folder, types::FileHashMap* fileHashMap,
+                           const fs::path& ignoreFile, types::PathSet* ignoredFiles)
     : folder_(folder),
       fileHashMapRef_(*fileHashMap),
       ignoreFileManager_(folder.string(), ignoreFile, ignoredFiles) {}
 
-FileHashMap FilesManager::ChangedFiles() const {
-  FileHashMap changedFiles;
+void FilesManager::Init() { ignoreFileManager_.Init(); }
+
+types::FileHashMap FilesManager::ChangedFiles() const {
+  types::FileHashMap changedFiles;
   for (const auto& [file, hash] : fileHashMapRef_) {
-    if (fs::exists(file) && File::CalculateHash(file.string()) != hash) {
+    if (!fs::is_directory(file) && !ignoreFileManager_.ShouldBeIgnored(file) &&
+        fs::exists(file) && File::CalculateHash(file.string()) != hash) {
       changedFiles.emplace(file, hash);
     }
   }
   return changedFiles;
 }
 
-FileHashMap FilesManager::RemovedFiles() const {
-  FileHashMap removedFiles;
+types::FileHashMap FilesManager::RemovedFiles() const {
+  types::FileHashMap removedFiles;
   for (const auto& [file, hash] : fileHashMapRef_) {
     if (!fs::exists(file)) {
       removedFiles.emplace(file, hash);
@@ -29,21 +31,20 @@ FileHashMap FilesManager::RemovedFiles() const {
   return removedFiles;
 }
 
-FileHashMap FilesManager::CreatedFiles() const {
-  FileHashMap createdFiles;
+types::FileHashMap FilesManager::CreatedFiles() const {
+  types::FileHashMap createdFiles;
   for (const auto& file : fs::recursive_directory_iterator(folder_)) {
     if (const auto filename = fs::relative(file);
-        !fileHashMapRef_.contains(filename) &&
-        !ignoreFileManager_.ShouldBeIgnored(filename.c_str())) {
+        !fileHashMapRef_.contains(filename) && !fs::is_directory(filename) &&
+        !ignoreFileManager_.ShouldBeIgnored(filename)) {
       createdFiles.emplace(filename, File::CalculateHash(filename));
     }
   }
   return createdFiles;
 }
 
-FileHashMap FilesManager::CollectFiles() const {
-  FileHashMap collectedFiles;
-
+types::FileHashMap FilesManager::CollectFiles() const {
+  types::FileHashMap collectedFiles;
   for (const auto& file : fs::recursive_directory_iterator(folder_)) {
     const auto filename = fs::relative(file).string();
 

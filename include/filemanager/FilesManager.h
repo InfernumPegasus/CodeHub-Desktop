@@ -6,29 +6,30 @@
 #include <unordered_set>
 
 #include "IgnoreFileManager.h"
+#include "config/Types.h"
 
 namespace fs = std::filesystem;
 
-using FileHashMap = std::unordered_map<fs::path, size_t>;
-
 class FilesManager {
  public:
-  FilesManager(const fs::path& folder, FileHashMap* fileHashMap,
-               const fs::path& ignoreFile, std::unordered_set<fs::path>* ignoredFiles);
+  FilesManager(const fs::path& folder, types::FileHashMap* fileHashMap,
+               const fs::path& ignoreFile, types::PathSet* ignoredFiles);
 
  public:
-  [[nodiscard]] FileHashMap ChangedFiles() const;
+  void Init();
 
-  [[nodiscard]] FileHashMap RemovedFiles() const;
+  [[nodiscard]] types::FileHashMap ChangedFiles() const;
 
-  [[nodiscard]] FileHashMap CreatedFiles() const;
+  [[nodiscard]] types::FileHashMap RemovedFiles() const;
 
-  [[nodiscard]] FileHashMap CollectFiles() const;
+  [[nodiscard]] types::FileHashMap CreatedFiles() const;
+
+  [[nodiscard]] types::FileHashMap CollectFiles() const;
 
  private:
   const fs::path folder_;
   IgnoreFileManager ignoreFileManager_;
-  FileHashMap& fileHashMapRef_;
+  types::FileHashMap& fileHashMapRef_;
 };
 
 #endif  // CODEHUB_FILESMANAGER_H
