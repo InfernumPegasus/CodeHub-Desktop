@@ -5,17 +5,16 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
+#include "config/Types.h"
 #include "IFileManager.h"
 
 namespace fs = std::filesystem;
 
 class RepositoryConfigManager : public IFileManager {
  public:
-  using FileHashMap = std::unordered_map<fs::path, size_t>;
-
- public:
   RepositoryConfigManager(fs::path configFile, std::string* repositoryNameRef,
-                          fs::path* repositoryFolderRef, FileHashMap* fileHashMapRef);
+                          fs::path* repositoryFolderRef, types::FileHashMap* fileHashMapRef,
+                          std::string* currentBranchRef);
 
  public:
   bool Create() override;
@@ -29,7 +28,8 @@ class RepositoryConfigManager : public IFileManager {
 
   std::string& repositoryNameRef_;
   fs::path& repositoryFolderRef_;
-  FileHashMap& fileHashMapRef_;
+  types::FileHashMap& fileHashMapRef_;
+  std::string& currentBranchRef_;
 };
 
 #endif  // CODEHUB_REPOSITORYCONFIGMANAGER_H

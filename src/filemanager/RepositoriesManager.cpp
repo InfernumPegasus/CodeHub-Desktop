@@ -6,10 +6,9 @@
 #include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
 
-RepositoriesManager::RepositoriesManager(
-    RepositoriesManager::NameFolderMap* nameAndFolderMap_)
+RepositoriesManager::RepositoriesManager(types::NameFolderMap* nameAndFolderMap_)
     : appConfigDirectory_(GetHomeDirectory()),
-      repositoriesFile_(appConfigDirectory_ + "/" + VCS_REPOSITORIES_FILE),
+      repositoriesFile_(appConfigDirectory_ / VCS_REPOSITORIES_FILE),
       nameAndFolderMap_(*nameAndFolderMap_) {}
 
 bool RepositoriesManager::Create() {
@@ -37,7 +36,7 @@ bool RepositoriesManager::Read() {
   const nlohmann::json j = nlohmann::json::parse(ifs);
   nameAndFolderMap_ = JsonSerializer::NameFolderFromJson(j);
   std::erase_if(nameAndFolderMap_, [](const auto& kv) {
-    return !std::filesystem::exists(kv.second + "/" + CONFIG_DIRECTORY);
+    return !std::filesystem::exists(kv.second / CONFIG_DIRECTORY);
   });
 
   return true;

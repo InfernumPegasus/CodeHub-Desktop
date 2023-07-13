@@ -4,14 +4,12 @@
 #include <string>
 #include <unordered_map>
 
+#include "config/Types.h"
 #include "repository/Repository.h"
 
 class RepositoriesManager : public IFileManager {
  public:
-  using NameFolderMap = std::unordered_map<std::string, std::string>;
-
- public:
-  explicit RepositoriesManager(NameFolderMap* nameAndFolderMap_);
+  explicit RepositoriesManager(types::NameFolderMap* nameAndFolderMap_);
 
  public:
   bool Create() override;
@@ -21,10 +19,10 @@ class RepositoriesManager : public IFileManager {
   void Update();
 
  private:
-  const std::string appConfigDirectory_;
-  const std::string repositoriesFile_;
+  const fs::path appConfigDirectory_;
+  const fs::path repositoriesFile_;
 
-  NameFolderMap& nameAndFolderMap_;
+  types::NameFolderMap& nameAndFolderMap_;
 };
 
 #endif  // CODEHUB_REPOSITORIESMANAGER_H

@@ -2,29 +2,29 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <utility>
 
 #include "config/ConfigFiles.h"
 
-IgnoreFileManager::IgnoreFileManager(std::string_view repositoryFolder,
-                                     std::string ignoreFile,
-                                     std::unordered_set<fs::path>* ignoredFiles)
-    : repositoryFolder_(repositoryFolder),
+IgnoreFileManager::IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
+                                     types::PathSet* ignoredFiles)
+    : repositoryFolder_(std::move(repositoryFolder)),
       ignoreFile_(std::move(ignoreFile)),
       ignoredFilesRef_(*ignoredFiles) {}
 
 bool IgnoreFileManager::Create() {
+  std::ofstream ofs(ignoreFile_);
+  if (!ofs) return false;
+
   std::unordered_set<std::string> files;
   for (const auto& file :
        std::filesystem::recursive_directory_iterator(repositoryFolder_)) {
-    if (const auto filename = std::filesystem::relative(file).filename().c_str();
-        ShouldBeIgnored(filename)) {
+    if (const auto filename = std::filesystem::relative(file).filename().string();
+        filename.starts_with(".") || filename.starts_with("_")) {
       files.insert(filename);
     }
   }
-
-  std::ofstream ofs;
-  ofs.open(ignoreFile_);
-  if (!ofs) return false;
 
   for (const auto& file : files) {
     ofs << file << "\n";
@@ -56,8 +56,7 @@ bool IgnoreFileManager::Read() {
   return true;
 }
 
-bool IgnoreFileManager::ShouldBeIgnored(std::string_view filename) const {
-  return (fs::is_directory(filename)) ||
-         (filename.starts_with(".") || filename.starts_with("_")) ||
-         ignoredFilesRef_.contains(filename.data());
+bool IgnoreFileManager::ShouldBeIgnored(const std::string& filename) const {
+  return filename.starts_with(".") || filename.starts_with("_") ||
+         ignoredFilesRef_.contains(filename);
 }

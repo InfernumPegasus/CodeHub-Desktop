@@ -6,14 +6,15 @@
 #include <unordered_set>
 
 #include "IFileManager.h"
+#include "config/Types.h"
 
 namespace fs = std::filesystem;
 
 // TODO add regexes support
 class IgnoreFileManager : public IFileManager {
  public:
-  IgnoreFileManager(std::string_view repositoryFolder, std::string ignoreFile,
-                    std::unordered_set<fs::path>* ignoredFiles);
+  IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
+                    types::PathSet* ignoredFiles);
 
  public:
   bool Create() override;
@@ -21,13 +22,13 @@ class IgnoreFileManager : public IFileManager {
   bool Read() override;
 
  public:
-  [[nodiscard]] bool ShouldBeIgnored(std::string_view filename) const;
+  [[nodiscard]] bool ShouldBeIgnored(const std::string& filename) const;
 
  private:
-  const std::string_view repositoryFolder_;
-  const std::string ignoreFile_;
+  const fs::path repositoryFolder_;
+  const fs::path ignoreFile_;
 
-  std::unordered_set<fs::path>& ignoredFilesRef_;
+  types::PathSet& ignoredFilesRef_;
 };
 
 #endif  // CODEHUB_IGNOREFILEMANAGER_H

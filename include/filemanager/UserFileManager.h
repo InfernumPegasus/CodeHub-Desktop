@@ -10,15 +10,13 @@ class UserFileManager : public IFileManager {
 
   bool Read() override;
 
-  void Init() override;
-
  public:
   [[nodiscard]] std::string_view Email() const;
 
   [[nodiscard]] std::string_view Password() const;
 
  private:
-  const std::string userFile_{GetHomeDirectory() + "/" + VCS_USER_FILE};
+  const fs::path userFile_{GetHomeDirectory() + "/" + VCS_USER_FILE};
 
   std::string email_;
   std::string password_;

@@ -11,7 +11,7 @@ class RestoreFileManager {
  public:
   static bool CreateRecoveryFolder(const fs::path& folder);
 
-  static void CopyFiles(const std::unordered_set<File>& files, const fs::path& from,
+  static void CopyFiles(const types::FilesSet& files, const fs::path& from,
                         const fs::path& to);
 
   static void CopyRecursive(const fs::path& from, const fs::path& to);

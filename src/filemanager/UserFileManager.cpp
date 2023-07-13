@@ -39,13 +39,6 @@ bool UserFileManager::Read() {
   return true;
 }
 
-void UserFileManager::Init() {
-  if (!Read()) {
-    Create();
-    Read();
-  }
-}
-
 std::string_view UserFileManager::Email() const { return email_; }
 
 std::string_view UserFileManager::Password() const { return password_; }
