@@ -6,12 +6,11 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
+#include "commit/Commit.h"
+#include "config/Types.h"
 #include "repository/Repository.h"
 
 class JsonSerializer {
- public:
-  using NameFolderMap = std::unordered_map<std::string, std::string>;
-
  public:
   static nlohmann::json FileToJson(const File& file);
 
@@ -27,20 +26,21 @@ class JsonSerializer {
   static Commit CommitFromWebJson(nlohmann::json json);
 
  public:
-  static nlohmann::json RepositoryToConfigJson(std::string_view name,
-                                               std::string_view folder,
-                                               const FileHashMap& fileHashMap);
+  static nlohmann::json RepositoryToConfigJson(std::string_view repoName,
+                                               std::string_view repoFolder,
+                                               const types::FileHashMap& files,
+                                               const std::string& branch);
 
-  static nlohmann::json CommitsToJson(const std::list<Commit>& commits);
+  static nlohmann::json CommitsToJson(const types::Commits& commits);
 
   static std::optional<Repository> RepositoryFromConfigJson(nlohmann::json json);
 
-  static std::optional<std::list<Commit>> CommitsFromJson(nlohmann::json json);
+  static std::optional<types::Commits> CommitsFromJson(nlohmann::json json);
 
-  static std::optional<std::list<Commit>> CommitsFromWebJson(nlohmann::json json);
+  static std::optional<types::Commits> CommitsFromWebJson(nlohmann::json json);
 
  public:
-  static NameFolderMap NameFolderFromJson(nlohmann::json json);
+  static types::NameFolderMap NameFolderFromJson(nlohmann::json json);
 
  public:
   static std::optional<Repository> GetRepositoryByFolder(

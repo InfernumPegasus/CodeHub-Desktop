@@ -39,7 +39,7 @@ nlohmann::json JsonSerializer::CommitToJson(const Commit& commit) {
 }
 
 Commit JsonSerializer::CommitFromJson(nlohmann::json json) {
-  std::unordered_set<File> files;
+  types::FilesSet files;
   for (const auto& file : json["files"]) {
     files.insert(FileFromJson(file));
   }
@@ -49,7 +49,7 @@ Commit JsonSerializer::CommitFromJson(nlohmann::json json) {
 }
 
 Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
-  std::unordered_set<File> files;
+  types::FilesSet files;
   for (const auto& file : json["files"]) {
     files.insert(FileFromWebJson(file));
   }
@@ -58,17 +58,19 @@ Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
   return {files, message, stoull(checkSum)};
 }
 
-nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view name,
-                                                      std::string_view folder,
-                                                      const FileHashMap& fileHashMap) {
+nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view repoName,
+                                                      std::string_view repoFolder,
+                                                      const types::FileHashMap& files,
+                                                      const std::string& branch) {
   nlohmann::json j;
-  j["repo_name"] = name;
-  j["repo_folder"] = folder;
-  j["map"] = fileHashMap;
+  j["repo_name"] = repoName;
+  j["repo_folder"] = repoFolder;
+  j["map"] = files;
+  j["current_branch"] = branch;
   return j;
 }
 
-nlohmann::json JsonSerializer::CommitsToJson(const std::list<Commit>& commits) {
+nlohmann::json JsonSerializer::CommitsToJson(const types::Commits& commits) {
   nlohmann::json j;
   std::list<nlohmann::json> commitsJson;
   for (const auto& commit : commits) {
@@ -82,31 +84,31 @@ std::optional<Repository> JsonSerializer::RepositoryFromConfigJson(nlohmann::jso
   const std::string name = json["repo_name"];
   const std::string folder = json["repo_folder"];
   const auto map = json["map"];
-  return std::make_optional<Repository>(name, folder, map);
+  const std::string branch = json["current_branch"];
+  return std::make_optional<Repository>(name, folder, map, branch);
 }
 
-std::optional<std::list<Commit>> JsonSerializer::CommitsFromJson(nlohmann::json json) {
+std::optional<types::Commits> JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
   const std::list<nlohmann::json> commitsJson = json["commits"];
-  std::list<Commit> commits;
+  types::Commits commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromJson(commit));
   }
   return commits;
 }
 
-std::optional<std::list<Commit>> JsonSerializer::CommitsFromWebJson(
-    nlohmann::json json) {
+std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json json) {
   if (json.empty()) return {};
   const std::list<nlohmann::json> commitsJson = json["commits"];
-  std::list<Commit> commits;
+  types::Commits commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromWebJson(commit));
   }
   return commits;
 }
 
-JsonSerializer::NameFolderMap JsonSerializer::NameFolderFromJson(nlohmann::json json) {
+types::NameFolderMap JsonSerializer::NameFolderFromJson(nlohmann::json json) {
   return json["map"];
 }
 
@@ -129,7 +131,7 @@ nlohmann::json JsonSerializer::RepositoryToJson(const Repository& repository) {
 std::optional<Repository> JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {
   if (json.empty()) return {};
   const std::string name = json["repo_name"];
-  const auto folder = std::filesystem::current_path().string();
+  const auto folder = std::filesystem::current_path();
   const auto commits = CommitsFromWebJson(json);
   return std::make_optional<Repository>(name, folder, commits.value());
 }
