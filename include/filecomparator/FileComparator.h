@@ -9,7 +9,7 @@
 
 class FileComparator {
   using Lines = std::pair<std::string, std::string>;
-  using LineNumber = unsigned int;
+  using LineNumber = size_t;
 
   using FileDifference = std::map<LineNumber, Lines>;
 
