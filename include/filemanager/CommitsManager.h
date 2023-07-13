@@ -1,15 +1,13 @@
 #ifndef CODEHUB_COMMITSMANAGER_H
 #define CODEHUB_COMMITSMANAGER_H
 
-#include <list>
-#include <string>
-
 #include "IFileManager.h"
 #include "commit/Commit.h"
+#include "config/Types.h"
 
 class CommitsManager : public IFileManager {
  public:
-  CommitsManager(std::string commitsFile, std::list<Commit>* commits);
+  CommitsManager(fs::path commitsFile, types::Commits* commits);
 
  public:
   bool Create() override;
@@ -19,9 +17,9 @@ class CommitsManager : public IFileManager {
   void Update() const;
 
  private:
-  const std::string commitsFile_;
+  const fs::path commitsFile_;
 
-  std::list<Commit>& commitsRef_;
+  types::Commits& commitsRef_;
 };
 
 #endif  // CODEHUB_COMMITSMANAGER_H

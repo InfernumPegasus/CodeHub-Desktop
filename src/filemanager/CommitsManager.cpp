@@ -4,7 +4,7 @@
 
 #include "serializer/JsonSerializer.h"
 
-CommitsManager::CommitsManager(std::string commitsFile, std::list<Commit>* commits)
+CommitsManager::CommitsManager(fs::path commitsFile, types::Commits* commits)
     : commitsFile_(std::move(commitsFile)), commitsRef_(*commits) {}
 
 bool CommitsManager::Create() {
@@ -17,7 +17,7 @@ bool CommitsManager::Read() {
     return false;
   }
 
-  std::ifstream ifs(commitsFile_.data());
+  std::ifstream ifs(commitsFile_);
   if (!ifs) return true;
 
   nlohmann::json j = nlohmann::json::parse(ifs);
