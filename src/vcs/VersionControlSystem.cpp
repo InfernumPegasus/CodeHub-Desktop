@@ -47,7 +47,8 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
     return;
   }
 
-  Repository repository(repositoryName, repositoryFolder);
+  // TODO add branch determination
+  Repository repository(repositoryName, repositoryFolder, "master");
   repository.InitManagers();
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
 
@@ -59,41 +60,42 @@ void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
   const auto folder = fs::current_path();
   auto repository = JsonSerializer::GetRepositoryByFolder(folder);
-  if (!nameFolderMap_.contains(repository->Name()) ||
-      !JsonSerializer::GetRepositoryByFolder(folder).has_value()) {
+  if (!nameFolderMap_.contains(repository->Name()) || !repository.has_value()) {
     throw std::runtime_error("Cannot open repository.");
   }
 
   repository->InitManagers();
 
-  const auto printFunc = [](std::string_view status, const auto& files) {
-    for (const auto& [fileName, hash] : files) {
-      std::cout << "\n\t" << status << ":\t" << fileName;
+  const auto printFilesByStatus = [](std::string_view status, const char symbol,
+                                     const types::FileHashMap& files) {
+    const auto size = files.size();
+    if (!files.empty()) {
+      std::cout << "\nYou have " << size << " " << status << " files:";
+      for (const auto& [fileName, hash] : files) {
+        std::cout << "\n\t[" << symbol << "] " << fileName;
+      }
+      std::cout << std::endl;
     }
-    if (!files.empty()) std::cout << "\n";
   };
 
   std::cout << "Repository '" << repository->Name() << "' status: ";
   if (repository->Commits().empty()) {
     std::cout << "There are no commits yet.\n"
                  "Use --commit command to do commit.\n";
-    if (const auto createdFiles = repository->CreatedFiles(); !createdFiles.empty()) {
-      std::cout << "\nYou have " << createdFiles.size() << " files to commit:";
-      printFunc("Created", createdFiles);
-    }
+    printFilesByStatus("Created", '+', repository->CreatedFiles());
   } else {
     const auto createdFiles = repository->CreatedFiles();
     const auto changedFiles = repository->ChangedFiles();
     const auto removedFiles = repository->RemovedFiles();
 
-    if (changedFiles.empty() && removedFiles.empty()) {
+    if (changedFiles.empty() && removedFiles.empty() && createdFiles.empty()) {
       std::cout << "Up-to-date.\n";
       return;
     }
 
-    printFunc("Created", createdFiles);
-    printFunc("Changed", changedFiles);
-    printFunc("Removed", removedFiles);
+    printFilesByStatus("Created", '+', createdFiles);
+    printFilesByStatus("Changed", '~', changedFiles);
+    printFilesByStatus("Removed", '-', removedFiles);
   }
 }
 
@@ -197,7 +199,7 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
 
   const auto difference = FileComparator::Compare(file, filename);
   for (const auto& [lineNumber, lines] : difference) {
-    printf("[%u]:\n\t%s\n\t%s\n", lineNumber, lines.first.c_str(), lines.second.c_str());
+    printf("[%lu]:\n\t%s\n\t%s\n", lineNumber, lines.first.c_str(), lines.second.c_str());
   }
 }
 
@@ -215,14 +217,3 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
   if (found == commits.cend()) return;
   Repository::RestoreCommitFiles(checksum);
 }
-
-// TODO
-void VersionControlSystem::Clone(std::string_view repositoryName) {
-  if (ExistsByName(repositoryName) || ExistsByFolder(fs::current_path().string())) {
-    std::cout << "There is another repo in this folder.\n";
-    return;
-  }
-}
-
-// TODO
-void VersionControlSystem::Pull() {}

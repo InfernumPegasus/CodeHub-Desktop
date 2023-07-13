@@ -3,11 +3,10 @@
 
 #include <optional>
 
+#include "config/Types.h"
 #include "filemanager/RepositoriesManager.h"
 #include "filemanager/UserFileManager.h"
 #include "repository/Repository.h"
-
-using NameFolderMap = std::unordered_map<std::string, std::string>;
 
 class VersionControlSystem {
  public:
@@ -46,13 +45,8 @@ class VersionControlSystem {
  public:
   void RestoreFiles(size_t checksum);
 
- public:
-  void Clone(std::string_view repositoryName);
-
-  void Pull();
-
  private:
-  NameFolderMap nameFolderMap_;
+  types::NameFolderMap nameFolderMap_;
 
   RepositoriesManager repositoriesManager_;
 
