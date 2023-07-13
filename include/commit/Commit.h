@@ -6,21 +6,22 @@
 #include <unordered_set>
 #include <utility>
 
+#include "config/Types.h"
 #include "file/File.h"
 
 class Commit {
  public:
-  Commit(const std::unordered_set<File>& files, std::string_view message);
+  Commit(types::FilesSet files, std::string_view message);
 
   Commit(const std::unordered_set<std::string>& files, std::string_view message);
 
-  Commit(std::unordered_set<File> files, std::string_view message, size_t checkSum);
+  Commit(types::FilesSet files, std::string_view message, size_t checkSum);
 
  public:
   friend std::ostream& operator<<(std::ostream& os, const Commit& commit);
 
  public:
-  [[nodiscard]] const std::unordered_set<File>& Files() const;
+  [[nodiscard]] const types::FilesSet& Files() const;
 
   [[nodiscard]] const std::string& Message() const;
 
@@ -33,9 +34,13 @@ class Commit {
   bool operator==(const Commit& other) const = default;
 
  private:
-  std::unordered_set<File> files_;
+  types::FilesSet files_;
   std::string message_;
   size_t checkSum_;
 };
+
+namespace types {
+using Commits = std::list<Commit>;
+}
 
 #endif  // CODEHUB_COMMIT_H
