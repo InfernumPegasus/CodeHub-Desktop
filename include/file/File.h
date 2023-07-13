@@ -10,19 +10,19 @@ namespace fs = std::filesystem;
 
 class File {
  public:
-  File(std::string filename, size_t hash, FileStatus status);
+  File(fs::path filename, size_t hash, FileStatus status);
 
-  explicit File(std::string filename);
+  explicit File(fs::path filename);
 
  public:
-  [[nodiscard]] const std::string& Name() const;
+  [[nodiscard]] const fs::path& Name() const;
 
   [[nodiscard]] size_t Hash() const;
 
   [[nodiscard]] FileStatus Status() const;
 
  public:
-  constexpr bool operator==(const File& rhs) const = default;
+  bool operator==(const File& rhs) const = default;
 
   bool operator<(const File& rhs) const;
 
@@ -32,7 +32,7 @@ class File {
   static size_t CalculateHash(const fs::path& filename);
 
  private:
-  std::string name_;
+  fs::path name_;
 
   size_t hash_;
   FileStatus status_;
