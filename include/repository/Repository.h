@@ -36,7 +36,7 @@ class Repository {
   types::FilesSet FilterCollectedFiles(const types::FileHashMap& collectedFiles);
 
  public:
-  void DoCommit(std::string_view message);
+  void DoCommit(const std::string& message);
 
   static void SaveCommitFiles(const Commit& commit);
 

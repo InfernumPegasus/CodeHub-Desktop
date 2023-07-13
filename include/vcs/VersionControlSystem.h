@@ -32,7 +32,7 @@ class VersionControlSystem {
  public:
   void CheckStatus() const;
 
-  void DoCommit(std::string_view message);
+  void DoCommit(const std::string& message);
 
   void Push();
 

@@ -11,11 +11,11 @@
 
 class Commit {
  public:
-  Commit(types::FilesSet files, std::string_view message);
+  Commit(types::FilesSet files, std::string message);
 
-  Commit(const std::unordered_set<std::string>& files, std::string_view message);
+  Commit(const std::unordered_set<std::string>& files, std::string message);
 
-  Commit(types::FilesSet files, std::string_view message, size_t checkSum);
+  Commit(types::FilesSet files, std::string message, size_t checkSum);
 
  public:
   friend std::ostream& operator<<(std::ostream& os, const Commit& commit);

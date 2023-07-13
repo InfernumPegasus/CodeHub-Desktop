@@ -81,7 +81,7 @@ types::FilesSet Repository::FilterCollectedFiles(
   return files;
 }
 
-void Repository::DoCommit(std::string_view message) {
+void Repository::DoCommit(const std::string& message) {
   const auto filesToCommit = FilterCollectedFiles(filesManager_.CollectFiles());
   if (filesToCommit.empty()) {
     std::cout << "Nothing to commit!\n";

@@ -99,7 +99,7 @@ void VersionControlSystem::CheckStatus() const {
   }
 }
 
-void VersionControlSystem::DoCommit(std::string_view message) {
+void VersionControlSystem::DoCommit(const std::string& message) {
   CheckRepositoriesExist();
   if (message.empty()) {
     std::cout << "Commit message cannot be empty.\n";

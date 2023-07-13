@@ -1,18 +1,22 @@
 #include "commit/Commit.h"
 
-Commit::Commit(types::FilesSet files, std::string_view message)
-    : message_(message), files_{std::move(files)}, checkSum_(CalculateCheckSum()) {}
+#include <utility>
 
-Commit::Commit(const std::unordered_set<std::string>& files, std::string_view message)
-    : message_(message) {
+Commit::Commit(types::FilesSet files, std::string message)
+    : message_(std::move(message)),
+      files_{std::move(files)},
+      checkSum_(CalculateCheckSum()) {}
+
+Commit::Commit(const std::unordered_set<std::string>& files, std::string message)
+    : message_(std::move(message)) {
   for (const auto& file : files) {
     files_.emplace(file);
   }
   checkSum_ = CalculateCheckSum();
 }
 
-Commit::Commit(types::FilesSet files, std::string_view message, size_t checkSum)
-    : files_(std::move(files)), message_(message), checkSum_(checkSum) {}
+Commit::Commit(types::FilesSet files, std::string message, size_t checkSum)
+    : files_(std::move(files)), message_(std::move(message)), checkSum_(checkSum) {}
 
 std::ostream& operator<<(std::ostream& os, const Commit& commit) {
   os << "commit " << commit.Checksum() << "\n\t" << commit.Message() << "\n";
