@@ -6,6 +6,7 @@
 #include <unordered_set>
 
 #include "commit/Commit.h"
+#include "config/Types.h"
 #include "filemanager/CommitsManager.h"
 #include "filemanager/FilesManager.h"
 #include "filemanager/IgnoreFileManager.h"
@@ -13,31 +14,29 @@
 
 class Repository {
  public:
-  Repository(std::string repositoryName, const fs::path& repositoryFolder);
+  Repository(std::string repositoryName, const fs::path& repositoryFolder,
+             std::string branch);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             FileHashMap files);
+             types::FileHashMap files, std::string branch);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             const std::list<Commit>& commits);
+             const types::Commits& commits);
 
   ~Repository();
 
  public:
-  FileHashMap ChangedFiles() const;
+  types::FileHashMap ChangedFiles() const;
 
-  FileHashMap RemovedFiles() const;
+  types::FileHashMap RemovedFiles() const;
 
-  FileHashMap CreatedFiles() const;
+  types::FileHashMap CreatedFiles() const;
 
  private:
-  std::unordered_set<File> FilterCollectedFiles(const FileHashMap& collectedFiles);
+  types::FilesSet FilterCollectedFiles(const types::FileHashMap& collectedFiles);
 
  public:
   void DoCommit(std::string_view message);
-
-  static std::tuple<int, int, int> CountFilesStatuses(
-      const std::unordered_set<File>& files);
 
   static void SaveCommitFiles(const Commit& commit);
 
@@ -46,7 +45,7 @@ class Repository {
  public:
   void InitConfigManager();
 
-  //  void InitIgnoreManager();
+  void InitFilesManager();
 
   void InitCommitsManager();
 
@@ -57,9 +56,7 @@ class Repository {
 
   [[nodiscard]] const fs::path& Folder() const;
 
-  [[nodiscard]] const std::list<Commit>& Commits() const;
-
-  [[nodiscard]] const FileHashMap& Map() const;
+  [[nodiscard]] const types::Commits& Commits() const;
 
  private:
   std::string repositoryName_;
@@ -68,12 +65,13 @@ class Repository {
   RepositoryConfigManager configManager_;
   CommitsManager commitsManager_;
   FilesManager filesManager_;
-  //  IgnoreFileManager ignoreFileManager_;
 
-  std::list<Commit> commits_;
-  std::unordered_set<fs::path> ignoredFiles_;
+  types::Commits commits_;
+  types::PathSet ignoredFiles_;
 
-  FileHashMap fileHashMap_;
+  types::FileHashMap trackedFiles_;
+
+  std::string currentBranch_;
 };
 
 #endif  // CODEHUB_REPOSITORY_H
