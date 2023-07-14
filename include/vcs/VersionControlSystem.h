@@ -17,8 +17,6 @@ class VersionControlSystem {
   void Init();
 
  private:
-  bool IsUniqueRepositoryData(const std::string& name, const fs::path& folder) const;
-
   void CheckRepositoriesExist() const;
 
  public:

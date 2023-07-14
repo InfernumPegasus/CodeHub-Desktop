@@ -34,7 +34,7 @@ bool RepositoriesManager::Read() {
   if (!ifs) return false;
 
   const nlohmann::json j = nlohmann::json::parse(ifs);
-  nameAndFolderMap_ = JsonSerializer::NameFolderFromJson(j);
+  nameAndFolderMap_ = j["map"];  // JsonSerializer::NameFolderFromJson(j);
   std::erase_if(nameAndFolderMap_, [](const auto& kv) {
     return !std::filesystem::exists(kv.second / CONFIG_DIRECTORY);
   });

@@ -11,6 +11,8 @@ add_library(global
 
         src/filecomparator/FileComparator.cpp
 
+        src/log/Logger.cpp
+
         src/commit/Commit.cpp
 
         src/repository/Repository.cpp
@@ -32,8 +34,6 @@ add_library(global
         src/vcs/VersionControlSystem.cpp
         )
 
-#add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion)
-
 target_include_directories(global PUBLIC include)
 target_include_directories(global PRIVATE src)
 
@@ -43,6 +43,7 @@ add_executable(
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        fmt
         cpr
         ${Boost_LIBRARIES}
         global

@@ -1,6 +1,7 @@
 #include <boost/program_options.hpp>
 #include <iostream>
 
+#include "log/Logger.h"
 #include "vcs/VersionControlSystem.h"
 
 namespace po = boost::program_options;
@@ -50,10 +51,11 @@ int main(int argc, char* argv[]) {
       vcs.RestoreFiles(vm["restore"].as<size_t>());
     }
   } catch (po::unknown_option& unknownOption) {
+    logging::Log(LOG_EMERG, unknownOption.what());
     std::cout << description << std::endl;
     return EXIT_FAILURE;
   } catch (std::exception& exception) {
-    std::cout << exception.what() << std::endl;
+    logging::Log(LOG_EMERG, exception.what());
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

@@ -33,23 +33,19 @@ class JsonSerializer {
 
   static nlohmann::json CommitsToJson(const types::Commits& commits);
 
-  static std::optional<Repository> RepositoryFromConfigJson(nlohmann::json json);
+  static Repository RepositoryFromConfigJson(nlohmann::json json);
 
   static std::optional<types::Commits> CommitsFromJson(nlohmann::json json);
 
   static std::optional<types::Commits> CommitsFromWebJson(nlohmann::json json);
 
  public:
-  static types::NameFolderMap NameFolderFromJson(nlohmann::json json);
-
- public:
-  static std::optional<Repository> GetRepositoryByFolder(
-      const std::filesystem::path& folder);
+  static Repository GetRepositoryByFolder(const std::filesystem::path& folder);
 
  public:
   static nlohmann::json RepositoryToJson(const Repository& repository);
 
-  static std::optional<Repository> RepositoryFromWebJson(nlohmann::json json);
+  static Repository RepositoryFromWebJson(nlohmann::json json);
 
  public:
   static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);

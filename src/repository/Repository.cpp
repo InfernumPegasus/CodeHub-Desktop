@@ -1,10 +1,13 @@
 #include "repository/Repository.h"
 
+#include <fmt/core.h>
+
 #include <iostream>
 #include <utility>
 
 #include "config/ConfigFiles.h"
 #include "filemanager/RestoreFileManager.h"
+#include "log/Logger.h"
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        std::string branch = "master")
@@ -95,9 +98,9 @@ void Repository::DoCommit(const std::string& message) {
 
   SaveCommitFiles(commit);
 
-  const auto printFilesStatuses = [&filesToCommit](const auto& message) {
+  const auto printFilesStatuses = [](const auto& message, const auto& files) {
     size_t creations{}, modifications{}, deletions{};
-    for (const auto& file : filesToCommit) {
+    for (const auto& file : files) {
       switch (file.Status()) {
         case FileStatus::Created:
           creations++;
@@ -113,12 +116,11 @@ void Repository::DoCommit(const std::string& message) {
           break;
       }
     }
-    std::cout << "Commit '" << message << "'\n"
-              << creations << " creations, " << modifications << " modifications, "
-              << deletions << " deletions\n";
+    fmt::print("Commit '{}'\n{} creations, {} modifications, {} deletions\n", message,
+               creations, modifications, deletions);
   };
 
-  printFilesStatuses(commit.Message());
+  printFilesStatuses(commit.Message(), filesToCommit);
 }
 
 void Repository::SaveCommitFiles(const Commit& commit) {
@@ -126,6 +128,8 @@ void Repository::SaveCommitFiles(const Commit& commit) {
       fs::path{CONFIG_DIRECTORY} / std::to_string(commit.Checksum());
   RestoreFileManager::CreateRecoveryFolder(recoveryFolder);
   RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
+  logging::Log(LOG_NOTICE,
+               fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
 }
 
 void Repository::RestoreCommitFiles(size_t checksum) {
@@ -143,6 +147,7 @@ void Repository::InitManagers() {
   InitConfigManager();
   InitFilesManager();
   InitCommitsManager();
+  logging::Log(LOG_NOTICE, "Repository::InitManagers success");
 }
 
 const std::string& Repository::Name() const { return repositoryName_; }
