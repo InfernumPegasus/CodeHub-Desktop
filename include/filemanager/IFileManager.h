@@ -26,9 +26,9 @@ class IFileManager {
       if (!Create()) {
         throw std::runtime_error("IFileManager::Create() ended with error");
       }
-    }
-    if (!Read()) {
-      throw std::runtime_error("IFileManager::Read() ended with error (final read)");
+      if (!Read()) {
+        throw std::runtime_error("IFileManager::Read() ended with error (final read)");
+      }
     }
   }
 };

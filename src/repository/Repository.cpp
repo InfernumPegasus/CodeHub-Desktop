@@ -38,12 +38,7 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
   commits_ = commits;
 }
 
-Repository::~Repository() {
-  configManager_->Update();
-
-  // TODO
-  //  commitsManager_->Update();
-}
+Repository::~Repository() { configManager_->Update(); }
 
 types::FileHashMap Repository::ChangedFiles() const {
   return filesManager_->ChangedFiles();
