@@ -18,6 +18,9 @@ using FileHashMap = std::unordered_map<fs::path, size_t>;
 using FilesSet = std::unordered_set<File>;
 
 using PathSet = std::unordered_set<fs::path>;
+
+using Branch = std::string;
+using Branches = std::unordered_set<Branch>;
 }  // namespace types
 
 #endif  // CODEHUB_TYPES_H

@@ -30,7 +30,6 @@ bool IgnoreFileManager::Create() {
     ofs << file << "\n";
   }
   ofs << COMMITS_FILE << "\n";
-  ofs << VCS_REPOSITORIES_FILE << "\n";
   ofs << VCS_USER_FILE << "\n";
 
   return true;

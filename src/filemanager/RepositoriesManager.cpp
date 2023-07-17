@@ -4,10 +4,9 @@
 #include <iostream>
 
 #include "config/ConfigFiles.h"
-#include "serializer/JsonSerializer.h"
 
 RepositoriesManager::RepositoriesManager(types::NameFolderMap* nameAndFolderMap_)
-    : appConfigDirectory_(GetHomeDirectory()),
+    : appConfigDirectory_(GetHomeDirectory() / VCS_CONFIG_FOLDER),
       repositoriesFile_(appConfigDirectory_ / VCS_REPOSITORIES_FILE),
       nameAndFolderMap_(*nameAndFolderMap_) {}
 

@@ -2,8 +2,7 @@
 #define CODEHUB_FILESMANAGER_H
 
 #include <filesystem>
-#include <unordered_map>
-#include <unordered_set>
+#include <memory>
 
 #include "IgnoreFileManager.h"
 #include "config/Types.h"
@@ -28,7 +27,7 @@ class FilesManager {
 
  private:
   const fs::path folder_;
-  IgnoreFileManager ignoreFileManager_;
+  std::unique_ptr<IgnoreFileManager> ignoreFileManager_;
   types::FileHashMap& fileHashMapRef_;
 };
 

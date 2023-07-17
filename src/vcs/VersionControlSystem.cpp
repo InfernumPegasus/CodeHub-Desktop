@@ -1,6 +1,7 @@
 #include "vcs/VersionControlSystem.h"
 
 #include <iostream>
+#include <utility>
 
 #include "filecomparator/FileComparator.h"
 #include "filemanager/RestoreFileManager.h"
@@ -9,14 +10,16 @@
 #include "validation/Validator.h"
 #include "web/WebService.h"
 
-VersionControlSystem::VersionControlSystem() : repositoriesManager_(&nameFolderMap_) {}
+VersionControlSystem::VersionControlSystem()
+    : repositoriesManager_(std::make_unique<RepositoriesManager>(&nameFolderMap_)),
+      userManager_(std::make_unique<UserFileManager>()) {}
 
-VersionControlSystem::~VersionControlSystem() { repositoriesManager_.Update(); }
+VersionControlSystem::~VersionControlSystem() { repositoriesManager_->Update(); }
 
 void VersionControlSystem::Init() {
-  repositoriesManager_.Init();
-  userManager_.Init();
-  logging::Log(LOG_NOTICE, fmt::format("{}", "VersionControlSystem::Init success"));
+  repositoriesManager_->Init();
+  //  userManager_->Init();
+  logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
 }
 
 void VersionControlSystem::CheckRepositoriesExist() const {
@@ -121,7 +124,7 @@ void VersionControlSystem::Push() {
   auto localRepository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
 
   const auto loginResponse =
-      WebService::PostLogin(userManager_.Email(), userManager_.Password());
+      WebService::PostLogin(userManager_->Email(), userManager_->Password());
   if (!WebService::NoErrorsInResponse(loginResponse.status_code)) {
     throw std::runtime_error("Cannot save repository on server.");
   }
@@ -198,13 +201,22 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
 void VersionControlSystem::RestoreFiles(size_t checksum) {
   CheckRepositoriesExist();
   auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
-
   repository.InitConfigManager();
   repository.InitCommitsManager();
+
   const auto commits = repository.Commits();
   const auto found =
       std::find_if(commits.cbegin(), commits.cend(),
                    [checksum](const Commit& c) { return c.Checksum() == checksum; });
   if (found == commits.cend()) return;
   Repository::RestoreCommitFiles(checksum);
+}
+
+void VersionControlSystem::CreateBranch(std::string name) {
+  CheckRepositoriesExist();
+  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+
+  repository.InitConfigManager();
+  repository.InitCommitsManager();
+  repository.ChangeBranch(std::move(name));
 }

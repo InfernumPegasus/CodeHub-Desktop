@@ -23,6 +23,13 @@ int main(int argc, char* argv[]) {
           ("repositories", "show all repositories")
           ("log", "show commits history")
           ("commit", po::value<std::string>(), "store changes")
+
+          // TODO implement
+          ("branch", po::value<std::string>(),"create new branch")
+
+          // TODO
+          ("checkout", po::value<std::vector<std::string>>(), "switch to another branch")
+
           ("restore", po::value<size_t>(),
           "remove file from index or get it back to committed condition")
           ("push", "update external links and objects");
@@ -45,6 +52,8 @@ int main(int argc, char* argv[]) {
       vcs.CommitsLog();
     } else if (vm.contains("commit")) {
       vcs.DoCommit(vm["commit"].as<std::string>());
+    } else if (vm.contains("branch")) {
+      vcs.CreateBranch(vm["branch"].as<std::string>());
     } else if (vm.contains("push")) {
       vcs.Push();
     } else if (vm.contains("restore")) {

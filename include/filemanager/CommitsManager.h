@@ -7,7 +7,7 @@
 
 class CommitsManager : public IFileManager {
  public:
-  CommitsManager(fs::path commitsFile, types::Commits* commits);
+  CommitsManager(const fs::path& commitsFolder, types::Commits* commits);
 
  public:
   bool Create() override;
@@ -17,7 +17,7 @@ class CommitsManager : public IFileManager {
   void Update() const;
 
  private:
-  const fs::path commitsFile_;
+  fs::path commitsFile_;
 
   types::Commits& commitsRef_;
 };

@@ -5,15 +5,16 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "config/Types.h"
 #include "IFileManager.h"
+#include "config/Types.h"
 
 namespace fs = std::filesystem;
 
 class RepositoryConfigManager : public IFileManager {
  public:
   RepositoryConfigManager(fs::path configFile, std::string* repositoryNameRef,
-                          fs::path* repositoryFolderRef, types::FileHashMap* fileHashMapRef,
+                          fs::path* repositoryFolderRef,
+                          types::FileHashMap* fileHashMapRef,
                           std::string* currentBranchRef);
 
  public:
@@ -29,7 +30,8 @@ class RepositoryConfigManager : public IFileManager {
   std::string& repositoryNameRef_;
   fs::path& repositoryFolderRef_;
   types::FileHashMap& fileHashMapRef_;
-  std::string& currentBranchRef_;
+
+  types::Branch& currentBranchRef_;
 };
 
 #endif  // CODEHUB_REPOSITORYCONFIGMANAGER_H

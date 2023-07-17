@@ -10,7 +10,7 @@ RepositoryConfigManager::RepositoryConfigManager(fs::path configFile,
                                                  std::string* repositoryNameRef,
                                                  fs::path* repositoryFolderRef,
                                                  types::FileHashMap* fileHashMapRef,
-                                                 std::string* currentBranchRef)
+                                                 types::Branch* currentBranchRef)
     : configFile_(std::move(configFile)),
       repositoryNameRef_(*repositoryNameRef),
       repositoryFolderRef_(*repositoryFolderRef),

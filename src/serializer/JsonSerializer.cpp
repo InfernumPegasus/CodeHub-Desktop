@@ -63,7 +63,7 @@ Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
 nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view repoName,
                                                       std::string_view repoFolder,
                                                       const types::FileHashMap& files,
-                                                      const std::string& branch) {
+                                                      const types::Branch& branch) {
   nlohmann::json j;
   j["repo_name"] = repoName;
   j["repo_folder"] = repoFolder;

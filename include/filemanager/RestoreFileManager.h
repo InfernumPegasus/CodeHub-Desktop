@@ -9,12 +9,12 @@ namespace fs = std::filesystem;
 
 class RestoreFileManager {
  public:
-  static bool CreateRecoveryFolder(const fs::path& folder);
+  static bool CreateFolder(const fs::path& folder);
 
   static void CopyFiles(const types::FilesSet& files, const fs::path& from,
                         const fs::path& to);
 
-  static void CopyRecursive(const fs::path& from, const fs::path& to);
+  static void CopyFolderRecursive(const fs::path& from, const fs::path& to);
 };
 
 #endif  // CODEHUB_RESTOREFILEMANAGER_H

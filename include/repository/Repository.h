@@ -2,6 +2,7 @@
 #define CODEHUB_REPOSITORY_H
 
 #include <list>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -38,7 +39,7 @@ class Repository {
  public:
   void DoCommit(const std::string& message);
 
-  static void SaveCommitFiles(const Commit& commit);
+  void SaveCommitFiles(const Commit& commit);
 
   static void RestoreCommitFiles(size_t checksum);
 
@@ -52,26 +53,31 @@ class Repository {
   void InitManagers();
 
  public:
+  void ChangeBranch(std::string branch);
+
+ public:
   [[nodiscard]] const std::string& Name() const;
 
   [[nodiscard]] const fs::path& Folder() const;
 
   [[nodiscard]] const types::Commits& Commits() const;
 
+  [[nodiscard]] const std::string& CurrentBranch() const;
+
  private:
   std::string repositoryName_;
   fs::path repositoryFolder_;
 
-  RepositoryConfigManager configManager_;
-  CommitsManager commitsManager_;
-  FilesManager filesManager_;
+  types::Branch currentBranch_;
 
+  std::unique_ptr<RepositoryConfigManager> configManager_;
+  std::unique_ptr<CommitsManager> commitsManager_;
   types::Commits commits_;
-  types::PathSet ignoredFiles_;
 
+  std::unique_ptr<FilesManager> filesManager_;
   types::FileHashMap trackedFiles_;
 
-  std::string currentBranch_;
+  types::PathSet ignoredFiles_;
 };
 
 #endif  // CODEHUB_REPOSITORY_H

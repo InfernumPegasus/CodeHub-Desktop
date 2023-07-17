@@ -6,14 +6,15 @@ FilesManager::FilesManager(const fs::path& folder, types::FileHashMap* fileHashM
                            const fs::path& ignoreFile, types::PathSet* ignoredFiles)
     : folder_(folder),
       fileHashMapRef_(*fileHashMap),
-      ignoreFileManager_(folder.string(), ignoreFile, ignoredFiles) {}
+      ignoreFileManager_(std::make_unique<IgnoreFileManager>(folder.string(), ignoreFile,
+                                                             ignoredFiles)) {}
 
-void FilesManager::Init() { ignoreFileManager_.Init(); }
+void FilesManager::Init() { ignoreFileManager_->Init(); }
 
 types::FileHashMap FilesManager::ChangedFiles() const {
   types::FileHashMap changedFiles;
   for (const auto& [file, hash] : fileHashMapRef_) {
-    if (!fs::is_directory(file) && !ignoreFileManager_.ShouldBeIgnored(file) &&
+    if (!fs::is_directory(file) && !ignoreFileManager_->ShouldBeIgnored(file) &&
         fs::exists(file) && File::CalculateHash(file.string()) != hash) {
       changedFiles.emplace(file, hash);
     }
@@ -36,7 +37,7 @@ types::FileHashMap FilesManager::CreatedFiles() const {
   for (const auto& file : fs::recursive_directory_iterator(folder_)) {
     if (const auto filename = fs::relative(file);
         !fileHashMapRef_.contains(filename) && !fs::is_directory(filename) &&
-        !ignoreFileManager_.ShouldBeIgnored(filename)) {
+        !ignoreFileManager_->ShouldBeIgnored(filename)) {
       createdFiles.emplace(filename, File::CalculateHash(filename));
     }
   }
@@ -48,7 +49,7 @@ types::FileHashMap FilesManager::CollectFiles() const {
   for (const auto& file : fs::recursive_directory_iterator(folder_)) {
     const auto filename = fs::relative(file).string();
 
-    if (!fs::is_directory(filename) && !ignoreFileManager_.ShouldBeIgnored(filename)) {
+    if (!fs::is_directory(filename) && !ignoreFileManager_->ShouldBeIgnored(filename)) {
       collectedFiles.emplace(filename, File::CalculateHash(filename));
     }
   }

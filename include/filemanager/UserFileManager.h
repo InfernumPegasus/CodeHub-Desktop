@@ -16,7 +16,7 @@ class UserFileManager : public IFileManager {
   [[nodiscard]] std::string_view Password() const;
 
  private:
-  const fs::path userFile_{GetHomeDirectory() + "/" + VCS_USER_FILE};
+  const fs::path userFile_{GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_USER_FILE};
 
   std::string email_;
   std::string password_;

@@ -1,24 +1,32 @@
 #include "filemanager/CommitsManager.h"
 
 #include <fstream>
+#include <utility>
 
+#include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
 
-CommitsManager::CommitsManager(fs::path commitsFile, types::Commits* commits)
-    : commitsFile_(std::move(commitsFile)), commitsRef_(*commits) {}
+CommitsManager::CommitsManager(const fs::path& commitsFolder, types::Commits* commits)
+    : commitsFile_(std::move(commitsFolder / COMMITS_FILE)), commitsRef_(*commits) {}
 
 bool CommitsManager::Create() {
   std::ofstream file(commitsFile_);
+  logging::Log(LOG_WARNING,
+               fmt::format("Commits file {} created in folder '{}'",
+                           file.is_open() ? "" : "NOT", commitsFile_.c_str()));
   return file.is_open();
 }
 
 bool CommitsManager::Read() {
-  if (!std::filesystem::exists(commitsFile_) || std::filesystem::is_empty(commitsFile_)) {
+  if (!std::filesystem::exists(commitsFile_)) {
     return false;
   }
 
+  if (std::filesystem::is_empty(commitsFile_)) {
+    return true;
+  }
+
   std::ifstream ifs(commitsFile_);
-  if (!ifs) return true;
 
   nlohmann::json j = nlohmann::json::parse(ifs);
   const auto readCommits = JsonSerializer::CommitsFromJson(j);

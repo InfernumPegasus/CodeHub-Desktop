@@ -1,8 +1,6 @@
 #ifndef CODEHUB_VERSIONCONTROLSYSTEM_H
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
-#include <optional>
-
 #include "config/Types.h"
 #include "filemanager/RepositoriesManager.h"
 #include "filemanager/UserFileManager.h"
@@ -43,12 +41,14 @@ class VersionControlSystem {
  public:
   void RestoreFiles(size_t checksum);
 
+ public:
+  void CreateBranch(std::string name);
+
  private:
   types::NameFolderMap nameFolderMap_;
 
-  RepositoriesManager repositoriesManager_;
-
-  UserFileManager userManager_;
+  std::unique_ptr<RepositoriesManager> repositoriesManager_;
+  std::unique_ptr<UserFileManager> userManager_;
 };
 
 #endif  // CODEHUB_VERSIONCONTROLSYSTEM_H

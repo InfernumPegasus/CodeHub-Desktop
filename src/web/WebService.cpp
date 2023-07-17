@@ -86,7 +86,9 @@ cpr::Response WebService::PostFile(const File& file) {
 
 std::optional<Repository> WebService::GetRepository(const std::string& repoName) {
   try {
-    return JsonSerializer::RepositoryFromWebJson(GetRepositoryJson(repoName));
+    // TODO
+//    return JsonSerializer::RepositoryFromWebJson(GetRepositoryJson(repoName)));
+    return {};
   } catch (nlohmann::json::exception& e) {
     std::cout << "Cannot get repo!\n";
     return {};
