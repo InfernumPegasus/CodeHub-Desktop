@@ -41,8 +41,6 @@ class Repository {
 
   void SaveCommitFiles(const Commit& commit);
 
-//  static void RestoreCommitFiles(size_t checksum);
-
  public:
   void InitConfigManager();
 

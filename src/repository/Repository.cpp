@@ -139,11 +139,6 @@ void Repository::SaveCommitFiles(const Commit& commit) {
                fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
 }
 
-//void Repository::RestoreCommitFiles(size_t checksum) {
-//  RestoreFileManager::CopyFolderRecursive(CONFIG_DIRECTORY / std::to_string(checksum),
-//                                          fs::current_path());
-//}
-
 void Repository::InitConfigManager() { configManager_->Init(); }
 
 void Repository::InitFilesManager() { filesManager_->Init(); }

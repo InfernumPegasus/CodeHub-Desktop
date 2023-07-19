@@ -65,7 +65,10 @@ void RepositoriesManager::DeleteIncorrectRepositories() const {
   };
   if (!nameAndFolderMap_.empty()) {
     for (const auto& [name, folder] : nameAndFolderMap_) {
-      removeFunc(appConfigDirectory_ / name);
+      const auto dir = appConfigDirectory_ / name;
+      if (!fs::exists(dir)) {
+        removeFunc(appConfigDirectory_ / name);
+      }
     }
   } else {
     for (const auto& folder : fs::directory_iterator(appConfigDirectory_)) {
