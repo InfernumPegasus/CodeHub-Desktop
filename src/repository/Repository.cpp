@@ -16,14 +16,13 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
           repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE, &repositoryName_,
           &repositoryFolder_, &trackedFiles_, &currentBranch_)),
       commitsManager_(std::make_unique<CommitsManager>(
-          RepositoryConfigManager::GetHomeDirectory() / VCS_CONFIG_FOLDER /
-              repositoryName_ / currentBranch_,
+          GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ / currentBranch_,
           &commits_)),
       filesManager_(std::make_unique<FilesManager>(repositoryFolder_, &trackedFiles_,
                                                    repositoryFolder_ / IGNORE_FILE,
                                                    &ignoredFiles_)) {
-  RestoreFileManager::CreateFolder(RepositoryConfigManager::GetHomeDirectory() /
-                                   VCS_CONFIG_FOLDER / repositoryName_ / currentBranch_);
+  RestoreFileManager::CreateFolder(GetHomeDirectory() / VCS_CONFIG_FOLDER /
+                                   repositoryName_ / currentBranch_);
 }
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
@@ -33,9 +32,9 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
 }
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       const types::Commits& commits)
+                       types::Commits commits)
     : Repository(std::move(repositoryName), repositoryFolder) {
-  commits_ = commits;
+  commits_ = std::move(commits);
 }
 
 Repository::~Repository() { configManager_->Update(); }
@@ -103,9 +102,8 @@ void Repository::DoCommit(const std::string& message) {
   configManager_->Update();
 
   const auto saveFiles = [this](auto&& commit) {
-    const auto recoveryFolder = IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                                repositoryName_ / currentBranch_ /
-                                std::to_string(commit.Checksum());
+    const auto recoveryFolder = GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ /
+                                currentBranch_ / std::to_string(commit.Checksum());
     RestoreFileManager::CreateFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
     logging::Log(LOG_NOTICE,
@@ -165,8 +163,8 @@ void Repository::ChangeBranch(std::string branch) {
         createdFiles.size(), changedFiles.size(), removedFiles.size()));
   }
 
-  const auto currentStateFolder{IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                                repositoryName_ / currentBranch_};
+  const auto currentStateFolder{GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ /
+                                currentBranch_};
   logging::Log(LOG_WARNING,
                fmt::format("Saving files from '{}' in '{}'", fs::current_path().c_str(),
                            currentStateFolder.c_str()));

@@ -11,11 +11,6 @@
 
 class IFileManager {
  public:
-  static std::filesystem::path GetHomeDirectory() {
-    const auto dir = std::getenv("HOME");
-    return dir == nullptr ? dir : getpwuid(getuid())->pw_dir;
-  }
-
   virtual bool Create() = 0;
 
   virtual bool Read() = 0;
@@ -31,5 +26,10 @@ class IFileManager {
     }
   }
 };
+
+static std::filesystem::path GetHomeDirectory() {
+  const auto dir = std::getenv("HOME");
+  return dir == nullptr ? dir : getpwuid(getuid())->pw_dir;
+}
 
 #endif  // CODEHUB_IFILEMANAGER_H

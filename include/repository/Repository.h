@@ -21,7 +21,7 @@ class Repository {
              types::FileHashMap files, std::string branch);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             const types::Commits& commits);
+             types::Commits commits);
 
   ~Repository();
 

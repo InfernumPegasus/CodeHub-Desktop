@@ -212,7 +212,7 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
   if (found == commits.cend()) return;
 
   RestoreFileManager::CopyFolderRecursive(
-      IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER / repository.Name() /
+      GetHomeDirectory() / VCS_CONFIG_FOLDER / repository.Name() /
           repository.CurrentBranch() / std::to_string(checksum),
       fs::current_path());
 }
