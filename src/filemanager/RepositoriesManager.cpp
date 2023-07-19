@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "config/ConfigFiles.h"
+#include "log/Logger.h"
 
 RepositoriesManager::RepositoriesManager(types::NameFolderMap* nameAndFolderMap_)
     : appConfigDirectory_(GetHomeDirectory() / VCS_CONFIG_FOLDER),
@@ -51,4 +52,24 @@ void RepositoriesManager::Update() {
   nlohmann::json json;
   json["map"] = nameAndFolderMap_;
   ofs << json.dump(2);
+}
+
+void RepositoriesManager::DeleteIncorrectRepositories() const {
+  const auto removeFunc = [this](const fs::path& folder) {
+    if (fs::is_directory(folder)) {
+      const auto res = fs::remove_all(folder);
+      logging::Log(LOG_WARNING,
+                   fmt::format("Folder '{}' with {} files deleted from '{}'",
+                               folder.c_str(), res, appConfigDirectory_.c_str()));
+    }
+  };
+  if (!nameAndFolderMap_.empty()) {
+    for (const auto& [name, folder] : nameAndFolderMap_) {
+      removeFunc(appConfigDirectory_ / name);
+    }
+  } else {
+    for (const auto& folder : fs::directory_iterator(appConfigDirectory_)) {
+      removeFunc(folder);
+    }
+  }
 }

@@ -18,6 +18,9 @@ class RepositoriesManager : public IFileManager {
 
   void Update();
 
+ public:
+  void DeleteIncorrectRepositories() const;
+
  private:
   const fs::path appConfigDirectory_;
   const fs::path repositoriesFile_;

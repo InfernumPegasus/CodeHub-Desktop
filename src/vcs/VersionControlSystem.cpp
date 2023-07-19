@@ -18,6 +18,7 @@ VersionControlSystem::~VersionControlSystem() { repositoriesManager_->Update(); 
 
 void VersionControlSystem::Init() {
   repositoriesManager_->Init();
+  repositoriesManager_->DeleteIncorrectRepositories();
   //  userManager_->Init();
   logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
 }
@@ -69,7 +70,9 @@ void VersionControlSystem::CheckStatus() const {
   const auto folder = fs::current_path();
   auto repository = JsonSerializer::GetRepositoryByFolder(folder);
   if (!nameFolderMap_.contains(repository.Name())) {
-    throw std::runtime_error("Cannot open repository.");
+    throw std::runtime_error(fmt::format(
+        "Found repository '{}', but there is no such repository in app config",
+        repository.Name()));
   }
 
   repository.InitManagers();
@@ -88,9 +91,8 @@ void VersionControlSystem::CheckStatus() const {
 
   fmt::print("Repository '{}' status: ", repository.Name());
   if (repository.Commits().empty()) {
-    fmt::print(
-        "There are no commits yet.\n"
-        "Use --commit command to do commit.\n");
+    std::cout << "There are no commits yet.\n"
+                 "Use --commit command to do commit.\n";
     printFilesByStatus("Created", '+', repository.CreatedFiles());
   } else {
     const auto createdFiles = repository.CreatedFiles();
@@ -209,7 +211,11 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
       std::find_if(commits.cbegin(), commits.cend(),
                    [checksum](const Commit& c) { return c.Checksum() == checksum; });
   if (found == commits.cend()) return;
-  Repository::RestoreCommitFiles(checksum);
+
+  RestoreFileManager::CopyFolderRecursive(
+      IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER / repository.Name() /
+          repository.CurrentBranch() / std::to_string(checksum),
+      fs::current_path());
 }
 
 void VersionControlSystem::CreateBranch(std::string name) {
