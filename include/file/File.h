@@ -32,10 +32,10 @@ class File {
   static size_t CalculateHash(const fs::path& filename);
 
  private:
-  fs::path name_;
+  const fs::path name_;
 
-  size_t hash_;
-  FileStatus status_;
+  const size_t hash_;
+  const FileStatus status_;
 };
 
 namespace std {

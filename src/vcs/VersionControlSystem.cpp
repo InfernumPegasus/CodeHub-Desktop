@@ -56,7 +56,6 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   };
   checkIfUniqueRepoData(repositoryName, repositoryFolder);
 
-  // TODO add branch determination
   Repository repository(repositoryName, repositoryFolder, "master");
   repository.InitManagers();
   nameFolderMap_.emplace(repositoryName, repositoryFolder);

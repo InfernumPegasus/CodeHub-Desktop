@@ -1,7 +1,6 @@
 #ifndef CODEHUB_REPOSITORY_H
 #define CODEHUB_REPOSITORY_H
 
-#include <list>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -38,8 +37,6 @@ class Repository {
 
  public:
   void DoCommit(const std::string& message);
-
-  void SaveCommitFiles(const Commit& commit);
 
  public:
   void InitConfigManager();

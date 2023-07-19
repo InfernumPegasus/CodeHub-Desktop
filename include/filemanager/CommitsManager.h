@@ -17,7 +17,7 @@ class CommitsManager : public IFileManager {
   void Update() const;
 
  private:
-  fs::path commitsFile_;
+  const fs::path commitsFile_;
 
   types::Commits& commitsRef_;
 };

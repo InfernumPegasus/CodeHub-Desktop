@@ -43,30 +43,4 @@ DEFINE_LOG_LEVEL(Info, LOG_INFO)        // informational
 
 #undef DEFINE_LOG_LEVEL
 
-namespace fmt {
-
-template <typename T>
-struct formatter<std::optional<T>> : fmt::formatter<T> {
-  template <typename FormatContext>
-  auto format(const std::optional<T>& opt, FormatContext& ctx) {
-    return fmt::format_to(ctx.out(), "std::optional{{{}}}",
-                          opt ? fmt::to_string(*opt) : "");
-  }
-};
-
-template <>
-struct formatter<std::filesystem::path> {
-  template <typename ParseContext>
-  auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <typename FormatContext>
-  auto format(const std::filesystem::path& path, FormatContext& ctx) {
-    return fmt::format_to(ctx.out(), path.string());
-  }
-};
-
-}  // namespace fmt
-
 #endif  // CODEHUB_LOGGER_H

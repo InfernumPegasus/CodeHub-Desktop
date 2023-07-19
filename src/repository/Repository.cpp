@@ -102,7 +102,17 @@ void Repository::DoCommit(const std::string& message) {
   commitsManager_->Update();
   configManager_->Update();
 
-  SaveCommitFiles(commit);
+  const auto saveFiles = [this](auto&& commit) {
+    const auto recoveryFolder = IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER /
+                                repositoryName_ / currentBranch_ /
+                                std::to_string(commit.Checksum());
+    RestoreFileManager::CreateFolder(recoveryFolder);
+    RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
+    logging::Log(LOG_NOTICE,
+                 fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
+  };
+
+  saveFiles(commit);
 
   const auto printFilesStatuses = [](const auto& message, const auto& files) {
     size_t creations{}, modifications{}, deletions{};
@@ -127,16 +137,6 @@ void Repository::DoCommit(const std::string& message) {
   };
 
   printFilesStatuses(commit.Message(), filesToCommit);
-}
-
-void Repository::SaveCommitFiles(const Commit& commit) {
-  const auto recoveryFolder = IFileManager::GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                              repositoryName_ / currentBranch_ /
-                              std::to_string(commit.Checksum());
-  RestoreFileManager::CreateFolder(recoveryFolder);
-  RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
-  logging::Log(LOG_NOTICE,
-               fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
 }
 
 void Repository::InitConfigManager() { configManager_->Init(); }
