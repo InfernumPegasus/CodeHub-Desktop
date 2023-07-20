@@ -48,6 +48,11 @@ class JsonSerializer {
   static Repository RepositoryFromWebJson(nlohmann::json json);
 
  public:
+  static nlohmann::json BranchesToJson(const types::Branches& branches);
+
+  static types::Branches BranchesFromJson(nlohmann::json json);
+
+ public:
   static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);
 
   static cpr::Cookies CookiesFromJson(nlohmann::json json);

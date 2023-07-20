@@ -7,6 +7,7 @@
 
 #include "commit/Commit.h"
 #include "config/Types.h"
+#include "filemanager/BranchesManager.h"
 #include "filemanager/CommitsManager.h"
 #include "filemanager/FilesManager.h"
 #include "filemanager/IgnoreFileManager.h"
@@ -45,6 +46,8 @@ class Repository {
 
   void InitCommitsManager();
 
+  void InitBranchesManager();
+
   void InitManagers();
 
  public:
@@ -58,6 +61,8 @@ class Repository {
   [[nodiscard]] const types::Commits& Commits() const;
 
   [[nodiscard]] const std::string& CurrentBranch() const;
+
+  [[nodiscard]] const types::Branches& Branches() const;
 
  private:
   std::string repositoryName_;
@@ -73,6 +78,9 @@ class Repository {
   types::FileHashMap trackedFiles_;
 
   types::PathSet ignoredFiles_;
+
+  types::Branches branches_;
+  std::unique_ptr<BranchesManager> branchesManager_;
 };
 
 #endif  // CODEHUB_REPOSITORY_H

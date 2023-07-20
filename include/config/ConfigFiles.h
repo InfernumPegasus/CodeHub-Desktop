@@ -15,6 +15,9 @@ const inline fs::path IGNORE_FILE           = ".ignore";
 
 const inline fs::path VCS_CONFIG_FOLDER     = ".codehub_app";
 const inline fs::path VCS_REPOSITORIES_FILE = "repos.json";
+
+const inline fs::path BRANCHES_FILE         = "branches.json";
+
 const inline fs::path VCS_USER_FILE         = "user.json";
 
 const inline fs::path COOKIES_FILE          = ".cookies.json";

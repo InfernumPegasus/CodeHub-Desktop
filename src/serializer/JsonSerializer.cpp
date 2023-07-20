@@ -135,6 +135,16 @@ Repository JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {
   return {name, folder, commits.value()};
 }
 
+nlohmann::json JsonSerializer::BranchesToJson(const types::Branches& branches) {
+  nlohmann::json json;
+  json["branches"] = branches;
+  return json;
+}
+
+types::Branches JsonSerializer::BranchesFromJson(nlohmann::json json) {
+  return json["branches"];
+}
+
 nlohmann::json JsonSerializer::CookiesToJson(const cpr::Cookies& cookies) {
   nlohmann::json json;
   for (const auto& cookie : cookies) {

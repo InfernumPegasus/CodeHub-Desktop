@@ -16,6 +16,7 @@ constexpr auto REPOSITORIES = "repositories";
 constexpr auto LOG          = "log";
 constexpr auto COMMIT       = "commit";
 constexpr auto BRANCH       = "branch"; // TODO implement
+constexpr auto BRANCHES     = "branches"; // TODO implement
 constexpr auto CHECKOUT     = "checkout"; // TODO implement
 constexpr auto RESTORE      = "restore";
 constexpr auto PUSH         = "push";
@@ -33,15 +34,14 @@ int main(int argc, char* argv[]) {
           (INIT, po::value<std::string>(), "init new repository")
           (STATUS, "get repository status")
           (DIFF, po::value<std::string>(),
-          "shows file difference with last committed one")
+          "show file difference with last committed one")
           (REPOSITORIES, "show all repositories")
           (LOG, "show commits history")
           (COMMIT, po::value<std::string>(), "store changes")
 
-          // TODO implement
           (BRANCH, po::value<std::string>(),"create new branch")
+          (BRANCHES,"show all branches of this repository")
 
-          // TODO
           (CHECKOUT, po::value<std::vector<std::string>>(), "switch to another branch")
 
           (RESTORE, po::value<size_t>(),
@@ -68,6 +68,8 @@ int main(int argc, char* argv[]) {
       vcs.DoCommit(vm[COMMIT].as<std::string>());
     } else if (vm.contains(BRANCH)) {
       vcs.CreateBranch(vm[BRANCH].as<std::string>());
+    } else if (vm.contains(BRANCHES)) {
+      // TODO vm.ShowBranches();
     } else if (vm.contains(PUSH)) {
       vcs.Push();
     } else if (vm.contains(RESTORE)) {

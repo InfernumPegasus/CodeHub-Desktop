@@ -37,11 +37,16 @@ bool RepositoryConfigManager::Read() {
   }
 
   std::ifstream ifs(configFile_);
-  if (!ifs) return false;
+  if (!ifs) {
+    return false;
+  }
 
   const nlohmann::json j = nlohmann::json::parse(ifs);
-  if (j.empty()) return false;
+  if (j.empty()) {
+    return false;
+  }
 
+  // TODO use JsonSerializer
   repositoryNameRef_ = j["repo_name"];
   repositoryFolderRef_ = j["repo_folder"].get<fs::path>();
   fileHashMapRef_ = j["map"];

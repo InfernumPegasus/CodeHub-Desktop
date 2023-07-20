@@ -20,7 +20,9 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
           &commits_)),
       filesManager_(std::make_unique<FilesManager>(repositoryFolder_, &trackedFiles_,
                                                    repositoryFolder_ / IGNORE_FILE,
-                                                   &ignoredFiles_)) {
+                                                   &ignoredFiles_)),
+      branchesManager_(std::make_unique<BranchesManager>(&repositoryName_, &branches_)),
+      branches_({currentBranch_}) {
   RestoreFileManager::CreateFolder(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                    repositoryName_ / currentBranch_);
 }
@@ -37,7 +39,10 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
   commits_ = std::move(commits);
 }
 
-Repository::~Repository() { configManager_->Update(); }
+Repository::~Repository() {
+  configManager_->Update();
+  branchesManager_->Update();
+}
 
 types::FileHashMap Repository::ChangedFiles() const {
   return filesManager_->ChangedFiles();
@@ -109,7 +114,6 @@ void Repository::DoCommit(const std::string& message) {
     logging::Log(LOG_NOTICE,
                  fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
   };
-
   saveFiles(commit);
 
   const auto printFilesStatuses = [](const auto& message, const auto& files) {
@@ -143,6 +147,8 @@ void Repository::InitFilesManager() { filesManager_->Init(); }
 
 void Repository::InitCommitsManager() { commitsManager_->Init(); }
 
+void Repository::InitBranchesManager() { branchesManager_->Init(); }
+
 void Repository::InitManagers() {
   InitConfigManager();
   logging::Log(LOG_NOTICE, "Repository::InitConfigManager success");
@@ -150,17 +156,20 @@ void Repository::InitManagers() {
   logging::Log(LOG_NOTICE, "Repository::InitFilesManager success");
   InitCommitsManager();
   logging::Log(LOG_NOTICE, "Repository::InitCommitsManager success");
+  InitBranchesManager();
+  logging::Log(LOG_NOTICE, "Repository::InitBranchesManager success");
 }
 
 void Repository::ChangeBranch(std::string branch) {
   const auto changedFiles = filesManager_->ChangedFiles();
   const auto removedFiles = filesManager_->RemovedFiles();
-  const auto createdFiles = filesManager_->CreatedFiles();
+  //  const auto createdFiles = filesManager_->CreatedFiles();
 
-  if (!changedFiles.empty() || !removedFiles.empty() || !createdFiles.empty()) {
-    throw std::runtime_error(fmt::format(
-        "Has uncommitted changes: {} creations, {} modifications, {} deletions",
-        createdFiles.size(), changedFiles.size(), removedFiles.size()));
+  // If there are some uncommitted changes, stop creating branch
+  if (!changedFiles.empty() || !removedFiles.empty()) {
+    throw std::runtime_error(
+        fmt::format("Has uncommitted changes: {} modifications, {} deletions",
+                    changedFiles.size(), removedFiles.size()));
   }
 
   const auto currentStateFolder{GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ /
@@ -182,3 +191,5 @@ const fs::path& Repository::Folder() const { return repositoryFolder_; }
 const types::Commits& Repository::Commits() const { return commits_; }
 
 const std::string& Repository::CurrentBranch() const { return currentBranch_; }
+
+const types::Branches& Repository::Branches() const { return branches_; }

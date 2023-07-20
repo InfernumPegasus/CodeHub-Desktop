@@ -24,6 +24,7 @@ add_library(global
         src/filemanager/RestoreFileManager.cpp
         src/filemanager/UserFileManager.cpp
         src/filemanager/FilesManager.cpp
+        src/filemanager/BranchesManager.cpp
 
         src/serializer/JsonSerializer.cpp
 
