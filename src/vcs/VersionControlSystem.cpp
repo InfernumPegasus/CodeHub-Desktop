@@ -225,3 +225,26 @@ void VersionControlSystem::CreateBranch(std::string name) {
   repository.InitCommitsManager();
   repository.ChangeBranch(std::move(name));
 }
+
+void VersionControlSystem::ShowBranches() const {
+  CheckRepositoriesExist();
+  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+
+  repository.InitConfigManager();
+  repository.InitBranchesManager();
+
+  const auto branches = repository.Branches();
+  if (branches.empty()) {
+    throw std::runtime_error("Cannot find any branches");
+  }
+  const auto currentBranch = repository.CurrentBranch();
+
+  if (!branches.contains(currentBranch)) {
+    throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
+                                         repository.Name(), currentBranch));
+  }
+
+  for (const auto& branch : branches) {
+    fmt::print("{} {}\n", branch, (branch == currentBranch) ? "[current]" : "");
+  }
+}

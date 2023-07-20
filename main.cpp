@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     } else if (vm.contains(BRANCH)) {
       vcs.CreateBranch(vm[BRANCH].as<std::string>());
     } else if (vm.contains(BRANCHES)) {
-      // TODO vm.ShowBranches();
+      vcs.ShowBranches();
     } else if (vm.contains(PUSH)) {
       vcs.Push();
     } else if (vm.contains(RESTORE)) {

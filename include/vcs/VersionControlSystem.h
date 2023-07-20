@@ -44,6 +44,8 @@ class VersionControlSystem {
  public:
   void CreateBranch(std::string name);
 
+  void ShowBranches() const;
+
  private:
   types::NameFolderMap nameFolderMap_;
 
