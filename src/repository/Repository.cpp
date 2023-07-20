@@ -23,6 +23,10 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
                                                    &ignoredFiles_)),
       branchesManager_(std::make_unique<BranchesManager>(&repositoryName_, &branches_)),
       branches_({currentBranch_}) {
+  if (!branches_.contains(currentBranch_)) {
+    throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
+                                         repositoryName_, currentBranch_));
+  }
   RestoreFileManager::CreateFolder(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                    repositoryName_ / currentBranch_);
 }
