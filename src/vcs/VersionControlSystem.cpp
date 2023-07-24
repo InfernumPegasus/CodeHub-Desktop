@@ -20,6 +20,14 @@ void VersionControlSystem::Init() {
   repositoriesManager_->Init();
   repositoriesManager_->DeleteIncorrectRepositories();
   //  userManager_->Init();
+
+  const auto createAppConfigFolder = []() {
+    const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
+    if (!fs::exists(folder) && !fs::create_directories(folder)) {
+      throw std::runtime_error("Cannot create vcs config folder");
+    }
+  };
+  createAppConfigFolder();
   logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
 }
 
@@ -70,9 +78,9 @@ void VersionControlSystem::CheckStatus() const {
   const auto folder = fs::current_path();
   auto repository = JsonSerializer::GetRepositoryByFolder(folder);
   if (!nameFolderMap_.contains(repository.Name())) {
-    throw std::runtime_error(fmt::format(
-        "Found repository '{}', but there is no such repository in app utils",
-        repository.Name()));
+    throw std::runtime_error(
+        fmt::format("Found repository '{}', but there is no such repository in app utils",
+                    repository.Name()));
   }
 
   repository.InitManagers();
