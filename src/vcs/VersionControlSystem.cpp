@@ -190,7 +190,8 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
     throw std::runtime_error(fmt::format("No commits in {} repository.", repo.Name()));
   }
 
-  const auto file = repo.Folder() / CONFIG_DIRECTORY /
+  const auto file = GetHomeDirectory() / VCS_CONFIG_FOLDER / repo.Name() /
+                    repo.CurrentBranch() /
                     std::to_string(repo.Commits().back().Checksum()) / filename;
 
   const auto difference = FileComparator::Compare(file, filename);
