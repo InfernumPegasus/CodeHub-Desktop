@@ -174,7 +174,6 @@ void VersionControlSystem::DoCommit(const std::string& message) {
   if (message.empty()) {
     throw std::runtime_error("Commit message cannot be empty");
   }
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
@@ -184,7 +183,6 @@ void VersionControlSystem::DoCommit(const std::string& message) {
 
 void VersionControlSystem::Push() {
   CheckRepositoriesExist();
-  //  auto localRepository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository localRepository(config);
 
@@ -230,7 +228,6 @@ void VersionControlSystem::ShowRepositories() const {
 
 void VersionControlSystem::CommitsLog() const {
   CheckRepositoriesExist();
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
@@ -247,7 +244,6 @@ void VersionControlSystem::CommitsLog() const {
 
 void VersionControlSystem::ShowFileDifference(std::string_view filename) {
   CheckRepositoriesExist();
-  //  auto repo = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
@@ -269,7 +265,6 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
   CheckRepositoriesExist();
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
@@ -287,7 +282,6 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
 
 void VersionControlSystem::CreateBranch(std::string name) {
   CheckRepositoriesExist();
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
@@ -296,7 +290,6 @@ void VersionControlSystem::CreateBranch(std::string name) {
 
 void VersionControlSystem::ShowBranches() const {
   CheckRepositoriesExist();
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 

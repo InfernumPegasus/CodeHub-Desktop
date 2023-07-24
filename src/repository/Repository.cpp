@@ -18,9 +18,10 @@ Repository::~Repository() {
                     REPOSITORY_CONFIG_FILE);
   if (!ofs) {
     logging::Log(LOG_EMERG, "Cannot save repository state");
+  } else {
+    const auto json = config_.ToJson();
+    ofs << json.dump(2);
   }
-  const auto json = config_.ToJson();
-  ofs << json.dump(2);
 }
 
 types::FileHashMap Repository::ChangedFiles() const {
