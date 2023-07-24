@@ -191,6 +191,7 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
     throw std::runtime_error(fmt::format("No commits in {} repository.", repo.Name()));
   }
 
+  // TODO search in all commits
   const auto file = GetHomeDirectory() / VCS_CONFIG_FOLDER / repo.Name() /
                     repo.CurrentBranch() /
                     std::to_string(repo.Commits().back().Checksum()) / filename;

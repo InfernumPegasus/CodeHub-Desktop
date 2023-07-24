@@ -6,20 +6,21 @@
 #include <unordered_set>
 
 #include "commit/Commit.h"
-#include "utils/Types.h"
+#include "config/RepositoryConfig.h"
 #include "filemanager/BranchesManager.h"
 #include "filemanager/CommitsManager.h"
 #include "filemanager/FilesManager.h"
 #include "filemanager/IgnoreFileManager.h"
 #include "filemanager/RepositoryConfigManager.h"
+#include "utils/Types.h"
 
 class Repository {
  public:
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             std::string branch);
+             const std::string& branch);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             types::FileHashMap files, std::string branch);
+             types::FileHashMap files, const std::string& branch);
 
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
              types::Commits commits);
@@ -65,10 +66,7 @@ class Repository {
   [[nodiscard]] const types::Branches& Branches() const;
 
  private:
-  std::string repositoryName_;
-  fs::path repositoryFolder_;
-
-  types::Branch currentBranch_;
+  RepositoryConfig config_;
 
   std::unique_ptr<RepositoryConfigManager> configManager_;
   std::unique_ptr<CommitsManager> commitsManager_;
@@ -79,7 +77,6 @@ class Repository {
 
   types::PathSet ignoredFiles_;
 
-  types::Branches branches_;
   std::unique_ptr<BranchesManager> branchesManager_;
 };
 

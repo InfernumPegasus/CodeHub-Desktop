@@ -8,32 +8,33 @@
 #include "utils/ConfigFiles.h"
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       types::Branch branch = "master")
-    : repositoryName_(std::move(repositoryName)),
-      repositoryFolder_(fs::absolute(repositoryFolder)),
-      currentBranch_(std::move(branch)),
+                       const types::Branch& branch = "master")
+    : config_(std::move(repositoryName), repositoryFolder, branch, {branch}),
       configManager_(std::make_unique<RepositoryConfigManager>(
-          repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE, &repositoryName_,
-          &repositoryFolder_, &trackedFiles_, &currentBranch_)),
+          config_.repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE,
+          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
+          &config_.currentBranch_)),
       commitsManager_(std::make_unique<CommitsManager>(
-          GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ / currentBranch_,
+          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+              config_.currentBranch_,
           &commits_)),
-      filesManager_(std::make_unique<FilesManager>(repositoryFolder_, &trackedFiles_,
-                                                   repositoryFolder_ / IGNORE_FILE,
-                                                   &ignoredFiles_)),
-      branchesManager_(std::make_unique<BranchesManager>(&repositoryName_, &branches_)),
-      branches_({currentBranch_}) {
-  if (!branches_.contains(currentBranch_)) {
+      filesManager_(std::make_unique<FilesManager>(
+          config_.repositoryFolder_, &trackedFiles_,
+          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)),
+      branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
+                                                         &config_.branches_)) {
+  config_.branches_.insert(config_.currentBranch_);
+  if (!config_.branches_.contains(config_.currentBranch_)) {
     throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
-                                         repositoryName_, currentBranch_));
+                                         config_.repositoryName_,
+                                         config_.currentBranch_));
   }
-  RestoreFileManager::CreateFolder(GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                                   repositoryName_ / currentBranch_);
+  RestoreFileManager::CreateFolder(config_.FormBranchFolder());
 }
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       types::FileHashMap files, std::string branch = "master")
-    : Repository(std::move(repositoryName), repositoryFolder, std::move(branch)) {
+                       types::FileHashMap files, const std::string& branch = "master")
+    : Repository(std::move(repositoryName), repositoryFolder, branch) {
   trackedFiles_ = std::move(files);
 }
 
@@ -111,8 +112,7 @@ void Repository::DoCommit(const std::string& message) {
   configManager_->Update();
 
   const auto saveFiles = [this](auto&& commit) {
-    const auto recoveryFolder = GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ /
-                                currentBranch_ / std::to_string(commit.Checksum());
+    const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());
     RestoreFileManager::CreateFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
     logging::Log(LOG_NOTICE,
@@ -176,8 +176,7 @@ void Repository::ChangeBranch(std::string branch) {
                     changedFiles.size(), removedFiles.size()));
   }
 
-  const auto currentStateFolder{GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ /
-                                currentBranch_};
+  const auto currentStateFolder{config_.FormBranchFolder()};
   logging::Log(LOG_WARNING,
                fmt::format("Saving files from '{}' in '{}'", fs::current_path().c_str(),
                            currentStateFolder.c_str()));
@@ -188,12 +187,12 @@ void Repository::ChangeBranch(std::string branch) {
   //  currentBranch_ = std::move(branch);
 }
 
-const std::string& Repository::Name() const { return repositoryName_; }
+const std::string& Repository::Name() const { return config_.repositoryName_; }
 
-const fs::path& Repository::Folder() const { return repositoryFolder_; }
+const fs::path& Repository::Folder() const { return config_.repositoryFolder_; }
 
 const types::Commits& Repository::Commits() const { return commits_; }
 
-const std::string& Repository::CurrentBranch() const { return currentBranch_; }
+const std::string& Repository::CurrentBranch() const { return config_.currentBranch_; }
 
-const types::Branches& Repository::Branches() const { return branches_; }
+const types::Branches& Repository::Branches() const { return config_.branches_; }

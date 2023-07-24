@@ -15,6 +15,8 @@ add_library(global
 
         src/commit/Commit.cpp
 
+        src/config/RepositoryConfig.cpp
+
         src/repository/Repository.cpp
 
         src/filemanager/CommitsManager.cpp
