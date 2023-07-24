@@ -32,6 +32,22 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
   RestoreFileManager::CreateFolder(config_.FormBranchFolder());
 }
 
+Repository::Repository(RepositoryConfig config)
+    : config_(std::move(config)),
+      configManager_(std::make_unique<RepositoryConfigManager>(
+          config_.repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE,
+          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
+          &config_.currentBranch_)),
+      commitsManager_(std::make_unique<CommitsManager>(
+          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+              config_.currentBranch_,
+          &commits_)),
+      filesManager_(std::make_unique<FilesManager>(
+          config_.repositoryFolder_, &trackedFiles_,
+          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)),
+      branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
+                                                         &config_.branches_)) {}
+
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        types::FileHashMap files, const std::string& branch = "master")
     : Repository(std::move(repositoryName), repositoryFolder, branch) {

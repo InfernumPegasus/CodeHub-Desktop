@@ -11,20 +11,35 @@
 #include "web/WebService.h"
 
 VersionControlSystem::VersionControlSystem()
-    : repositoriesManager_(std::make_unique<RepositoriesManager>(&nameFolderMap_)),
-      userManager_(std::make_unique<UserFileManager>()) {}
+    : userManager_(std::make_unique<UserFileManager>()) {}
 
-VersionControlSystem::~VersionControlSystem() { repositoriesManager_->Update(); }
+VersionControlSystem::~VersionControlSystem() { /*repositoriesManager_->Update();*/
+}
 
 void VersionControlSystem::Init() {
-  repositoriesManager_->Init();
-  repositoriesManager_->DeleteIncorrectRepositories();
+  //  repositoriesManager_->Init();
+  //  repositoriesManager_->DeleteIncorrectRepositories();
   //  userManager_->Init();
 
   const auto createAppConfigFolder = []() {
     const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
     if (!fs::exists(folder) && !fs::create_directories(folder)) {
       throw std::runtime_error("Cannot create vcs config folder");
+    }
+    const auto repositoriesFile = folder / VCS_REPOSITORIES_FILE;
+    if (!fs::exists(repositoriesFile)) {
+      logging::Log(LOG_NOTICE, fmt::format("Trying to create repositories file at '{}'",
+                                           repositoriesFile.c_str()));
+      std::ofstream file(repositoriesFile);
+      if (!file) {
+        throw std::runtime_error("Cannot create repositories file");
+      }
+      if (fs::is_empty(repositoriesFile)) {
+        // TODO extract method
+        nlohmann::json j;
+        j["repositories"] = types::NameFolderMap{};
+        file << j.dump(2);
+      }
     }
   };
   createAppConfigFolder();
@@ -64,6 +79,8 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
     }
   };
   checkIfUniqueRepoData(repositoryName, repositoryFolder);
+
+  const auto createRepositoryFolder = []() {};
 
   Repository repository(repositoryName, repositoryFolder, "master");
   repository.InitManagers();

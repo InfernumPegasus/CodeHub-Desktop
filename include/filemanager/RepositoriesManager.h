@@ -4,8 +4,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "utils/Types.h"
 #include "repository/Repository.h"
+#include "utils/Types.h"
 
 class RepositoriesManager : public IFileManager {
  public:

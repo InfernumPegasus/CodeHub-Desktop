@@ -49,7 +49,6 @@ class VersionControlSystem {
  private:
   types::NameFolderMap nameFolderMap_;
 
-  std::unique_ptr<RepositoriesManager> repositoriesManager_;
   std::unique_ptr<UserFileManager> userManager_;
 };
 

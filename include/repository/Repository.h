@@ -19,6 +19,8 @@ class Repository {
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
              const std::string& branch);
 
+  explicit Repository(RepositoryConfig config);
+
   Repository(std::string repositoryName, const fs::path& repositoryFolder,
              types::FileHashMap files, const std::string& branch);
 

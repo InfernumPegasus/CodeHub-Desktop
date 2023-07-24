@@ -19,4 +19,8 @@ struct RepositoryConfig {
   types::Branches branches_;
 };
 
+static RepositoryConfig ReadRepositoryConfig();
+
+static void VerifyRepositoryConfig(const RepositoryConfig& config);
+
 #endif  // CODEHUB_REPOSITORYCONFIG_H
