@@ -67,11 +67,13 @@ class Repository {
 
   [[nodiscard]] const types::Branches& Branches() const;
 
+  RepositoryConfig Config() const;
+
  private:
   RepositoryConfig config_;
 
-  std::unique_ptr<RepositoryConfigManager> configManager_;
-  std::unique_ptr<CommitsManager> commitsManager_;
+//  std::unique_ptr<RepositoryConfigManager> configManager_;
+//  std::unique_ptr<CommitsManager> commitsManager_;
   types::Commits commits_;
 
   std::unique_ptr<FilesManager> filesManager_;
@@ -79,7 +81,7 @@ class Repository {
 
   types::PathSet ignoredFiles_;
 
-  std::unique_ptr<BranchesManager> branchesManager_;
+//  std::unique_ptr<BranchesManager> branchesManager_;
 };
 
 #endif  // CODEHUB_REPOSITORY_H

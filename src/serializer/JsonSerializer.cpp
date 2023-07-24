@@ -111,7 +111,7 @@ std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json 
 }
 
 Repository JsonSerializer::GetRepositoryByFolder(const std::filesystem::path& folder) {
-  const auto file{folder / CONFIG_DIRECTORY / CONFIG_FILE};
+  const auto file{folder / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE};
   std::ifstream ifs(file);
   if (!ifs) {
     throw std::runtime_error(fmt::format("Cannot open file '{}'", file.c_str()));

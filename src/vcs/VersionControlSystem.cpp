@@ -13,7 +13,12 @@
 VersionControlSystem::VersionControlSystem()
     : userManager_(std::make_unique<UserFileManager>()) {}
 
-VersionControlSystem::~VersionControlSystem() { /*repositoriesManager_->Update();*/
+VersionControlSystem::~VersionControlSystem() {
+  std::ofstream ofs(GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_REPOSITORIES_FILE);
+  nlohmann::json j;
+  j["repositories"] = nameFolderMap_;
+  std::cout << j.dump(2) << "\n";
+  ofs << j.dump(2);
 }
 
 void VersionControlSystem::Init() {
@@ -21,7 +26,7 @@ void VersionControlSystem::Init() {
   //  repositoriesManager_->DeleteIncorrectRepositories();
   //  userManager_->Init();
 
-  const auto createAppConfigFolder = []() {
+  const auto createAndLoad = [this]() {
     const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
     if (!fs::exists(folder) && !fs::create_directories(folder)) {
       throw std::runtime_error("Cannot create vcs config folder");
@@ -30,20 +35,38 @@ void VersionControlSystem::Init() {
     if (!fs::exists(repositoriesFile)) {
       logging::Log(LOG_NOTICE, fmt::format("Trying to create repositories file at '{}'",
                                            repositoriesFile.c_str()));
-      std::ofstream file(repositoriesFile);
-      if (!file) {
-        throw std::runtime_error("Cannot create repositories file");
-      }
-      if (fs::is_empty(repositoriesFile)) {
+
+      const auto createDefault = [&repositoriesFile]() {
+        std::ofstream file(repositoriesFile);
         // TODO extract method
         nlohmann::json j;
         j["repositories"] = types::NameFolderMap{};
         file << j.dump(2);
+      };
+
+      const auto read = [this, &repositoriesFile]() {
+        std::ifstream file(repositoriesFile);
+        // TODO extract method
+        nlohmann::json j = nlohmann::json::parse(file);
+        nameFolderMap_ = j["repositories"];
+      };
+
+      std::ofstream file(repositoriesFile);
+      if (!file) {
+        throw std::runtime_error("Cannot create repositories file");
       }
+      if (!fs::is_empty(repositoriesFile)) {
+        read();
+      }
+      logging::Log(LOG_NOTICE, "Repositories file loaded");
     }
   };
-  createAppConfigFolder();
+  createAndLoad();
   logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
+  std::cout << nameFolderMap_.size() << "\n";
+  for (const auto& [name, folder] : nameFolderMap_) {
+    std::cout << name << " : " << folder << "\n";
+  }
 }
 
 void VersionControlSystem::CheckRepositoriesExist() const {
@@ -80,11 +103,23 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   };
   checkIfUniqueRepoData(repositoryName, repositoryFolder);
 
-  const auto createRepositoryFolder = []() {};
+  constexpr auto DEFAULT_BRANCH_NAME = "master";
+  const auto createRepositoryFolder = [&repositoryName, &DEFAULT_BRANCH_NAME]() {
+    const auto folder =
+        GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
+    if (!fs::exists(folder) && !fs::create_directories(folder)) {
+      throw std::runtime_error(
+          fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
+    }
+  };
 
-  Repository repository(repositoryName, repositoryFolder, "master");
+  createRepositoryFolder();
+  RepositoryConfig config{
+      repositoryName, repositoryFolder, DEFAULT_BRANCH_NAME, {DEFAULT_BRANCH_NAME}};
+  Repository repository(config);
   repository.InitManagers();
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
+  std::cout << nameFolderMap_.size() << "\n";
 
   logging::Log(LOG_NOTICE, fmt::format("Repository '{}' created in folder '{}'",
                                        repositoryName, repositoryFolder.c_str()));

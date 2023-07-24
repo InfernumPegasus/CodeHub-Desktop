@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 // clang-format off
 const inline fs::path CONFIG_DIRECTORY      = ".codehub_config";
 
-const inline fs::path CONFIG_FILE           = ".repo_info.json";
+const inline fs::path REPOSITORY_CONFIG_FILE           = ".repo_info.json";
 const inline fs::path COMMITS_FILE          = ".commits.json";
 const inline fs::path IGNORE_FILE           = ".ignore";
 

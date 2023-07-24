@@ -1,5 +1,7 @@
 #include "config/RepositoryConfig.h"
 
+#include <fmt/ranges.h>
+
 #include "utils/ConfigFiles.h"
 
 fs::path RepositoryConfig::FormCommittedFilesSavePath(size_t commitChecksum) const {
@@ -9,6 +11,20 @@ fs::path RepositoryConfig::FormCommittedFilesSavePath(size_t commitChecksum) con
 
 fs::path RepositoryConfig::FormBranchFolder() const {
   return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ / currentBranch_;
+}
+
+void RepositoryConfig::Print() const {
+  fmt::print("Name: {}\nFolder: {}\nCurrentBranch: {}\nBranches:{}\n", repositoryName_,
+             repositoryFolder_.c_str(), currentBranch_, branches_);
+}
+
+nlohmann::json RepositoryConfig::ToJson() const {
+  nlohmann::json j;
+  j["repo_name"] = repositoryName_;
+  j["repo_folder"] = repositoryFolder_;
+  j["current_branch"] = currentBranch_;
+  j["branches"] = branches_;
+  return j;
 }
 
 RepositoryConfig ReadRepositoryConfig() {

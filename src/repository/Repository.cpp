@@ -10,43 +10,45 @@
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        const types::Branch& branch = "master")
     : config_(std::move(repositoryName), repositoryFolder, branch, {branch}),
-      configManager_(std::make_unique<RepositoryConfigManager>(
-          config_.repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE,
-          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
-          &config_.currentBranch_)),
-      commitsManager_(std::make_unique<CommitsManager>(
-          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-              config_.currentBranch_,
-          &commits_)),
+//      configManager_(std::make_unique<RepositoryConfigManager>(
+//          config_.repositoryFolder_ / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE,
+//          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
+//          &config_.currentBranch_)),
+//      commitsManager_(std::make_unique<CommitsManager>(
+//          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+//              config_.currentBranch_,
+//          &commits_)),
       filesManager_(std::make_unique<FilesManager>(
           config_.repositoryFolder_, &trackedFiles_,
-          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)),
-      branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
-                                                         &config_.branches_)) {
-  config_.branches_.insert(config_.currentBranch_);
-  if (!config_.branches_.contains(config_.currentBranch_)) {
-    throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
-                                         config_.repositoryName_,
-                                         config_.currentBranch_));
-  }
-  RestoreFileManager::CreateFolder(config_.FormBranchFolder());
+          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_))
+//      ,branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
+//                                                         &config_.branches_))
+{
+//  config_.branches_.insert(config_.currentBranch_);
+//  if (!config_.branches_.contains(config_.currentBranch_)) {
+//    throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
+//                                         config_.repositoryName_,
+//                                         config_.currentBranch_));
+//  }
+//  RestoreFileManager::CreateFolder(config_.FormBranchFolder());
 }
 
 Repository::Repository(RepositoryConfig config)
     : config_(std::move(config)),
-      configManager_(std::make_unique<RepositoryConfigManager>(
-          config_.repositoryFolder_ / CONFIG_DIRECTORY / CONFIG_FILE,
-          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
-          &config_.currentBranch_)),
-      commitsManager_(std::make_unique<CommitsManager>(
-          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-              config_.currentBranch_,
-          &commits_)),
+      //      configManager_(std::make_unique<RepositoryConfigManager>(
+      //          config_.repositoryFolder_ / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE,
+      //          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
+      //          &config_.currentBranch_)),
+      //      commitsManager_(std::make_unique<CommitsManager>(
+      //          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+      //              config_.currentBranch_,
+      //          &commits_)),
       filesManager_(std::make_unique<FilesManager>(
           config_.repositoryFolder_, &trackedFiles_,
-          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)),
-      branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
-                                                         &config_.branches_)) {}
+          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_))
+//      ,branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
+//                                                         &config_.branches_))
+{}
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        types::FileHashMap files, const std::string& branch = "master")
@@ -61,8 +63,14 @@ Repository::Repository(std::string repositoryName, const fs::path& repositoryFol
 }
 
 Repository::~Repository() {
-  configManager_->Update();
-  branchesManager_->Update();
+  std::ofstream ofs(config_.FormBranchFolder() / REPOSITORY_CONFIG_FILE);
+  if (!ofs) {
+    logging::Log(LOG_EMERG, "Cannot save repository state");
+  }
+  const auto json = config_.ToJson();
+  ofs << json.dump(2);
+//  configManager_->Update();
+//  branchesManager_->Update();
 }
 
 types::FileHashMap Repository::ChangedFiles() const {
@@ -124,8 +132,8 @@ void Repository::DoCommit(const std::string& message) {
 
   const Commit commit(filesToCommit, message);
   commits_.push_back(commit);
-  commitsManager_->Update();
-  configManager_->Update();
+//  commitsManager_->Update();
+//  configManager_->Update();
 
   const auto saveFiles = [this](auto&& commit) {
     const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());
@@ -161,13 +169,13 @@ void Repository::DoCommit(const std::string& message) {
   printFilesStatuses(commit.Message(), filesToCommit);
 }
 
-void Repository::InitConfigManager() { configManager_->Init(); }
+void Repository::InitConfigManager() { /*configManager_->Init();*/ }
 
 void Repository::InitFilesManager() { filesManager_->Init(); }
 
-void Repository::InitCommitsManager() { commitsManager_->Init(); }
+void Repository::InitCommitsManager() { /*commitsManager_->Init();*/ }
 
-void Repository::InitBranchesManager() { branchesManager_->Init(); }
+void Repository::InitBranchesManager() { /*branchesManager_->Init();*/ }
 
 void Repository::InitManagers() {
   InitConfigManager();
@@ -212,3 +220,5 @@ const types::Commits& Repository::Commits() const { return commits_; }
 const std::string& Repository::CurrentBranch() const { return config_.currentBranch_; }
 
 const types::Branches& Repository::Branches() const { return config_.branches_; }
+
+RepositoryConfig Repository::Config() const { return config_; }
