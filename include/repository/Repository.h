@@ -43,13 +43,7 @@ class Repository {
   void DoCommit(const std::string& message);
 
  public:
-  void InitConfigManager();
-
   void InitFilesManager();
-
-  void InitCommitsManager();
-
-  void InitBranchesManager();
 
   void InitManagers();
 

@@ -3,10 +3,10 @@
 #include <iostream>
 #include <utility>
 
+#include "config/RepositoryConfig.h"
 #include "filecomparator/FileComparator.h"
 #include "filemanager/RestoreFileManager.h"
 #include "log/Logger.h"
-#include "serializer/JsonSerializer.h"
 #include "validation/Validator.h"
 #include "web/WebService.h"
 
@@ -14,59 +14,58 @@ VersionControlSystem::VersionControlSystem()
     : userManager_(std::make_unique<UserFileManager>()) {}
 
 VersionControlSystem::~VersionControlSystem() {
+  // TODO extract method
   std::ofstream ofs(GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_REPOSITORIES_FILE);
   nlohmann::json j;
   j["repositories"] = nameFolderMap_;
-  std::cout << j.dump(2) << "\n";
   ofs << j.dump(2);
 }
 
 void VersionControlSystem::Init() {
-  //  repositoriesManager_->Init();
-  //  repositoriesManager_->DeleteIncorrectRepositories();
-  //  userManager_->Init();
-
-  const auto createAndLoad = [this]() {
-    const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
-    if (!fs::exists(folder) && !fs::create_directories(folder)) {
-      throw std::runtime_error("Cannot create vcs config folder");
-    }
-    const auto repositoriesFile = folder / VCS_REPOSITORIES_FILE;
-    if (!fs::exists(repositoriesFile)) {
-      logging::Log(LOG_NOTICE, fmt::format("Trying to create repositories file at '{}'",
-                                           repositoriesFile.c_str()));
-
-      const auto createDefault = [&repositoriesFile]() {
-        std::ofstream file(repositoriesFile);
-        // TODO extract method
-        nlohmann::json j;
-        j["repositories"] = types::NameFolderMap{};
-        file << j.dump(2);
-      };
-
-      const auto read = [this, &repositoriesFile]() {
-        std::ifstream file(repositoriesFile);
-        // TODO extract method
-        nlohmann::json j = nlohmann::json::parse(file);
-        nameFolderMap_ = j["repositories"];
-      };
-
-      std::ofstream file(repositoriesFile);
-      if (!file) {
-        throw std::runtime_error("Cannot create repositories file");
-      }
-      if (!fs::is_empty(repositoriesFile)) {
-        read();
-      }
-      logging::Log(LOG_NOTICE, "Repositories file loaded");
-    }
-  };
-  createAndLoad();
-  logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
-  std::cout << nameFolderMap_.size() << "\n";
-  for (const auto& [name, folder] : nameFolderMap_) {
-    std::cout << name << " : " << folder << "\n";
+  const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
+  if (!fs::exists(folder) && !fs::create_directories(folder)) {
+    logging::Log(LOG_WARNING,
+                 "Cannot create vcs config folder or it have been already created");
   }
+
+  const auto repositoriesFile = folder / VCS_REPOSITORIES_FILE;
+
+  const auto createDefault = [&repositoriesFile]() {
+    std::ofstream file(repositoriesFile);
+    if (!file) {
+      throw std::runtime_error("Cannot create repositories file");
+    }
+    // TODO extract method
+    nlohmann::json j;
+    j["repositories"] = types::NameFolderMap{};
+    file << j.dump(2);
+
+    logging::Log(LOG_WARNING, "Repositories file created");
+  };
+
+  const auto read = [this, &repositoriesFile]() {
+    std::ifstream file(repositoriesFile);
+    if (!file) {
+      throw std::runtime_error("Cannot read repositories file");
+    }
+    // TODO extract method
+    nlohmann::json j = nlohmann::json::parse(file);
+    nameFolderMap_ = j["repositories"];
+
+    logging::Log(LOG_WARNING,
+                 fmt::format("Repositories file created. Read {} repositories",
+                             nameFolderMap_.size()));
+  };
+
+  if (!fs::exists(repositoriesFile) || fs::is_empty(repositoriesFile)) {
+    logging::Log(LOG_NOTICE, fmt::format("Trying to create repositories file at '{}'",
+                                         repositoriesFile.c_str()));
+    createDefault();
+  } else {
+    read();
+    logging::Log(LOG_NOTICE, "Repositories file loaded");
+  }
+  logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
 }
 
 void VersionControlSystem::CheckRepositoriesExist() const {
@@ -128,7 +127,10 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
 void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
   const auto folder = fs::current_path();
-  auto repository = JsonSerializer::GetRepositoryByFolder(folder);
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
+
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(folder);
   if (!nameFolderMap_.contains(repository.Name())) {
     throw std::runtime_error(
         fmt::format("Found repository '{}', but there is no such repository in app utils",
@@ -175,7 +177,9 @@ void VersionControlSystem::DoCommit(const std::string& message) {
   if (message.empty()) {
     throw std::runtime_error("Commit message cannot be empty");
   }
-  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
   repository.InitManagers();
   repository.DoCommit(message);
@@ -183,7 +187,9 @@ void VersionControlSystem::DoCommit(const std::string& message) {
 
 void VersionControlSystem::Push() {
   CheckRepositoriesExist();
-  auto localRepository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  //  auto localRepository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository localRepository(config);
 
   const auto loginResponse =
       WebService::PostLogin(userManager_->Email(), userManager_->Password());
@@ -202,8 +208,7 @@ void VersionControlSystem::Push() {
 
   const auto foundCommits = foundRepository->Commits();
   // Repo exists locally only
-  localRepository.InitCommitsManager();
-  const auto localCommits = localRepository.Commits();
+  const auto& localCommits = localRepository.Commits();
 
   if (localCommits.empty() || localCommits.size() == foundCommits.size()) {
     std::cout << "No commits to push!\n";
@@ -228,10 +233,11 @@ void VersionControlSystem::ShowRepositories() const {
 
 void VersionControlSystem::CommitsLog() const {
   CheckRepositoriesExist();
-  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
-  repository.InitCommitsManager();
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
-  const auto commits = repository.Commits();
+  const auto& commits = repository.Commits();
 
   if (commits.empty()) {
     throw std::runtime_error("You have no commits yet.");
@@ -244,17 +250,19 @@ void VersionControlSystem::CommitsLog() const {
 
 void VersionControlSystem::ShowFileDifference(std::string_view filename) {
   CheckRepositoriesExist();
-  auto repo = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  //  auto repo = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
-  repo.InitCommitsManager();
-  if (repo.Commits().empty()) {
-    throw std::runtime_error(fmt::format("No commits in {} repository.", repo.Name()));
+  if (repository.Commits().empty()) {
+    throw std::runtime_error(
+        fmt::format("No commits in {} repository.", repository.Name()));
   }
 
   // TODO search in all commits
-  const auto file = GetHomeDirectory() / VCS_CONFIG_FOLDER / repo.Name() /
-                    repo.CurrentBranch() /
-                    std::to_string(repo.Commits().back().Checksum()) / filename;
+  const auto file = GetHomeDirectory() / VCS_CONFIG_FOLDER / repository.Name() /
+                    repository.CurrentBranch() /
+                    std::to_string(repository.Commits().back().Checksum()) / filename;
 
   const auto difference = FileComparator::Compare(file, filename);
   for (const auto& [lineNumber, lines] : difference) {
@@ -264,11 +272,11 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
   CheckRepositoriesExist();
-  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
-  repository.InitConfigManager();
-  repository.InitCommitsManager();
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
-  const auto commits = repository.Commits();
+  const auto& commits = repository.Commits();
   const auto found =
       std::find_if(commits.cbegin(), commits.cend(),
                    [checksum](const Commit& c) { return c.Checksum() == checksum; });
@@ -282,25 +290,24 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
 
 void VersionControlSystem::CreateBranch(std::string name) {
   CheckRepositoriesExist();
-  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
-  repository.InitConfigManager();
-  repository.InitCommitsManager();
   repository.ChangeBranch(std::move(name));
 }
 
 void VersionControlSystem::ShowBranches() const {
   CheckRepositoriesExist();
-  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  //  auto repository = JsonSerializer::GetRepositoryByFolder(fs::current_path());
+  const auto config = ReadRepositoryConfig();
+  Repository repository(config);
 
-  repository.InitConfigManager();
-  repository.InitBranchesManager();
-
-  const auto branches = repository.Branches();
+  const auto& branches = repository.Branches();
   if (branches.empty()) {
     throw std::runtime_error("Cannot find any branches");
   }
-  const auto currentBranch = repository.CurrentBranch();
+  const auto& currentBranch = repository.CurrentBranch();
 
   if (!branches.contains(currentBranch)) {
     throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",

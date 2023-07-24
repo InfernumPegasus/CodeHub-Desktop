@@ -25,7 +25,7 @@ struct RepositoryConfig {
   types::Branches branches_;
 };
 
-static RepositoryConfig ReadRepositoryConfig();
+RepositoryConfig ReadRepositoryConfig();
 
 static void VerifyRepositoryConfig(const RepositoryConfig& config);
 

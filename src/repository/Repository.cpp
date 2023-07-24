@@ -169,23 +169,11 @@ void Repository::DoCommit(const std::string& message) {
   printFilesStatuses(commit.Message(), filesToCommit);
 }
 
-void Repository::InitConfigManager() { /*configManager_->Init();*/ }
-
 void Repository::InitFilesManager() { filesManager_->Init(); }
 
-void Repository::InitCommitsManager() { /*commitsManager_->Init();*/ }
-
-void Repository::InitBranchesManager() { /*branchesManager_->Init();*/ }
-
 void Repository::InitManagers() {
-  InitConfigManager();
-  logging::Log(LOG_NOTICE, "Repository::InitConfigManager success");
   InitFilesManager();
   logging::Log(LOG_NOTICE, "Repository::InitFilesManager success");
-  InitCommitsManager();
-  logging::Log(LOG_NOTICE, "Repository::InitCommitsManager success");
-  InitBranchesManager();
-  logging::Log(LOG_NOTICE, "Repository::InitBranchesManager success");
 }
 
 void Repository::ChangeBranch(std::string branch) {
