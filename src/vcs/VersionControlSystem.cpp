@@ -34,8 +34,9 @@ bool VersionControlSystem::ExistsByName(std::string_view repositoryName) const {
 }
 
 bool VersionControlSystem::ExistsByFolder(const fs::path& repositoryFolder) const {
-  return std::ranges::any_of(nameFolderMap_.cbegin(), nameFolderMap_.cend(),
-                             [&](auto& pair) { return pair.second == repositoryFolder; });
+  return std::ranges::any_of(
+      nameFolderMap_.cbegin(), nameFolderMap_.cend(),
+      [&](auto&& pair) { return pair.second == repositoryFolder; });
 }
 
 void VersionControlSystem::CreateRepository(std::string repositoryName) {
@@ -44,14 +45,14 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   const auto checkIfUniqueRepoData = [this](auto&& repositoryName,
                                             auto&& repositoryFolder) {
     if (!Validator::IsValidRepositoryName(repositoryName)) {
-      throw std::runtime_error(
+      throw std::invalid_argument(
           fmt::format("Repository name '{}' is not valid", repositoryName));
     }
 
     if (ExistsByFolder(repositoryFolder) || ExistsByName(repositoryName)) {
       throw std::runtime_error(
           fmt::format("Repository with name '{}' cannot be created in folder '{}'",
-                      repositoryName, repositoryFolder.string()));
+                      repositoryName, repositoryFolder.c_str()));
     }
   };
   checkIfUniqueRepoData(repositoryName, repositoryFolder);
@@ -61,7 +62,7 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
 
   logging::Log(LOG_NOTICE, fmt::format("Repository '{}' created in folder '{}'",
-                                       repositoryName, repositoryFolder.string()));
+                                       repositoryName, repositoryFolder.c_str()));
 }
 
 void VersionControlSystem::CheckStatus() const {

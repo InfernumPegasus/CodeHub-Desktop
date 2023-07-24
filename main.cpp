@@ -11,7 +11,7 @@ namespace {
 constexpr auto HELP         = "help";
 constexpr auto INIT         = "init";
 constexpr auto STATUS       = "status";
-constexpr auto DIFF         = "diff"; // TODO fix
+constexpr auto DIFF         = "diff";
 constexpr auto REPOSITORIES = "repositories";
 constexpr auto LOG          = "log";
 constexpr auto COMMIT       = "commit";
