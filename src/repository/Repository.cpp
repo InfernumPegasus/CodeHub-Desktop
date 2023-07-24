@@ -7,70 +7,20 @@
 #include "log/Logger.h"
 #include "utils/ConfigFiles.h"
 
-Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       const types::Branch& branch = "master")
-    : config_(std::move(repositoryName), repositoryFolder, branch, {branch}),
-//      configManager_(std::make_unique<RepositoryConfigManager>(
-//          config_.repositoryFolder_ / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE,
-//          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
-//          &config_.currentBranch_)),
-//      commitsManager_(std::make_unique<CommitsManager>(
-//          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-//              config_.currentBranch_,
-//          &commits_)),
-      filesManager_(std::make_unique<FilesManager>(
-          config_.repositoryFolder_, &trackedFiles_,
-          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_))
-//      ,branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
-//                                                         &config_.branches_))
-{
-//  config_.branches_.insert(config_.currentBranch_);
-//  if (!config_.branches_.contains(config_.currentBranch_)) {
-//    throw std::runtime_error(fmt::format("Repository {} does not contain branch {}",
-//                                         config_.repositoryName_,
-//                                         config_.currentBranch_));
-//  }
-//  RestoreFileManager::CreateFolder(config_.FormBranchFolder());
-}
-
 Repository::Repository(RepositoryConfig config)
     : config_(std::move(config)),
-      //      configManager_(std::make_unique<RepositoryConfigManager>(
-      //          config_.repositoryFolder_ / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE,
-      //          &config_.repositoryName_, &config_.repositoryFolder_, &trackedFiles_,
-      //          &config_.currentBranch_)),
-      //      commitsManager_(std::make_unique<CommitsManager>(
-      //          GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-      //              config_.currentBranch_,
-      //          &commits_)),
       filesManager_(std::make_unique<FilesManager>(
           config_.repositoryFolder_, &trackedFiles_,
-          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_))
-//      ,branchesManager_(std::make_unique<BranchesManager>(&config_.repositoryName_,
-//                                                         &config_.branches_))
-{}
-
-Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       types::FileHashMap files, const std::string& branch = "master")
-    : Repository(std::move(repositoryName), repositoryFolder, branch) {
-  trackedFiles_ = std::move(files);
-}
-
-Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
-                       types::Commits commits)
-    : Repository(std::move(repositoryName), repositoryFolder) {
-  commits_ = std::move(commits);
-}
+          config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)) {}
 
 Repository::~Repository() {
-  std::ofstream ofs(config_.FormBranchFolder() / REPOSITORY_CONFIG_FILE);
+  std::ofstream ofs(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+                    REPOSITORY_CONFIG_FILE);
   if (!ofs) {
     logging::Log(LOG_EMERG, "Cannot save repository state");
   }
   const auto json = config_.ToJson();
   ofs << json.dump(2);
-//  configManager_->Update();
-//  branchesManager_->Update();
 }
 
 types::FileHashMap Repository::ChangedFiles() const {
@@ -132,8 +82,6 @@ void Repository::DoCommit(const std::string& message) {
 
   const Commit commit(filesToCommit, message);
   commits_.push_back(commit);
-//  commitsManager_->Update();
-//  configManager_->Update();
 
   const auto saveFiles = [this](auto&& commit) {
     const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());

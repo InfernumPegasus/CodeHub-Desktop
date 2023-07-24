@@ -82,13 +82,13 @@ nlohmann::json JsonSerializer::CommitsToJson(const types::Commits& commits) {
   return j;
 }
 
-Repository JsonSerializer::RepositoryFromConfigJson(nlohmann::json json) {
-  const std::string name = json["repo_name"];
-  const std::string folder = json["repo_folder"];
-  const auto map = json["map"];
-  const std::string branch = json["current_branch"];
-  return {name, folder, map, branch};
-}
+//Repository JsonSerializer::RepositoryFromConfigJson(nlohmann::json json) {
+//  const std::string name = json["repo_name"];
+//  const std::string folder = json["repo_folder"];
+//  const auto map = json["map"];
+//  const std::string branch = json["current_branch"];
+//  return {name, folder, map, branch};
+//}
 
 std::optional<types::Commits> JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
@@ -110,16 +110,16 @@ std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json 
   return commits;
 }
 
-Repository JsonSerializer::GetRepositoryByFolder(const std::filesystem::path& folder) {
-  const auto file{folder / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE};
-  std::ifstream ifs(file);
-  if (!ifs) {
-    throw std::runtime_error(fmt::format("Cannot open file '{}'", file.c_str()));
-  }
-
-  const auto j = nlohmann::json::parse(ifs);
-  return RepositoryFromConfigJson(j);
-}
+//Repository JsonSerializer::GetRepositoryByFolder(const std::filesystem::path& folder) {
+//  const auto file{folder / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE};
+//  std::ifstream ifs(file);
+//  if (!ifs) {
+//    throw std::runtime_error(fmt::format("Cannot open file '{}'", file.c_str()));
+//  }
+//
+//  const auto j = nlohmann::json::parse(ifs);
+//  return RepositoryFromConfigJson(j);
+//}
 
 nlohmann::json JsonSerializer::RepositoryToJson(const Repository& repository) {
   nlohmann::json json;
@@ -128,12 +128,12 @@ nlohmann::json JsonSerializer::RepositoryToJson(const Repository& repository) {
   return json;
 }
 
-Repository JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {
-  const std::string name = json["repo_name"];
-  const auto folder = std::filesystem::current_path();
-  const auto commits = CommitsFromWebJson(json);
-  return {name, folder, commits.value()};
-}
+//Repository JsonSerializer::RepositoryFromWebJson(nlohmann::json json) {
+//  const std::string name = json["repo_name"];
+//  const auto folder = std::filesystem::current_path();
+//  const auto commits = CommitsFromWebJson(json);
+//  return {name, folder, commits.value()};
+//}
 
 nlohmann::json JsonSerializer::BranchesToJson(const types::Branches& branches) {
   nlohmann::json json;

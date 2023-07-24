@@ -16,16 +16,7 @@
 
 class Repository {
  public:
-  Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             const std::string& branch);
-
   explicit Repository(RepositoryConfig config);
-
-  Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             types::FileHashMap files, const std::string& branch);
-
-  Repository(std::string repositoryName, const fs::path& repositoryFolder,
-             types::Commits commits);
 
   ~Repository();
 
@@ -66,16 +57,12 @@ class Repository {
  private:
   RepositoryConfig config_;
 
-//  std::unique_ptr<RepositoryConfigManager> configManager_;
-//  std::unique_ptr<CommitsManager> commitsManager_;
   types::Commits commits_;
 
   std::unique_ptr<FilesManager> filesManager_;
   types::FileHashMap trackedFiles_;
 
   types::PathSet ignoredFiles_;
-
-//  std::unique_ptr<BranchesManager> branchesManager_;
 };
 
 #endif  // CODEHUB_REPOSITORY_H

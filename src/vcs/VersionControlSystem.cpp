@@ -84,6 +84,7 @@ bool VersionControlSystem::ExistsByFolder(const fs::path& repositoryFolder) cons
       [&](auto&& pair) { return pair.second == repositoryFolder; });
 }
 
+// TODO split logic
 void VersionControlSystem::CreateRepository(std::string repositoryName) {
   const auto repositoryFolder = std::filesystem::current_path();
   Validator::ValidateRepositoryName(repositoryName);
@@ -106,6 +107,7 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   const auto createRepositoryFolder = [&repositoryName, &DEFAULT_BRANCH_NAME]() {
     const auto folder =
         GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
+    // Creating repo folder with default branch name called "master"
     if (!fs::exists(folder) && !fs::create_directories(folder)) {
       throw std::runtime_error(
           fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
@@ -116,21 +118,16 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   RepositoryConfig config{
       repositoryName, repositoryFolder, DEFAULT_BRANCH_NAME, {DEFAULT_BRANCH_NAME}};
   Repository repository(config);
-  repository.InitManagers();
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
-  std::cout << nameFolderMap_.size() << "\n";
-
   logging::Log(LOG_NOTICE, fmt::format("Repository '{}' created in folder '{}'",
                                        repositoryName, repositoryFolder.c_str()));
 }
 
 void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
-  const auto folder = fs::current_path();
   const auto config = ReadRepositoryConfig();
   Repository repository(config);
 
-  //  auto repository = JsonSerializer::GetRepositoryByFolder(folder);
   if (!nameFolderMap_.contains(repository.Name())) {
     throw std::runtime_error(
         fmt::format("Found repository '{}', but there is no such repository in app utils",

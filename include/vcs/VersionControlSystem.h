@@ -47,6 +47,9 @@ class VersionControlSystem {
   void ShowBranches() const;
 
  private:
+  void LoadConfig(const fs::path& filename, std::function<void()> creationPolicy);
+
+ private:
   types::NameFolderMap nameFolderMap_;
 
   std::unique_ptr<UserFileManager> userManager_;

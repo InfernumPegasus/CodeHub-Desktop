@@ -13,8 +13,6 @@ struct RepositoryConfig {
 
   fs::path FormBranchFolder() const;
 
-  void Print() const;
-
   nlohmann::json ToJson() const;
 
  public:
