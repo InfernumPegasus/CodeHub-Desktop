@@ -1,10 +1,10 @@
 #ifndef CODEHUB_VERSIONCONTROLSYSTEM_H
 #define CODEHUB_VERSIONCONTROLSYSTEM_H
 
-#include "config/Types.h"
 #include "filemanager/RepositoriesManager.h"
 #include "filemanager/UserFileManager.h"
 #include "repository/Repository.h"
+#include "utils/Types.h"
 
 class VersionControlSystem {
  public:

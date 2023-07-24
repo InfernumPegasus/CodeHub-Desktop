@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "config/ConfigFiles.h"
+#include "utils/ConfigFiles.h"
 
 nlohmann::json JsonSerializer::FileToJson(const File& file) {
   nlohmann::json j;

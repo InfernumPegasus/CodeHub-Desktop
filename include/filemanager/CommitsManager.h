@@ -3,7 +3,7 @@
 
 #include "IFileManager.h"
 #include "commit/Commit.h"
-#include "config/Types.h"
+#include "utils/Types.h"
 
 class CommitsManager : public IFileManager {
  public:

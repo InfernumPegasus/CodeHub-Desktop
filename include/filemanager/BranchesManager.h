@@ -3,7 +3,7 @@
 
 #include <filesystem>
 
-#include "config/Types.h"
+#include "utils/Types.h"
 #include "filemanager/IFileManager.h"
 
 namespace fs = std::filesystem;

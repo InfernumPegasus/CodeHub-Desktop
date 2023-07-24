@@ -7,7 +7,7 @@
 #include <optional>
 
 #include "commit/Commit.h"
-#include "config/Types.h"
+#include "utils/Types.h"
 #include "repository/Repository.h"
 
 class JsonSerializer {

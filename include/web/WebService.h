@@ -7,8 +7,8 @@
 #include <optional>
 
 #include "commit/Commit.h"
-#include "config/Endpoints.h"
-#include "config/Types.h"
+#include "utils/Endpoints.h"
+#include "utils/Types.h"
 #include "repository/Repository.h"
 
 class WebService {

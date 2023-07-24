@@ -5,7 +5,7 @@
 #include <iostream>
 #include <utility>
 
-#include "config/ConfigFiles.h"
+#include "utils/ConfigFiles.h"
 
 IgnoreFileManager::IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
                                      types::PathSet* ignoredFiles)

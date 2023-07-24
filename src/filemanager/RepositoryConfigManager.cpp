@@ -3,8 +3,8 @@
 #include <iostream>
 #include <utility>
 
-#include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
+#include "utils/ConfigFiles.h"
 
 RepositoryConfigManager::RepositoryConfigManager(fs::path configFile,
                                                  std::string* repositoryNameRef,

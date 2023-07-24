@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "IFileManager.h"
-#include "config/Types.h"
+#include "utils/Types.h"
 
 namespace fs = std::filesystem;
 

@@ -3,8 +3,8 @@
 #include <fstream>
 #include <utility>
 
-#include "config/ConfigFiles.h"
 #include "serializer/JsonSerializer.h"
+#include "utils/ConfigFiles.h"
 
 CommitsManager::CommitsManager(const fs::path& commitsFolder, types::Commits* commits)
     : commitsFile_(std::move(commitsFolder / COMMITS_FILE)), commitsRef_(*commits) {}

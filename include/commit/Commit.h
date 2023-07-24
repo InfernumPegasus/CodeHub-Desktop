@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <utility>
 
-#include "config/Types.h"
+#include "utils/Types.h"
 #include "file/File.h"
 
 class Commit {

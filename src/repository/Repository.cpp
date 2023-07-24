@@ -3,9 +3,9 @@
 #include <iostream>
 #include <utility>
 
-#include "config/ConfigFiles.h"
 #include "filemanager/RestoreFileManager.h"
 #include "log/Logger.h"
+#include "utils/ConfigFiles.h"
 
 Repository::Repository(std::string repositoryName, const fs::path& repositoryFolder,
                        types::Branch branch = "master")

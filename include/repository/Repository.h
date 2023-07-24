@@ -6,7 +6,7 @@
 #include <unordered_set>
 
 #include "commit/Commit.h"
-#include "config/Types.h"
+#include "utils/Types.h"
 #include "filemanager/BranchesManager.h"
 #include "filemanager/CommitsManager.h"
 #include "filemanager/FilesManager.h"

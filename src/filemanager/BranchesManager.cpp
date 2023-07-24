@@ -1,6 +1,6 @@
 #include "filemanager/BranchesManager.h"
 
-#include "config/ConfigFiles.h"
+#include "utils/ConfigFiles.h"
 #include "log/Logger.h"
 #include "serializer/JsonSerializer.h"
 

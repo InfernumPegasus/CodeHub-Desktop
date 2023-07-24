@@ -71,7 +71,7 @@ void VersionControlSystem::CheckStatus() const {
   auto repository = JsonSerializer::GetRepositoryByFolder(folder);
   if (!nameFolderMap_.contains(repository.Name())) {
     throw std::runtime_error(fmt::format(
-        "Found repository '{}', but there is no such repository in app config",
+        "Found repository '{}', but there is no such repository in app utils",
         repository.Name()));
   }
 

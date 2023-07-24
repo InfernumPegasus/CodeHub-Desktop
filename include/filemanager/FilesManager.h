@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "IgnoreFileManager.h"
-#include "config/Types.h"
+#include "utils/Types.h"
 
 namespace fs = std::filesystem;
 

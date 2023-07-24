@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <iostream>
 
-#include "config/ConfigFiles.h"
 #include "log/Logger.h"
+#include "utils/ConfigFiles.h"
 
 RepositoriesManager::RepositoriesManager(types::NameFolderMap* nameAndFolderMap_)
     : appConfigDirectory_(GetHomeDirectory() / VCS_CONFIG_FOLDER),
@@ -45,7 +45,7 @@ bool RepositoriesManager::Read() {
 void RepositoriesManager::Update() {
   std::ofstream ofs(repositoriesFile_);
   if (!ofs && !Create()) {
-    std::cout << "Cannot create global config folder!\n";
+    std::cout << "Cannot create global utils folder!\n";
     return;
   }
 
