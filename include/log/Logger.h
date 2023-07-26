@@ -4,6 +4,7 @@
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/ranges.h>
 #include <sys/syslog.h>
 
 #include <filesystem>

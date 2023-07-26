@@ -1,7 +1,7 @@
 #ifndef CODEHUB_COMMIT_H
 #define CODEHUB_COMMIT_H
 
-#include <nlohmann/json.hpp>
+#include "json/Json.h"
 #include <ostream>
 #include <unordered_set>
 #include <utility>

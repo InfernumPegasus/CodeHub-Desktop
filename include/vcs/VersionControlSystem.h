@@ -47,7 +47,7 @@ class VersionControlSystem {
   void ShowBranches() const;
 
  private:
-  void LoadConfig(const fs::path& filename, std::function<void()> creationPolicy);
+  std::string GetRepositoryNameByFolder(const fs::path& folder) const;
 
  private:
   types::NameFolderMap nameFolderMap_;

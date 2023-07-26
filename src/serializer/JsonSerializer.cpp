@@ -110,7 +110,7 @@ std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json 
   return commits;
 }
 
-//Repository JsonSerializer::GetRepositoryByFolder(const std::filesystem::path& folder) {
+//Repository JsonSerializer::GetRepositoryNameByFolder(const std::filesystem::path& folder) {
 //  const auto file{folder / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE};
 //  std::ifstream ifs(file);
 //  if (!ifs) {

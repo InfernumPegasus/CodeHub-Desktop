@@ -22,13 +22,15 @@ nlohmann::json RepositoryConfig::ToJson() const {
   return j;
 }
 
-RepositoryConfig ReadRepositoryConfig() {
-  const auto repositoriesFile =
-      GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_REPOSITORIES_FILE;
-  std::ifstream ifs(repositoriesFile);
+fs::path RepositoryConfig::FormRepositoryFolderPath(const std::string& repositoryName) {
+  return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / REPOSITORY_CONFIG_FILE;
+}
+
+RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath) {
+  std::ifstream ifs(configPath);
   if (!ifs) {
     throw std::runtime_error(
-        fmt::format("Repositories file '{}' cannot be opened", repositoriesFile.c_str()));
+        fmt::format("Repositories file '{}' cannot be opened", configPath.c_str()));
   }
   nlohmann::json j = nlohmann::json::parse(ifs);
   return {j["repo_name"], j["repo_folder"], j["current_branch"], j["branches"]};

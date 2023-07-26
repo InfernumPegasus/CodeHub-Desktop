@@ -13,6 +13,8 @@ struct RepositoryConfig {
 
   fs::path FormBranchFolder() const;
 
+  static fs::path FormRepositoryFolderPath(const std::string& repositoryName);
+
   nlohmann::json ToJson() const;
 
  public:
@@ -23,7 +25,7 @@ struct RepositoryConfig {
   types::Branches branches_;
 };
 
-RepositoryConfig ReadRepositoryConfig();
+RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath);
 
 static void VerifyRepositoryConfig(const RepositoryConfig& config);
 
