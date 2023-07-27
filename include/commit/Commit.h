@@ -1,13 +1,13 @@
 #ifndef CODEHUB_COMMIT_H
 #define CODEHUB_COMMIT_H
 
-#include "json/Json.h"
 #include <ostream>
 #include <unordered_set>
 #include <utility>
 
-#include "utils/Types.h"
 #include "file/File.h"
+#include "json/Json.h"
+#include "utils/Types.h"
 
 class Commit {
  public:

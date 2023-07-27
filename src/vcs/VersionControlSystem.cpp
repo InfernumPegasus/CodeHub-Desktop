@@ -1,6 +1,7 @@
 #include "vcs/VersionControlSystem.h"
 
 #include <iostream>
+#include <ranges>
 #include <utility>
 
 #include "config/RepositoryConfig.h"
@@ -131,9 +132,8 @@ void VersionControlSystem::CheckStatus() const {
 
   const auto printFilesByStatus = [](std::string_view status, const char symbol,
                                      const types::FileHashMap& files) {
-    const auto size = files.size();
     if (!files.empty()) {
-      fmt::print("\nThere are {} {} files:", size, status);
+      fmt::print("\nThere are {} {} files:", files.size(), status);
       for (const auto& [fileName, hash] : files) {
         fmt::print("\n\t[{}] {}", symbol, fileName.c_str());
       }
@@ -241,7 +241,7 @@ void VersionControlSystem::CommitsLog() const {
   }
 }
 
-void VersionControlSystem::ShowFileDifference(std::string_view filename) {
+void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
@@ -249,19 +249,38 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
   Repository repository(config);
   repository.InitManagers();
 
-  if (repository.Commits().empty()) {
+  const auto commits = repository.Commits();
+  if (commits.empty()) {
     throw std::runtime_error(
-        fmt::format("No commits in {} repository.", repository.Name()));
+        fmt::format("No commits in repository '{}'", repository.Name()));
   }
 
-  // TODO search in all commits
+  const auto findCommitWithFile = [&commits](auto&& file) {
+    for (const auto& commit : std::ranges::reverse_view(commits)) {
+      const auto& files = commit.Files();
+      const auto found = std::find_if(files.begin(), files.end(),
+                                      [&file](auto&& f) { return f.Name() == file; });
+      if (found != files.cend() && (found->Status() != FileStatus::Deleted &&
+                                    found->Status() != FileStatus::Unknown)) {
+        return commit;
+      }
+    }
+    throw std::runtime_error(
+        fmt::format("There is no file '{}' in commits", file.c_str()));
+  };
+  const auto commit = findCommitWithFile(filename);
+
   const auto file = GetHomeDirectory() / VCS_CONFIG_FOLDER / repository.Name() /
-                    repository.CurrentBranch() /
-                    std::to_string(repository.Commits().back().Checksum()) / filename;
+                    repository.CurrentBranch() / std::to_string(commit.Checksum()) /
+                    filename;
 
   const auto difference = FileComparator::Compare(file, filename);
-  for (const auto& [lineNumber, lines] : difference) {
-    fmt::print("[{}]:\n\t{}\n\t{}\n", lineNumber, lines.first, lines.second);
+  if (difference.empty()) {
+    fmt::print("File '{}' hasn't changed from the past version\n", filename.c_str());
+  } else {
+    for (const auto& [lineNumber, lines] : difference) {
+      fmt::print("[{}]:\n\t{}\n\t{}\n", lineNumber, lines.first, lines.second);
+    }
   }
 }
 

@@ -35,7 +35,7 @@ class VersionControlSystem {
 
   void CommitsLog() const;
 
-  void ShowFileDifference(std::string_view filename);
+  void ShowFileDifference(const fs::path& filename);
 
  public:
   void RestoreFiles(size_t checksum);
