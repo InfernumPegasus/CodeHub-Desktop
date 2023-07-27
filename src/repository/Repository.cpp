@@ -197,12 +197,8 @@ void Repository::ChangeBranch(std::string branch) {
 
 const std::string& Repository::Name() const { return config_.repositoryName_; }
 
-const fs::path& Repository::Folder() const { return config_.repositoryFolder_; }
-
 const types::Commits& Repository::Commits() const { return commits_; }
 
 const std::string& Repository::CurrentBranch() const { return config_.currentBranch_; }
 
 const types::Branches& Repository::Branches() const { return config_.branches_; }
-
-RepositoryConfig Repository::Config() const { return config_; }

@@ -7,12 +7,10 @@
 
 #include "commit/Commit.h"
 #include "config/RepositoryConfig.h"
-#include "filemanager/BranchesManager.h"
-#include "filemanager/CommitsManager.h"
 #include "filemanager/FilesManager.h"
-#include "filemanager/IgnoreFileManager.h"
-#include "filemanager/RepositoryConfigManager.h"
 #include "utils/Types.h"
+
+static constexpr auto DEFAULT_BRANCH_NAME = "master";
 
 class Repository {
  public:
@@ -44,15 +42,11 @@ class Repository {
  public:
   [[nodiscard]] const std::string& Name() const;
 
-  [[nodiscard]] const fs::path& Folder() const;
-
   [[nodiscard]] const types::Commits& Commits() const;
 
   [[nodiscard]] const std::string& CurrentBranch() const;
 
   [[nodiscard]] const types::Branches& Branches() const;
-
-  RepositoryConfig Config() const;
 
  private:
   RepositoryConfig config_;

@@ -49,6 +49,8 @@ class VersionControlSystem {
  private:
   std::string GetRepositoryNameByFolder(const fs::path& folder) const;
 
+  static void CreateRepositoryConfigs(const std::string& repositoryName);
+
  private:
   types::NameFolderMap nameFolderMap_;
 
