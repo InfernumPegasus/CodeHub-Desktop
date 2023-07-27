@@ -16,51 +16,30 @@ Repository::Repository(RepositoryConfig config)
 
 // TODO split logic
 Repository::~Repository() {
-  const auto saveRepositoryState = [this]() {
-    const auto path = GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                      REPOSITORY_CONFIG_FILE;
+  const auto saveState = [](auto&& path, auto&& value) {
     std::ofstream file(path);
     if (!file) {
-      logging::Log(LOG_EMERG, "Cannot save repository config");
+      logging::Log(LOG_EMERG, fmt::format("Cannot save '{}' file", path.c_str()));
     } else {
-      const auto json = config_.ToJson();
-      file << json.dump(2);
-      logging::Log(LOG_WARNING,
-                   fmt::format("Repository config state saved in '{}'", path.c_str()));
+      file << value;
+      logging::Log(LOG_WARNING, fmt::format("State saved in '{}'", path.c_str()));
     }
   };
 
-  const auto saveCommitsState = [this]() {
-    const auto path = GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                      config_.currentBranch_ / COMMITS_FILE;
-    std::ofstream commitsFile(path);
-    if (!commitsFile) {
-      logging::Log(LOG_EMERG, "Cannot save commits state");
-    } else {
-      const auto json = JsonSerializer::CommitsToJson(commits_);
-      commitsFile << json.dump(2);
-      logging::Log(LOG_WARNING, fmt::format("Commits state saved in '{}'", path.c_str()));
-    }
-  };
+  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+                REPOSITORY_CONFIG_FILE,
+            config_.ToJson().dump(2));
 
-  const auto saveTrackedState = [this]() {
-    const auto path = GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                      config_.currentBranch_ / TRACKED_FILE;
-    std::ofstream trackedFile(path);
-    if (!trackedFile) {
-      logging::Log(LOG_EMERG, "Cannot save tracked files state");
-    } else {
-      nlohmann::json json;
-      json["tracked_files"] = trackedFiles_;
-      trackedFile << json.dump(2);
-      logging::Log(LOG_WARNING,
-                   fmt::format("Tracked files state saved in '{}'", path.c_str()));
-    }
-  };
+  const auto commitsJson = JsonSerializer::CommitsToJson(commits_);
+  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+                config_.currentBranch_ / COMMITS_FILE,
+            commitsJson.dump(2));
 
-  saveRepositoryState();
-  saveCommitsState();
-  saveTrackedState();
+  nlohmann::json trackedJson;
+  trackedJson["tracked_files"] = trackedFiles_;
+  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+                config_.currentBranch_ / TRACKED_FILE,
+            trackedJson.dump(2));
 }
 
 types::FileHashMap Repository::ChangedFiles() const {
@@ -157,19 +136,14 @@ void Repository::DoCommit(const std::string& message) {
   printFilesStatuses(commit.Message(), filesToCommit);
 }
 
-void Repository::InitFilesManager() { filesManager_->Init(); }
-
 void Repository::InitManagers() {
-  InitFilesManager();
-  logging::Log(LOG_NOTICE, "Repository::InitFilesManager success");
+  filesManager_->Init();
   trackedFiles_ = ReadTrackedFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                       config_.repositoryName_ / config_.currentBranch_ /
                                       TRACKED_FILE);
-  logging::Log(LOG_NOTICE, "ReadTrackedFromFile success");
   commits_ = ReadCommitsFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                  config_.repositoryName_ / config_.currentBranch_ /
                                  COMMITS_FILE);
-  logging::Log(LOG_NOTICE, "ReadCommitsFromFile success");
 }
 
 void Repository::ChangeBranch(std::string branch) {

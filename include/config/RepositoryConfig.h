@@ -28,7 +28,7 @@ struct RepositoryConfig {
 
 RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath);
 
-static void VerifyRepositoryConfig(const RepositoryConfig& config);
+void CheckRepositoryConfig(const RepositoryConfig& config);
 
 types::FileHashMap ReadTrackedFromFile(const fs::path& path);
 

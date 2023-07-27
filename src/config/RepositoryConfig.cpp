@@ -36,8 +36,19 @@ RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath) {
           json["branches"]};
 }
 
-// TODO implement
-void VerifyRepositoryConfig(const RepositoryConfig& config) {}
+void CheckRepositoryConfig(const RepositoryConfig& config) {
+  if (config.repositoryName_.empty() || config.repositoryFolder_.empty()) {
+    throw std::runtime_error("Repository name or folder cannot be empty");
+  }
+
+  if (config.branches_.empty()) {
+    throw std::runtime_error("Branches cannot be empty");
+  }
+
+  if (config.currentBranch_.empty()) {
+    throw std::runtime_error("No current branch selected");
+  }
+}
 
 types::FileHashMap ReadTrackedFromFile(const fs::path& path) {
   std::ifstream ifs(path);

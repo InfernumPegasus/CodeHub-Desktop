@@ -107,6 +107,7 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
 
   RepositoryConfig config{
       repositoryName, repositoryFolder, DEFAULT_BRANCH_NAME, {DEFAULT_BRANCH_NAME}};
+  CheckRepositoryConfig(config);
   Repository repository(config);
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
   logging::Log(LOG_NOTICE, fmt::format("Repository '{}' created in folder '{}'",
@@ -117,6 +118,7 @@ void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
 
   if (!nameFolderMap_.contains(repository.Name())) {
@@ -167,6 +169,7 @@ void VersionControlSystem::DoCommit(const std::string& message) {
   }
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
   repository.DoCommit(message);
@@ -176,6 +179,7 @@ void VersionControlSystem::Push() {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository localRepository(config);
 
   const auto loginResponse =
@@ -222,6 +226,7 @@ void VersionControlSystem::CommitsLog() const {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
 
@@ -240,6 +245,7 @@ void VersionControlSystem::ShowFileDifference(std::string_view filename) {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
 
@@ -263,6 +269,7 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
 
@@ -282,6 +289,7 @@ void VersionControlSystem::CreateBranch(std::string name) {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
 
   repository.ChangeBranch(std::move(name));
@@ -291,6 +299,7 @@ void VersionControlSystem::ShowBranches() const {
   CheckRepositoriesExist();
   const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
       GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
 
@@ -334,7 +343,7 @@ void VersionControlSystem::CreateRepositoryConfigs(const std::string& repository
   };
   createRepositoryFolder();
 
-  const auto createConfigFile = [](const fs::path& path, auto&& defaultValue) {
+  const auto updateConfigFile = [](auto&& path, auto&& defaultValue) {
     if (!fs::exists(path)) {
       std::ofstream commitsFile(path);
       if (!commitsFile) {
@@ -345,13 +354,13 @@ void VersionControlSystem::CreateRepositoryConfigs(const std::string& repository
   };
 
   const auto commitsJson = JsonSerializer::CommitsToJson(types::Commits{});
-  createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+  updateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
                        DEFAULT_BRANCH_NAME / COMMITS_FILE,
                    commitsJson.dump(2));
 
   nlohmann::json trackedJson;
   trackedJson["tracked_files"] = types::FileHashMap{};
-  createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+  updateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
                        DEFAULT_BRANCH_NAME / TRACKED_FILE,
                    trackedJson.dump(2));
 }
