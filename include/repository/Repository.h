@@ -10,7 +10,7 @@
 #include "filemanager/FilesManager.h"
 #include "utils/Types.h"
 
-static constexpr auto DEFAULT_BRANCH_NAME = "master";
+static inline constexpr auto DEFAULT_BRANCH_NAME = "master";
 
 class Repository {
  public:

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "serializer/JsonSerializer.h"
+#include "json/JsonSerializer.h"
 
 bool WebService::NoErrorsInResponse(long statusCode) {
   using namespace cpr::status;

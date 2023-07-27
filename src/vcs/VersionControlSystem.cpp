@@ -6,8 +6,8 @@
 #include "config/RepositoryConfig.h"
 #include "filecomparator/FileComparator.h"
 #include "filemanager/RestoreFileManager.h"
+#include "json/JsonSerializer.h"
 #include "log/Logger.h"
-#include "serializer/JsonSerializer.h"
 #include "validation/Validator.h"
 #include "web/WebService.h"
 
@@ -322,36 +322,36 @@ std::string VersionControlSystem::GetRepositoryNameByFolder(
   return found->first;
 }
 
- void VersionControlSystem::CreateRepositoryConfigs(const std::string& repositoryName) {
-   const auto createRepositoryFolder = [&repositoryName]() {
-     const auto folder =
-         GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
-     // Creating repo folder with default branch name called "master"
-     if (!fs::exists(folder) && !fs::create_directories(folder)) {
-       throw std::runtime_error(
-           fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
-     }
-   };
-   createRepositoryFolder();
+void VersionControlSystem::CreateRepositoryConfigs(const std::string& repositoryName) {
+  const auto createRepositoryFolder = [&repositoryName]() {
+    const auto folder =
+        GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
+    // Creating repo folder with default branch name called "master"
+    if (!fs::exists(folder) && !fs::create_directories(folder)) {
+      throw std::runtime_error(
+          fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
+    }
+  };
+  createRepositoryFolder();
 
-   const auto createConfigFile = [](const fs::path& path, auto&& defaultValue) {
-     if (!fs::exists(path)) {
-       std::ofstream commitsFile(path);
-       if (!commitsFile) {
-         throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
-       }
-       commitsFile << defaultValue;
-     }
-   };
+  const auto createConfigFile = [](const fs::path& path, auto&& defaultValue) {
+    if (!fs::exists(path)) {
+      std::ofstream commitsFile(path);
+      if (!commitsFile) {
+        throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
+      }
+      commitsFile << defaultValue;
+    }
+  };
 
-   const auto commitsJson = JsonSerializer::CommitsToJson(types::Commits{});
-   createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
-                        DEFAULT_BRANCH_NAME / COMMITS_FILE,
-                    commitsJson.dump(2));
+  const auto commitsJson = JsonSerializer::CommitsToJson(types::Commits{});
+  createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+                       DEFAULT_BRANCH_NAME / COMMITS_FILE,
+                   commitsJson.dump(2));
 
-   nlohmann::json trackedJson;
-   trackedJson["tracked_files"] = types::FileHashMap{};
-   createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
-                        DEFAULT_BRANCH_NAME / TRACKED_FILE,
-                    trackedJson.dump(2));
- }
+  nlohmann::json trackedJson;
+  trackedJson["tracked_files"] = types::FileHashMap{};
+  createConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+                       DEFAULT_BRANCH_NAME / TRACKED_FILE,
+                   trackedJson.dump(2));
+}

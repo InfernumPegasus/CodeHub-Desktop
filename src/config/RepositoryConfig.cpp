@@ -1,6 +1,6 @@
 #include "config/RepositoryConfig.h"
 
-#include "serializer/JsonSerializer.h"
+#include "json/JsonSerializer.h"
 #include "utils/ConfigFiles.h"
 
 fs::path RepositoryConfig::FormCommittedFilesSavePath(size_t commitChecksum) const {

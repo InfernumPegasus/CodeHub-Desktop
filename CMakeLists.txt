@@ -19,16 +19,12 @@ add_library(global
 
         src/repository/Repository.cpp
 
-        src/filemanager/CommitsManager.cpp
         src/filemanager/IgnoreFileManager.cpp
-        src/filemanager/RepositoriesManager.cpp
-        src/filemanager/RepositoryConfigManager.cpp
         src/filemanager/RestoreFileManager.cpp
         src/filemanager/UserFileManager.cpp
         src/filemanager/FilesManager.cpp
-        src/filemanager/BranchesManager.cpp
 
-        src/serializer/JsonSerializer.cpp
+        src/json/JsonSerializer.cpp
 
         src/validation/Validator.cpp
 

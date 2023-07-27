@@ -4,8 +4,8 @@
 #include <utility>
 
 #include "filemanager/RestoreFileManager.h"
+#include "json/JsonSerializer.h"
 #include "log/Logger.h"
-#include "serializer/JsonSerializer.h"
 #include "utils/ConfigFiles.h"
 
 Repository::Repository(RepositoryConfig config)
