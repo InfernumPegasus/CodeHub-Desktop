@@ -14,7 +14,6 @@ Repository::Repository(RepositoryConfig config)
           config_.repositoryFolder_, &trackedFiles_,
           config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)) {}
 
-// TODO split logic
 Repository::~Repository() {
   const auto saveState = [](auto&& path, auto&& value) {
     std::ofstream file(path);
