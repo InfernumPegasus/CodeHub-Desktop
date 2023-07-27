@@ -113,8 +113,11 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
       throw std::runtime_error(
           fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
     }
+  };
 
-    const auto commitsFilePath = folder / COMMITS_FILE;
+  const auto createCommitsFile = [&repositoryName, &DEFAULT_BRANCH_NAME]() {
+    const auto commitsFilePath = GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+                                 DEFAULT_BRANCH_NAME / COMMITS_FILE;
     if (!fs::exists(commitsFilePath)) {
       std::ofstream commitsFile(commitsFilePath);
       if (!commitsFile) {
@@ -126,7 +129,25 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
     }
   };
 
+  const auto createTrackedFile = [&repositoryName, &DEFAULT_BRANCH_NAME]() {
+    const auto trackedFilePath = GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+                                 DEFAULT_BRANCH_NAME / TRACKED_FILE;
+    if (!fs::exists(trackedFilePath)) {
+      std::ofstream commitsFile(trackedFilePath);
+      if (!commitsFile) {
+        throw std::runtime_error(
+            fmt::format("cannot create tracked file '{}'", trackedFilePath.c_str()));
+      }
+      nlohmann::json json;
+      json["tracked_files"] = types::FileHashMap{};
+      commitsFile << json.dump(2);
+    }
+  };
+
   createRepositoryFolder();
+  createCommitsFile();
+  createTrackedFile();
+
   RepositoryConfig config{
       repositoryName, repositoryFolder, DEFAULT_BRANCH_NAME, {DEFAULT_BRANCH_NAME}};
   Repository repository(config);

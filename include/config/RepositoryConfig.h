@@ -5,6 +5,7 @@
 #include <ostream>
 #include <string>
 
+#include "commit/Commit.h"
 #include "filemanager/IFileManager.h"
 #include "utils/Types.h"
 
@@ -28,5 +29,9 @@ struct RepositoryConfig {
 RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath);
 
 static void VerifyRepositoryConfig(const RepositoryConfig& config);
+
+types::FileHashMap ReadTrackedFromFile(const fs::path& path);
+
+types::Commits ReadCommitsFromFile(const fs::path& path);
 
 #endif  // CODEHUB_REPOSITORYCONFIG_H

@@ -90,7 +90,7 @@ nlohmann::json JsonSerializer::CommitsToJson(const types::Commits& commits) {
 //  return {name, folder, map, branch};
 //}
 
-std::optional<types::Commits> JsonSerializer::CommitsFromJson(nlohmann::json json) {
+types::Commits JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
   const std::list<nlohmann::json> commitsJson = json["commits"];
   types::Commits commits;
@@ -100,15 +100,15 @@ std::optional<types::Commits> JsonSerializer::CommitsFromJson(nlohmann::json jso
   return commits;
 }
 
-std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json json) {
-  if (json.empty()) return {};
-  const std::list<nlohmann::json> commitsJson = json["commits"];
-  types::Commits commits;
-  for (const auto& commit : commitsJson) {
-    commits.push_back(CommitFromWebJson(commit));
-  }
-  return commits;
-}
+//std::optional<types::Commits> JsonSerializer::CommitsFromWebJson(nlohmann::json json) {
+//  if (json.empty()) return {};
+//  const std::list<nlohmann::json> commitsJson = json["commits"];
+//  types::Commits commits;
+//  for (const auto& commit : commitsJson) {
+//    commits.push_back(CommitFromWebJson(commit));
+//  }
+//  return commits;
+//}
 
 //Repository JsonSerializer::GetRepositoryNameByFolder(const std::filesystem::path& folder) {
 //  const auto file{folder / CONFIG_DIRECTORY / REPOSITORY_CONFIG_FILE};

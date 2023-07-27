@@ -29,10 +29,10 @@ bool CommitsManager::Read() {
   std::ifstream ifs(commitsFile_);
 
   nlohmann::json j = nlohmann::json::parse(ifs);
-  const auto readCommits = JsonSerializer::CommitsFromJson(j);
-  for (const auto& commit : *readCommits) {
-    commitsRef_.push_back(commit);
-  }
+//  const auto readCommits = JsonSerializer::CommitsFromJson(j);
+//  for (const auto& commit : *readCommits) {
+//    commitsRef_.push_back(commit);
+//  }
 
   return true;
 }

@@ -1,7 +1,6 @@
 #include "config/RepositoryConfig.h"
 
-#include <fmt/ranges.h>
-
+#include "serializer/JsonSerializer.h"
 #include "utils/ConfigFiles.h"
 
 fs::path RepositoryConfig::FormCommittedFilesSavePath(size_t commitChecksum) const {
@@ -32,9 +31,30 @@ RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath) {
     throw std::runtime_error(
         fmt::format("Repositories file '{}' cannot be opened", configPath.c_str()));
   }
-  nlohmann::json j = nlohmann::json::parse(ifs);
-  return {j["repo_name"], j["repo_folder"], j["current_branch"], j["branches"]};
+  const auto json = nlohmann::json::parse(ifs);
+  return {json["repo_name"], json["repo_folder"], json["current_branch"],
+          json["branches"]};
 }
 
 // TODO implement
 void VerifyRepositoryConfig(const RepositoryConfig& config) {}
+
+types::FileHashMap ReadTrackedFromFile(const fs::path& path) {
+  std::ifstream ifs(path);
+  if (!ifs) {
+    throw std::runtime_error(
+        fmt::format("Tracked file '{}' cannot be opened", path.c_str()));
+  }
+  const auto json = nlohmann::json::parse(ifs);
+  return json["tracked_files"];
+}
+
+types::Commits ReadCommitsFromFile(const fs::path& path) {
+  std::ifstream ifs(path);
+  if (!ifs) {
+    throw std::runtime_error(
+        fmt::format("Commits file '{}' cannot be opened", path.c_str()));
+  }
+  const auto json = nlohmann::json::parse(ifs);
+  return JsonSerializer::CommitsFromJson(json);
+}

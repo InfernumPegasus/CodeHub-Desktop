@@ -11,6 +11,7 @@ const inline fs::path CONFIG_DIRECTORY        = ".codehub_config";
 
 const inline fs::path REPOSITORY_CONFIG_FILE  = ".repo_info.json";
 const inline fs::path COMMITS_FILE            = ".commits.json";
+const inline fs::path TRACKED_FILE            = ".tracked.json";
 const inline fs::path IGNORE_FILE             = ".ignore";
 
 const inline fs::path VCS_CONFIG_FOLDER       = ".codehub_app";

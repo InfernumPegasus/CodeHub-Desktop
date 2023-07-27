@@ -35,9 +35,9 @@ class JsonSerializer {
 
   //  static Repository RepositoryFromConfigJson(nlohmann::json json);
 
-  static std::optional<types::Commits> CommitsFromJson(nlohmann::json json);
+  static types::Commits CommitsFromJson(nlohmann::json json);
 
-  static std::optional<types::Commits> CommitsFromWebJson(nlohmann::json json);
+//  static std::optional<types::Commits> CommitsFromWebJson(nlohmann::json json);
 
  public:
   //  static Repository GetRepositoryNameByFolder(const std::filesystem::path& folder);
