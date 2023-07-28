@@ -2,10 +2,6 @@
 
 namespace fs = std::filesystem;
 
-bool RestoreFileManager::CreateFolder(const fs::path& folder) {
-  return fs::create_directories(folder) && fs::exists(folder);
-}
-
 void RestoreFileManager::CopyFiles(const types::FilesSet& files, const fs::path& from,
                                    const fs::path& to) {
   for (const auto& file : files) {

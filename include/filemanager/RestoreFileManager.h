@@ -9,8 +9,6 @@ namespace fs = std::filesystem;
 
 class RestoreFileManager {
  public:
-  static bool CreateFolder(const fs::path& folder);
-
   static void CopyFiles(const types::FilesSet& files, const fs::path& from,
                         const fs::path& to);
 

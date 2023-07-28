@@ -101,7 +101,7 @@ void Repository::DoCommit(const std::string& message) {
 
   const auto saveFiles = [this](auto&& commit) {
     const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());
-    RestoreFileManager::CreateFolder(recoveryFolder);
+    CreateFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
   };
   saveFiles(commit);
