@@ -296,15 +296,19 @@ void VersionControlSystem::CreateBranch(const types::Branch& newBranch) {
     throw std::invalid_argument(fmt::format("Branch '{}' exists", newBranch));
   }
 
-  const auto newBranchFolder =
-      GetHomeDirectory() / VCS_CONFIG_FOLDER / config.repositoryName_ / newBranch;
+  const auto repoFolder = GetHomeDirectory() / VCS_CONFIG_FOLDER / config.repositoryName_;
+  const auto currentBranchFolder = repoFolder / config.currentBranch_;
+  const auto newBranchFolder = repoFolder / newBranch;
+
   CreateFolder(newBranchFolder);
   CreateRepositoryConfigs(newBranchFolder);
 
   repository.InitManagers();
   repository.AddBranch(newBranch);
 
-  // TODO add commit that creates a branch
+  // copies tracked files config to a new branch
+  fs::copy(currentBranchFolder / TRACKED_FILE, newBranchFolder / TRACKED_FILE,
+           fs::copy_options::overwrite_existing);
 }
 
 void VersionControlSystem::ShowBranches() const {
