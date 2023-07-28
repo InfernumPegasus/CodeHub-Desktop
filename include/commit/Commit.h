@@ -40,7 +40,7 @@ class Commit {
 };
 
 namespace types {
-using Commits = std::list<Commit>;
+using Commits = std::vector<Commit>;
 }
 
 #endif  // CODEHUB_COMMIT_H
