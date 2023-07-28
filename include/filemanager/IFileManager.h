@@ -7,8 +7,6 @@
 #include <filesystem>
 #include <string>
 
-#include "log/Logger.h"
-
 class IFileManager {
  public:
   virtual bool Create() = 0;

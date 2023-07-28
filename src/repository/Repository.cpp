@@ -21,23 +21,21 @@ Repository::~Repository() {
       logging::Log(LOG_EMERG, fmt::format("Cannot save '{}' file", path.c_str()));
     } else {
       file << value;
-      logging::Log(LOG_WARNING, fmt::format("State saved in '{}'", path.c_str()));
     }
   };
 
-  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                REPOSITORY_CONFIG_FILE,
-            config_.ToJson().dump(2));
+  const auto repositoryFolder =
+      GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_;
+
+  saveState(repositoryFolder / REPOSITORY_CONFIG_FILE, config_.ToJson().dump(2));
 
   const auto commitsJson = JsonSerializer::CommitsToJson(commits_);
-  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                config_.currentBranch_ / COMMITS_FILE,
+  saveState(repositoryFolder / config_.currentBranch_ / COMMITS_FILE,
             commitsJson.dump(2));
 
   nlohmann::json trackedJson;
   trackedJson["tracked_files"] = trackedFiles_;
-  saveState(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
-                config_.currentBranch_ / TRACKED_FILE,
+  saveState(repositoryFolder / config_.currentBranch_ / TRACKED_FILE,
             trackedJson.dump(2));
 }
 
@@ -105,14 +103,14 @@ void Repository::DoCommit(const std::string& message) {
     const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());
     RestoreFileManager::CreateFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
-    logging::Log(LOG_NOTICE,
-                 fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
+//    logging::Log(LOG_NOTICE,
+//                 fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
   };
   saveFiles(commit);
 
   const auto printFilesStatuses = [](auto&& message, auto&& files) {
     size_t creations{}, modifications{}, deletions{};
-    for (const auto& file : files) {
+    for (auto&& file : files) {
       switch (file.Status()) {
         case FileStatus::Created:
           creations++;
@@ -148,7 +146,6 @@ void Repository::InitManagers() {
 void Repository::ChangeBranch(std::string branch) {
   const auto changedFiles = filesManager_->ChangedFiles();
   const auto removedFiles = filesManager_->RemovedFiles();
-  //  const auto createdFiles = filesManager_->CreatedFiles();
 
   // If there are some uncommitted changes, stop creating branch
   if (!changedFiles.empty() || !removedFiles.empty()) {
@@ -161,8 +158,6 @@ void Repository::ChangeBranch(std::string branch) {
   logging::Log(LOG_WARNING,
                fmt::format("Saving files from '{}' in '{}'", fs::current_path().c_str(),
                            currentStateFolder.c_str()));
-  //  RestoreFileManager::CreateFolder(currentStateFolder);
-  //  RestoreFileManager::CopyFolderRecursive(fs::current_path(), currentStateFolder);
 
   fmt::print("Current branch: {}\n", branch);
   //  currentBranch_ = std::move(branch);

@@ -26,7 +26,7 @@ struct RepositoryConfig {
   types::Branches branches_;
 };
 
-RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath);
+RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& configPath);
 
 void CheckRepositoryConfig(const RepositoryConfig& config);
 

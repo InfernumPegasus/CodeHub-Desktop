@@ -8,10 +8,10 @@
 #include "utils/ConfigFiles.h"
 
 IgnoreFileManager::IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
-                                     types::PathSet* ignoredFiles)
+                                     types::PathSet* ignoredFilesRef)
     : repositoryFolder_(std::move(repositoryFolder)),
       ignoreFile_(std::move(ignoreFile)),
-      ignoredFilesRef_(*ignoredFiles) {}
+      ignoredFilesRef_(*ignoredFilesRef) {}
 
 bool IgnoreFileManager::Create() {
   std::ofstream ofs(ignoreFile_);

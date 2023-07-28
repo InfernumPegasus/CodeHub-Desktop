@@ -1,5 +1,9 @@
 #include "config/RepositoryConfig.h"
 
+#include <fmt/format.h>
+
+#include <fstream>
+
 #include "json/JsonSerializer.h"
 #include "utils/ConfigFiles.h"
 
@@ -25,7 +29,7 @@ fs::path RepositoryConfig::FormRepositoryFolderPath(const std::string& repositor
   return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / REPOSITORY_CONFIG_FILE;
 }
 
-RepositoryConfig RepositoryConfigFromFile(const fs::path& configPath) {
+RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& configPath) {
   std::ifstream ifs(configPath);
   if (!ifs) {
     throw std::runtime_error(

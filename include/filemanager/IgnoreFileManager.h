@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 class IgnoreFileManager : public IFileManager {
  public:
   IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
-                    types::PathSet* ignoredFiles);
+                    types::PathSet* ignoredFilesRef);
 
  public:
   bool Create() override;

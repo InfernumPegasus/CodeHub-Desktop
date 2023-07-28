@@ -50,6 +50,8 @@ class VersionControlSystem {
 
   static void CreateRepositoryConfigs(const std::string& repositoryName);
 
+  void SaveVcsState() const;
+
  private:
   types::NameFolderMap nameFolderMap_;
 

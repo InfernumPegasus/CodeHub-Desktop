@@ -15,13 +15,7 @@
 VersionControlSystem::VersionControlSystem()
     : userManager_(std::make_unique<UserFileManager>()) {}
 
-VersionControlSystem::~VersionControlSystem() {
-  // TODO extract method
-  std::ofstream ofs(GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_REPOSITORIES_FILE);
-  nlohmann::json j;
-  j["repositories"] = nameFolderMap_;
-  ofs << j.dump(2);
-}
+VersionControlSystem::~VersionControlSystem() { SaveVcsState(); }
 
 void VersionControlSystem::Init() {
   const auto folder = GetHomeDirectory() / VCS_CONFIG_FOLDER;
@@ -37,12 +31,9 @@ void VersionControlSystem::Init() {
     if (!file) {
       throw std::runtime_error("Cannot create repositories file");
     }
-    // TODO extract method
     nlohmann::json j;
     j["repositories"] = types::NameFolderMap{};
     file << j.dump(2);
-
-    logging::Log(LOG_WARNING, "Repositories file created");
   };
 
   const auto read = [this, &repositoriesFile]() {
@@ -50,24 +41,15 @@ void VersionControlSystem::Init() {
     if (!file) {
       throw std::runtime_error("Cannot read repositories file");
     }
-    // TODO extract method
     nlohmann::json j = nlohmann::json::parse(file);
     nameFolderMap_ = j["repositories"];
-
-    logging::Log(LOG_WARNING,
-                 fmt::format("Repositories file created. Read {} repositories",
-                             nameFolderMap_.size()));
   };
 
   if (!fs::exists(repositoriesFile) || fs::is_empty(repositoriesFile)) {
-    logging::Log(LOG_NOTICE, fmt::format("Trying to create repositories file at '{}'",
-                                         repositoriesFile.c_str()));
     createDefault();
   } else {
     read();
-    logging::Log(LOG_NOTICE, "Repositories file loaded");
   }
-  logging::Log(LOG_NOTICE, "VersionControlSystem::Init success");
 }
 
 void VersionControlSystem::CheckRepositoriesExist() const {
@@ -111,14 +93,13 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   CheckRepositoryConfig(config);
   Repository repository(config);
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
-  logging::Log(LOG_NOTICE, fmt::format("Repository '{}' created in folder '{}'",
-                                       repositoryName, repositoryFolder.c_str()));
 }
 
 void VersionControlSystem::CheckStatus() const {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
 
@@ -142,12 +123,12 @@ void VersionControlSystem::CheckStatus() const {
   };
 
   fmt::print("Repository '{}' status: ", repository.Name());
+  const auto createdFiles = repository.CreatedFiles();
   if (repository.Commits().empty()) {
     std::cout << "There are no commits yet.\n"
                  "Use --commit command to do commit.\n";
-    printFilesByStatus("Created", '+', repository.CreatedFiles());
+    printFilesByStatus("Created", '+', createdFiles);
   } else {
-    const auto createdFiles = repository.CreatedFiles();
     const auto changedFiles = repository.ChangedFiles();
     const auto removedFiles = repository.RemovedFiles();
 
@@ -167,8 +148,9 @@ void VersionControlSystem::DoCommit(const std::string& message) {
   if (message.empty()) {
     throw std::runtime_error("Commit message cannot be empty");
   }
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
@@ -177,8 +159,9 @@ void VersionControlSystem::DoCommit(const std::string& message) {
 
 void VersionControlSystem::Push() {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository localRepository(config);
 
@@ -224,8 +207,9 @@ void VersionControlSystem::ShowRepositories() const {
 
 void VersionControlSystem::CommitsLog() const {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
@@ -243,8 +227,9 @@ void VersionControlSystem::CommitsLog() const {
 
 void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
@@ -286,8 +271,9 @@ void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
@@ -306,8 +292,9 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
 
 void VersionControlSystem::CreateBranch(std::string name) {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
 
@@ -316,8 +303,9 @@ void VersionControlSystem::CreateBranch(std::string name) {
 
 void VersionControlSystem::ShowBranches() const {
   CheckRepositoriesExist();
-  const auto config = RepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
   repository.InitManagers();
@@ -382,4 +370,11 @@ void VersionControlSystem::CreateRepositoryConfigs(const std::string& repository
   updateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
                        DEFAULT_BRANCH_NAME / TRACKED_FILE,
                    trackedJson.dump(2));
+}
+
+void VersionControlSystem::SaveVcsState() const {
+  std::ofstream ofs(GetHomeDirectory() / VCS_CONFIG_FOLDER / VCS_REPOSITORIES_FILE);
+  nlohmann::json j;
+  j["repositories"] = nameFolderMap_;
+  ofs << j.dump(2);
 }

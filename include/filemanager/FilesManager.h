@@ -11,8 +11,8 @@ namespace fs = std::filesystem;
 
 class FilesManager {
  public:
-  FilesManager(const fs::path& folder, types::FileHashMap* fileHashMap,
-               const fs::path& ignoreFile, types::PathSet* ignoredFiles);
+  FilesManager(const fs::path& folder, types::FileHashMap* fileHashMapRef,
+               const fs::path& ignoreFile, types::PathSet* ignoredFilesRef);
 
  public:
   void Init();

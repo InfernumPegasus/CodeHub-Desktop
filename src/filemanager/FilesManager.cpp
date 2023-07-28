@@ -2,12 +2,12 @@
 
 #include "file/File.h"
 
-FilesManager::FilesManager(const fs::path& folder, types::FileHashMap* fileHashMap,
-                           const fs::path& ignoreFile, types::PathSet* ignoredFiles)
+FilesManager::FilesManager(const fs::path& folder, types::FileHashMap* fileHashMapRef,
+                           const fs::path& ignoreFile, types::PathSet* ignoredFilesRef)
     : folder_(folder),
-      fileHashMapRef_(*fileHashMap),
+      fileHashMapRef_(*fileHashMapRef),
       ignoreFileManager_(std::make_unique<IgnoreFileManager>(folder.string(), ignoreFile,
-                                                             ignoredFiles)) {}
+                                                             ignoredFilesRef)) {}
 
 void FilesManager::Init() { ignoreFileManager_->Init(); }
 
