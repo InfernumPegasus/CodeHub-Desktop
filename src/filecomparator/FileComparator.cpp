@@ -1,5 +1,7 @@
 #include "filecomparator/FileComparator.h"
 
+#include <fmt/format.h>
+
 #include <fstream>
 
 FileComparator::FileDifference FileComparator::Compare(const std::filesystem::path& p1,
@@ -11,9 +13,14 @@ FileComparator::FileDifference FileComparator::Compare(const std::filesystem::pa
 
   std::ifstream f1(p1, std::ios_base::binary);
   std::ifstream f2(p2, std::ios_base::binary);
-  if (!f1 || !f2) {
-    throw std::runtime_error("Could not open files");
-  }
+  const auto checkOpened = [](const auto& path, const bool opened) {
+    if (!opened) {
+      throw std::runtime_error(fmt::format("File '{}' cannot be opened", path.c_str()));
+    }
+  };
+
+  checkOpened(p1, f1.is_open());
+  checkOpened(p2, f2.is_open());
 
   LineNumber current{0};
   while (true) {
