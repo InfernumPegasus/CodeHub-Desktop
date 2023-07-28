@@ -16,20 +16,20 @@ class JsonSerializer {
 
   static File FileFromJson(nlohmann::json json);
 
-  static File FileFromWebJson(nlohmann::json json);
+//  static File FileFromWebJson(nlohmann::json json);
 
  public:
   static nlohmann::json CommitToJson(const Commit& commit);
 
   static Commit CommitFromJson(nlohmann::json json);
 
-  static Commit CommitFromWebJson(nlohmann::json json);
+//  static Commit CommitFromWebJson(nlohmann::json json);
 
  public:
-  static nlohmann::json RepositoryToConfigJson(std::string_view repoName,
-                                               std::string_view repoFolder,
-                                               const types::FileHashMap& files,
-                                               const std::string& branch);
+//  static nlohmann::json RepositoryToConfigJson(std::string_view repoName,
+//                                               std::string_view repoFolder,
+//                                               const types::FileHashMap& files,
+//                                               const std::string& branch);
 
   static nlohmann::json CommitsToJson(const types::Commits& commits);
 
@@ -48,9 +48,9 @@ class JsonSerializer {
   //  static Repository RepositoryFromWebJson(nlohmann::json json);
 
  public:
-  static nlohmann::json BranchesToJson(const types::Branches& branches);
+//  static nlohmann::json BranchesToJson(const types::Branches& branches);
 
-  static types::Branches BranchesFromJson(nlohmann::json json);
+//  static types::Branches BranchesFromJson(nlohmann::json json);
 
  public:
   static nlohmann::json CookiesToJson(const cpr::Cookies& cookies);

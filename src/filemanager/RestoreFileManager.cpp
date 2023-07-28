@@ -1,14 +1,9 @@
 #include "filemanager/RestoreFileManager.h"
 
-#include "log/Logger.h"
-
 namespace fs = std::filesystem;
 
 bool RestoreFileManager::CreateFolder(const fs::path& folder) {
-  const auto res = fs::create_directories(folder) && fs::exists(folder);
-  logging::Log(LOG_WARNING,
-               fmt::format("Folder '{}' {} created", folder.c_str(), res ? "" : "NOT"));
-  return res;
+  return fs::create_directories(folder) && fs::exists(folder);
 }
 
 void RestoreFileManager::CopyFiles(const types::FilesSet& files, const fs::path& from,

@@ -34,6 +34,8 @@ class Repository {
   void InitManagers();
 
  public:
+  void AddBranch(const types::Branch& branch);
+
   void ChangeBranch(std::string branch);
 
  public:

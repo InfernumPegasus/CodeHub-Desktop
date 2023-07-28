@@ -103,8 +103,6 @@ void Repository::DoCommit(const std::string& message) {
     const auto recoveryFolder = config_.FormCommittedFilesSavePath(commit.Checksum());
     RestoreFileManager::CreateFolder(recoveryFolder);
     RestoreFileManager::CopyFiles(commit.Files(), fs::current_path(), recoveryFolder);
-//    logging::Log(LOG_NOTICE,
-//                 fmt::format("Commit files saved in '{}'", recoveryFolder.c_str()));
   };
   saveFiles(commit);
 
@@ -141,6 +139,10 @@ void Repository::InitManagers() {
   commits_ = ReadCommitsFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                  config_.repositoryName_ / config_.currentBranch_ /
                                  COMMITS_FILE);
+}
+
+void Repository::AddBranch(const types::Branch& branch) {
+  config_.branches_.insert(branch);
 }
 
 void Repository::ChangeBranch(std::string branch) {

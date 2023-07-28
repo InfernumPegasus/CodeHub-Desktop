@@ -29,11 +29,11 @@ fs::path RepositoryConfig::FormRepositoryFolderPath(const std::string& repositor
   return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / REPOSITORY_CONFIG_FILE;
 }
 
-RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& configPath) {
-  std::ifstream ifs(configPath);
+RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& path) {
+  std::ifstream ifs(path);
   if (!ifs) {
     throw std::runtime_error(
-        fmt::format("Repositories file '{}' cannot be opened", configPath.c_str()));
+        fmt::format("Repositories file '{}' cannot be opened", path.c_str()));
   }
   const auto json = nlohmann::json::parse(ifs);
   return {json["repo_name"], json["repo_folder"], json["current_branch"],
@@ -72,4 +72,21 @@ types::Commits ReadCommitsFromFile(const fs::path& path) {
   }
   const auto json = nlohmann::json::parse(ifs);
   return JsonSerializer::CommitsFromJson(json);
+}
+
+void CreateConfigFile(const fs::path& path, const std::string& defaultValue) {
+  if (!fs::exists(path)) {
+    std::ofstream file(path);
+    if (!file) {
+      throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
+    }
+    file << defaultValue;
+  }
+}
+
+void CreateFolder(const fs::path& path) {
+  if (!fs::exists(path) && !fs::create_directories(path)) {
+    throw std::runtime_error(
+        fmt::format("Cannot create repository folder in '{}'", path.c_str()));
+  }
 }

@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <ranges>
-#include <utility>
 
 #include "config/RepositoryConfig.h"
 #include "filecomparator/FileComparator.h"
@@ -26,16 +25,6 @@ void VersionControlSystem::Init() {
 
   const auto repositoriesFile = folder / VCS_REPOSITORIES_FILE;
 
-  const auto createDefault = [&repositoriesFile]() {
-    std::ofstream file(repositoriesFile);
-    if (!file) {
-      throw std::runtime_error("Cannot create repositories file");
-    }
-    nlohmann::json j;
-    j["repositories"] = types::NameFolderMap{};
-    file << j.dump(2);
-  };
-
   const auto read = [this, &repositoriesFile]() {
     std::ifstream file(repositoriesFile);
     if (!file) {
@@ -46,7 +35,9 @@ void VersionControlSystem::Init() {
   };
 
   if (!fs::exists(repositoriesFile) || fs::is_empty(repositoriesFile)) {
-    createDefault();
+    nlohmann::json j;
+    j["repositories"] = types::NameFolderMap{};
+    CreateConfigFile(repositoriesFile, j.dump(2));
   } else {
     read();
   }
@@ -54,7 +45,7 @@ void VersionControlSystem::Init() {
 
 void VersionControlSystem::CheckRepositoriesExist() const {
   if (nameFolderMap_.empty()) {
-    throw std::runtime_error("You have no repositories.");
+    throw std::runtime_error("You have no repositories");
   }
 }
 
@@ -86,13 +77,17 @@ void VersionControlSystem::CreateRepository(std::string repositoryName) {
   };
   checkIfUniqueRepoData(repositoryName, repositoryFolder);
 
-  CreateRepositoryConfigs(repositoryName);
-
   RepositoryConfig config{
       repositoryName, repositoryFolder, DEFAULT_BRANCH_NAME, {DEFAULT_BRANCH_NAME}};
+
+  CreateRepositoryConfigs(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
+                          config.currentBranch_);
+
   CheckRepositoryConfig(config);
   Repository repository(config);
   nameFolderMap_.emplace(repositoryName, repositoryFolder);
+  fmt::print("Repository '{}' created in folder '{}'\n", repositoryName,
+             repositoryFolder.c_str());
 }
 
 void VersionControlSystem::CheckStatus() const {
@@ -290,15 +285,26 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
       fs::current_path());
 }
 
-void VersionControlSystem::CreateBranch(std::string name) {
+void VersionControlSystem::CreateBranch(const types::Branch& newBranch) {
   CheckRepositoriesExist();
-  const auto config =
-      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-          GetRepositoryNameByFolder(fs::current_path())));
+  auto config = ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+      GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
 
-  repository.ChangeBranch(std::move(name));
+  if (config.branches_.contains(newBranch)) {
+    throw std::invalid_argument(fmt::format("Branch '{}' exists", newBranch));
+  }
+
+  const auto newBranchFolder =
+      GetHomeDirectory() / VCS_CONFIG_FOLDER / config.repositoryName_ / newBranch;
+  CreateFolder(newBranchFolder);
+  CreateRepositoryConfigs(newBranchFolder);
+
+  repository.InitManagers();
+  repository.AddBranch(newBranch);
+
+  // TODO add commit that creates a branch
 }
 
 void VersionControlSystem::ShowBranches() const {
@@ -338,38 +344,18 @@ std::string VersionControlSystem::GetRepositoryNameByFolder(
   return found->first;
 }
 
-void VersionControlSystem::CreateRepositoryConfigs(const std::string& repositoryName) {
-  const auto createRepositoryFolder = [&repositoryName]() {
-    const auto folder =
-        GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
-    // Creating repo folder with default branch name called "master"
-    if (!fs::exists(folder) && !fs::create_directories(folder)) {
-      throw std::runtime_error(
-          fmt::format("Cannot create repository folder in '{}'", folder.c_str()));
-    }
-  };
-  createRepositoryFolder();
+void VersionControlSystem::CreateRepositoryConfigs(const fs::path& folder) {
+  //  const auto folder =
+  //      GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / DEFAULT_BRANCH_NAME;
 
-  const auto updateConfigFile = [](auto&& path, auto&& defaultValue) {
-    if (!fs::exists(path)) {
-      std::ofstream commitsFile(path);
-      if (!commitsFile) {
-        throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
-      }
-      commitsFile << defaultValue;
-    }
-  };
+  CreateFolder(folder);
 
   const auto commitsJson = JsonSerializer::CommitsToJson(types::Commits{});
-  updateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
-                       DEFAULT_BRANCH_NAME / COMMITS_FILE,
-                   commitsJson.dump(2));
+  CreateConfigFile(folder / COMMITS_FILE, commitsJson.dump(2));
 
   nlohmann::json trackedJson;
   trackedJson["tracked_files"] = types::FileHashMap{};
-  updateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName /
-                       DEFAULT_BRANCH_NAME / TRACKED_FILE,
-                   trackedJson.dump(2));
+  CreateConfigFile(folder / TRACKED_FILE, trackedJson.dump(2));
 }
 
 void VersionControlSystem::SaveVcsState() const {

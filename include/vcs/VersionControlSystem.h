@@ -41,14 +41,14 @@ class VersionControlSystem {
   void RestoreFiles(size_t checksum);
 
  public:
-  void CreateBranch(std::string name);
+  void CreateBranch(const types::Branch& newBranch);
 
   void ShowBranches() const;
 
  private:
   std::string GetRepositoryNameByFolder(const fs::path& folder) const;
 
-  static void CreateRepositoryConfigs(const std::string& repositoryName);
+  static void CreateRepositoryConfigs(const fs::path& folder);
 
   void SaveVcsState() const;
 

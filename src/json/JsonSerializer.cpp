@@ -1,7 +1,5 @@
 #include "json/JsonSerializer.h"
 
-#include <fmt/format.h>
-
 #include <fstream>
 #include <iostream>
 
@@ -22,16 +20,16 @@ File JsonSerializer::FileFromJson(nlohmann::json json) {
   return {name, hash, status};
 }
 
-File JsonSerializer::FileFromWebJson(nlohmann::json json) {
-  const std::string name = json["file_name"];
-  const std::string hash = json["file_hash"];
-  const FileStatus status = json["file_status"];
-  return {name, std::stoull(hash), status};
-}
+//File JsonSerializer::FileFromWebJson(nlohmann::json json) {
+//  const std::string name = json["file_name"];
+//  const std::string hash = json["file_hash"];
+//  const FileStatus status = json["file_status"];
+//  return {name, std::stoull(hash), status};
+//}
 
 nlohmann::json JsonSerializer::CommitToJson(const Commit& commit) {
   nlohmann::json j;
-  std::list<nlohmann::json> files;
+  std::vector<nlohmann::json> files;
   for (const auto& file : commit.Files()) {
     files.push_back(FileToJson(file));
   }
@@ -51,31 +49,31 @@ Commit JsonSerializer::CommitFromJson(nlohmann::json json) {
   return {files, message, checkSum};
 }
 
-Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
-  types::FilesSet files;
-  for (const auto& file : json["files"]) {
-    files.insert(FileFromWebJson(file));
-  }
-  const std::string message = json["message"];
-  const std::string checkSum = json["commit_hash"];
-  return {files, message, stoull(checkSum)};
-}
+//Commit JsonSerializer::CommitFromWebJson(nlohmann::json json) {
+//  types::FilesSet files;
+//  for (const auto& file : json["files"]) {
+//    files.insert(FileFromWebJson(file));
+//  }
+//  const std::string message = json["message"];
+//  const std::string checkSum = json["commit_hash"];
+//  return {files, message, stoull(checkSum)};
+//}
 
-nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view repoName,
-                                                      std::string_view repoFolder,
-                                                      const types::FileHashMap& files,
-                                                      const types::Branch& branch) {
-  nlohmann::json j;
-  j["repo_name"] = repoName;
-  j["repo_folder"] = repoFolder;
-  j["map"] = files;
-  j["current_branch"] = branch;
-  return j;
-}
+//nlohmann::json JsonSerializer::RepositoryToConfigJson(std::string_view repoName,
+//                                                      std::string_view repoFolder,
+//                                                      const types::FileHashMap& files,
+//                                                      const types::Branch& branch) {
+//  nlohmann::json j;
+//  j["repo_name"] = repoName;
+//  j["repo_folder"] = repoFolder;
+//  j["map"] = files;
+//  j["current_branch"] = branch;
+//  return j;
+//}
 
 nlohmann::json JsonSerializer::CommitsToJson(const types::Commits& commits) {
   nlohmann::json j;
-  std::list<nlohmann::json> commitsJson;
+  std::vector<nlohmann::json> commitsJson;
   for (const auto& commit : commits) {
     commitsJson.push_back(CommitToJson(commit));
   }
@@ -93,7 +91,7 @@ nlohmann::json JsonSerializer::CommitsToJson(const types::Commits& commits) {
 
 types::Commits JsonSerializer::CommitsFromJson(nlohmann::json json) {
   if (json.empty()) return {};
-  const std::list<nlohmann::json> commitsJson = json["commits"];
+  const std::vector<nlohmann::json> commitsJson = json["commits"];
   types::Commits commits;
   for (const auto& commit : commitsJson) {
     commits.push_back(CommitFromJson(commit));
@@ -137,15 +135,15 @@ nlohmann::json JsonSerializer::RepositoryToJson(const Repository& repository) {
 //   return {name, folder, commits.value()};
 // }
 
-nlohmann::json JsonSerializer::BranchesToJson(const types::Branches& branches) {
-  nlohmann::json json;
-  json["branches"] = branches;
-  return json;
-}
+//nlohmann::json JsonSerializer::BranchesToJson(const types::Branches& branches) {
+//  nlohmann::json json;
+//  json["branches"] = branches;
+//  return json;
+//}
 
-types::Branches JsonSerializer::BranchesFromJson(nlohmann::json json) {
-  return json["branches"];
-}
+//types::Branches JsonSerializer::BranchesFromJson(nlohmann::json json) {
+//  return json["branches"];
+//}
 
 nlohmann::json JsonSerializer::CookiesToJson(const cpr::Cookies& cookies) {
   nlohmann::json json;
