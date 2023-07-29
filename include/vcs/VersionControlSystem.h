@@ -43,6 +43,8 @@ class VersionControlSystem {
  public:
   void CreateBranch(const types::Branch& newBranch);
 
+  void ChangeBranch(const types::Branch& branch);
+
   void ShowBranches() const;
 
  private:

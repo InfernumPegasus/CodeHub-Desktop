@@ -14,29 +14,21 @@ Repository::Repository(RepositoryConfig config)
           config_.repositoryFolder_, &trackedFiles_,
           config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)) {}
 
+// TODO fix copying commits
 Repository::~Repository() {
-  const auto saveState = [](auto&& path, auto&& value) {
-    std::ofstream file(path);
-    if (!file) {
-      logging::Log(LOG_EMERG, fmt::format("Cannot save '{}' file", path.c_str()));
-    } else {
-      file << value;
-    }
-  };
-
   const auto repositoryFolder =
       GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_;
 
-  saveState(repositoryFolder / REPOSITORY_CONFIG_FILE, config_.ToJson().dump(2));
+  CreateConfigFile(repositoryFolder / REPOSITORY_CONFIG_FILE, config_.ToJson().dump(2));
 
   const auto commitsJson = JsonSerializer::CommitsToJson(commits_);
-  saveState(repositoryFolder / config_.currentBranch_ / COMMITS_FILE,
-            commitsJson.dump(2));
+  CreateConfigFile(repositoryFolder / config_.currentBranch_ / COMMITS_FILE,
+                   commitsJson.dump(2));
 
   nlohmann::json trackedJson;
   trackedJson["tracked_files"] = trackedFiles_;
-  saveState(repositoryFolder / config_.currentBranch_ / TRACKED_FILE,
-            trackedJson.dump(2));
+  CreateConfigFile(repositoryFolder / config_.currentBranch_ / TRACKED_FILE,
+                   trackedJson.dump(2));
 }
 
 types::FileHashMap Repository::ChangedFiles() const {
@@ -145,7 +137,7 @@ void Repository::AddBranch(const types::Branch& branch) {
   config_.branches_.insert(branch);
 }
 
-void Repository::ChangeBranch(std::string branch) {
+void Repository::ChangeBranch(types::Branch branch) {
   const auto changedFiles = filesManager_->ChangedFiles();
   const auto removedFiles = filesManager_->RemovedFiles();
 
@@ -156,19 +148,15 @@ void Repository::ChangeBranch(std::string branch) {
                     changedFiles.size(), removedFiles.size()));
   }
 
-  const auto currentStateFolder{config_.FormBranchFolder()};
-  logging::Log(LOG_WARNING,
-               fmt::format("Saving files from '{}' in '{}'", fs::current_path().c_str(),
-                           currentStateFolder.c_str()));
+  config_.currentBranch_ = std::move(branch);
 
-  fmt::print("Current branch: {}\n", branch);
-  //  currentBranch_ = std::move(branch);
+  fmt::print("Switched to branch '{}'\n", config_.currentBranch_);
 }
 
 const std::string& Repository::Name() const { return config_.repositoryName_; }
 
 const types::Commits& Repository::Commits() const { return commits_; }
 
-const std::string& Repository::CurrentBranch() const { return config_.currentBranch_; }
+const types::Branch& Repository::CurrentBranch() const { return config_.currentBranch_; }
 
 const types::Branches& Repository::Branches() const { return config_.branches_; }

@@ -287,10 +287,15 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
 
 void VersionControlSystem::CreateBranch(const types::Branch& newBranch) {
   CheckRepositoriesExist();
-  auto config = ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
-      GetRepositoryNameByFolder(fs::current_path())));
+
+  if (newBranch.empty()) {
+    throw std::invalid_argument("Branch name cannot be empty");
+  }
+
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+          GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
-  Repository repository(config);
 
   if (config.branches_.contains(newBranch)) {
     throw std::invalid_argument(fmt::format("Branch '{}' exists", newBranch));
@@ -303,12 +308,36 @@ void VersionControlSystem::CreateBranch(const types::Branch& newBranch) {
   CreateFolder(newBranchFolder);
   CreateRepositoryConfigs(newBranchFolder);
 
+  Repository repository(config);
   repository.InitManagers();
   repository.AddBranch(newBranch);
 
   // copies tracked files config to a new branch
   fs::copy(currentBranchFolder / TRACKED_FILE, newBranchFolder / TRACKED_FILE,
            fs::copy_options::overwrite_existing);
+}
+
+void VersionControlSystem::ChangeBranch(const types::Branch& branch) {
+  CheckRepositoriesExist();
+
+  if (branch.empty()) {
+    throw std::invalid_argument("Branch name cannot be empty");
+  }
+
+  auto config = ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryFolderPath(
+      GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
+
+  if (!config.branches_.contains(branch)) {
+    throw std::invalid_argument(fmt::format("No branch called '{}'", branch));
+  }
+
+  // if another branch set as current, change to provided
+  if (config.currentBranch_ != branch) {
+    Repository repository(config);
+    repository.InitManagers();
+    repository.ChangeBranch(branch);
+  }
 }
 
 void VersionControlSystem::ShowBranches() const {

@@ -75,13 +75,13 @@ types::Commits ReadCommitsFromFile(const fs::path& path) {
 }
 
 void CreateConfigFile(const fs::path& path, const std::string& defaultValue) {
-  if (!fs::exists(path)) {
-    std::ofstream file(path);
-    if (!file) {
-      throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
-    }
-    file << defaultValue;
+  //  if (!fs::exists(path)) {
+  std::ofstream file(path);
+  if (!file) {
+    throw std::runtime_error(fmt::format("Cannot create file '{}'", path.c_str()));
   }
+  file << defaultValue;
+  //  }
 }
 
 void CreateFolder(const fs::path& path) {

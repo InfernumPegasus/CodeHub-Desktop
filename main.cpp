@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
           (BRANCH, po::value<std::string>(),"create new branch")
           (BRANCHES,"show all branches of this repository")
 
-          (CHECKOUT, po::value<std::vector<std::string>>(), "switch to another branch")
+          (CHECKOUT, po::value<std::string>(), "switch to another branch")
 
           (RESTORE, po::value<size_t>(),
           "remove file from index or get it back to committed condition")
@@ -70,6 +70,8 @@ int main(int argc, char* argv[]) {
       vcs.CreateBranch(vm[BRANCH].as<std::string>());
     } else if (vm.contains(BRANCHES)) {
       vcs.ShowBranches();
+    } else if (vm.contains(CHECKOUT)) {
+      vcs.ChangeBranch(vm[CHECKOUT].as<std::string>());
     } else if (vm.contains(PUSH)) {
       vcs.Push();
     } else if (vm.contains(RESTORE)) {

@@ -36,14 +36,14 @@ class Repository {
  public:
   void AddBranch(const types::Branch& branch);
 
-  void ChangeBranch(std::string branch);
+  void ChangeBranch(types::Branch branch);
 
  public:
   [[nodiscard]] const std::string& Name() const;
 
   [[nodiscard]] const types::Commits& Commits() const;
 
-  [[nodiscard]] const std::string& CurrentBranch() const;
+  [[nodiscard]] const types::Branch& CurrentBranch() const;
 
   [[nodiscard]] const types::Branches& Branches() const;
 
