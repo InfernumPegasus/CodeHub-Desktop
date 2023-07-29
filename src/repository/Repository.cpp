@@ -126,7 +126,7 @@ void Repository::DoCommit(const std::string& message) {
   printFilesStatuses(commit.Message(), filesToCommit);
 }
 
-void Repository::InitManagers() {
+void Repository::Init() {
   filesManager_->Init();
   trackedFiles_ = ReadTrackedFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
                                       config_.repositoryName_ / config_.currentBranch_ /

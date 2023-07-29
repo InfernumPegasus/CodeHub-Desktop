@@ -31,7 +31,7 @@ class Repository {
  public:
   void DoCommit(const std::string& message);
 
-  void InitManagers();
+  void Init();
 
  public:
   void AddBranch(const types::Branch& branch);

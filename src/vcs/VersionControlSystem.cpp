@@ -96,15 +96,16 @@ void VersionControlSystem::CheckStatus() const {
       ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryConfigFilePath(
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
-  Repository repository(config);
 
-  if (!nameFolderMap_.contains(repository.Name())) {
+  if (const auto repositoryName = config.repositoryName_;
+      !nameFolderMap_.contains(repositoryName)) {
     throw std::runtime_error(
         fmt::format("Found repository '{}', but there is no such repository in app utils",
-                    repository.Name()));
+                    repositoryName));
   }
 
-  repository.InitManagers();
+  Repository repository(config);
+  repository.Init();
 
   const auto printFilesByStatus = [](std::string_view status, const char symbol,
                                      const types::FileHashMap& files) {
@@ -117,7 +118,7 @@ void VersionControlSystem::CheckStatus() const {
     }
   };
 
-  fmt::print("Repository '{}' status: ", repository.Name());
+  fmt::print("{} [{}] status: ", repository.Name(), repository.CurrentBranch());
   const auto createdFiles = repository.CreatedFiles();
   if (repository.Commits().empty()) {
     std::cout << "There are no commits yet.\n"
@@ -148,9 +149,8 @@ void VersionControlSystem::DoCommit(const std::string& message) {
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
   repository.DoCommit(message);
-  //  repository.SaveCommitsState();
 }
 
 void VersionControlSystem::Push() {
@@ -208,7 +208,7 @@ void VersionControlSystem::CommitsLog() const {
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
 
   const auto commits = repository.Commits();
 
@@ -216,6 +216,7 @@ void VersionControlSystem::CommitsLog() const {
     throw std::runtime_error("You have no commits yet.");
   }
 
+  fmt::print("{} [{}]:\n", repository.Name(), repository.CurrentBranch());
   for (const auto& commit : commits) {
     std::cout << commit << "\n";
   }
@@ -228,7 +229,7 @@ void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
 
   const auto commits = repository.Commits();
   if (commits.empty()) {
@@ -272,7 +273,7 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
 
   const auto& commits = repository.Commits();
   const auto found =
@@ -312,7 +313,7 @@ void VersionControlSystem::CreateBranch(const types::Branch& newBranch) {
   CreateRepositoryConfigs(newBranchFolder);
 
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
   repository.AddBranch(newBranch);
 
   // copies tracked files config to a new branch
@@ -327,7 +328,8 @@ void VersionControlSystem::ChangeBranch(const types::Branch& branch) {
     throw std::invalid_argument("Branch name cannot be empty");
   }
 
-  auto config = ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryConfigFilePath(
+  auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryConfigFilePath(
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
 
@@ -338,7 +340,7 @@ void VersionControlSystem::ChangeBranch(const types::Branch& branch) {
   // if another branch set as current, change to provided
   if (config.currentBranch_ != branch) {
     Repository repository(config);
-    repository.InitManagers();
+    repository.Init();
     repository.ChangeBranch(branch);
   }
 }
@@ -350,7 +352,7 @@ void VersionControlSystem::ShowBranches() const {
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
   Repository repository(config);
-  repository.InitManagers();
+  repository.Init();
 
   const auto& branches = repository.Branches();
   if (branches.empty()) {
