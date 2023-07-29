@@ -12,10 +12,6 @@ fs::path RepositoryConfig::FormCommittedFilesSavePath(size_t commitChecksum) con
          std::to_string(commitChecksum);
 }
 
-fs::path RepositoryConfig::FormBranchFolder() const {
-  return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName_ / currentBranch_;
-}
-
 nlohmann::json RepositoryConfig::ToJson() const {
   nlohmann::json j;
   j["repo_name"] = repositoryName_;
@@ -25,7 +21,8 @@ nlohmann::json RepositoryConfig::ToJson() const {
   return j;
 }
 
-fs::path RepositoryConfig::FormRepositoryFolderPath(const std::string& repositoryName) {
+fs::path RepositoryConfig::FormRepositoryConfigFilePath(
+    const std::string& repositoryName) {
   return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / REPOSITORY_CONFIG_FILE;
 }
 
@@ -42,15 +39,19 @@ RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& path) {
 
 void CheckRepositoryConfig(const RepositoryConfig& config) {
   if (config.repositoryName_.empty() || config.repositoryFolder_.empty()) {
-    throw std::runtime_error("Repository name or folder cannot be empty");
+    throw std::invalid_argument("Repository name or folder cannot be empty");
+  }
+
+  if (config.repositoryFolder_ != fs::current_path()) {
+    throw std::invalid_argument("Repository folders are not equal");
   }
 
   if (config.branches_.empty()) {
-    throw std::runtime_error("Branches cannot be empty");
+    throw std::invalid_argument("Branches cannot be empty");
   }
 
   if (config.currentBranch_.empty()) {
-    throw std::runtime_error("No current branch selected");
+    throw std::invalid_argument("No current branch selected");
   }
 }
 

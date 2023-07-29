@@ -12,9 +12,7 @@
 struct RepositoryConfig {
   fs::path FormCommittedFilesSavePath(size_t commitChecksum) const;
 
-  fs::path FormBranchFolder() const;
-
-  static fs::path FormRepositoryFolderPath(const std::string& repositoryName);
+  static fs::path FormRepositoryConfigFilePath(const std::string& repositoryName);
 
   nlohmann::json ToJson() const;
 

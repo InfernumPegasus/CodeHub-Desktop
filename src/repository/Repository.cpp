@@ -14,16 +14,11 @@ Repository::Repository(RepositoryConfig config)
           config_.repositoryFolder_, &trackedFiles_,
           config_.repositoryFolder_ / IGNORE_FILE, &ignoredFiles_)) {}
 
-// TODO fix copying commits
 Repository::~Repository() {
   const auto repositoryFolder =
       GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_;
 
   CreateConfigFile(repositoryFolder / REPOSITORY_CONFIG_FILE, config_.ToJson().dump(2));
-
-  const auto commitsJson = JsonSerializer::CommitsToJson(commits_);
-  CreateConfigFile(repositoryFolder / config_.currentBranch_ / COMMITS_FILE,
-                   commitsJson.dump(2));
 
   nlohmann::json trackedJson;
   trackedJson["tracked_files"] = trackedFiles_;
@@ -98,7 +93,15 @@ void Repository::DoCommit(const std::string& message) {
   };
   saveFiles(commit);
 
-  const auto printFilesStatuses = [](auto&& message, auto&& files) {
+  const auto saveCommitsState = [this]() {
+    const auto commitsJson = JsonSerializer::CommitsToJson(commits_);
+    CreateConfigFile(GetHomeDirectory() / VCS_CONFIG_FOLDER / config_.repositoryName_ /
+                         config_.currentBranch_ / COMMITS_FILE,
+                     commitsJson.dump(2));
+  };
+  saveCommitsState();
+
+  const auto printFilesStatuses = [](const auto& message, const auto& files) {
     size_t creations{}, modifications{}, deletions{};
     for (auto&& file : files) {
       switch (file.Status()) {

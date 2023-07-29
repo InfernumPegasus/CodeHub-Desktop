@@ -15,9 +15,9 @@ constexpr auto DIFF         = "diff";
 constexpr auto REPOSITORIES = "repositories";
 constexpr auto LOG          = "log";
 constexpr auto COMMIT       = "commit";
-constexpr auto BRANCH       = "branch"; // TODO implement
-constexpr auto BRANCHES     = "branches"; // TODO implement
-constexpr auto CHECKOUT     = "checkout"; // TODO implement
+constexpr auto BRANCH       = "branch";
+constexpr auto BRANCHES     = "branches";
+constexpr auto CHECKOUT     = "checkout";
 constexpr auto RESTORE      = "restore";
 constexpr auto PUSH         = "push";
 }
