@@ -128,12 +128,11 @@ void Repository::DoCommit(const std::string& message) {
 
 void Repository::Init() {
   filesManager_->Init();
-  trackedFiles_ = ReadTrackedFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                                      config_.repositoryName_ / config_.currentBranch_ /
-                                      TRACKED_FILE);
-  commits_ = ReadCommitsFromFile(GetHomeDirectory() / VCS_CONFIG_FOLDER /
-                                 config_.repositoryName_ / config_.currentBranch_ /
-                                 COMMITS_FILE);
+  const auto repoFolder = GetHomeDirectory() / VCS_CONFIG_FOLDER /
+                          config_.repositoryName_ / config_.currentBranch_;
+
+  trackedFiles_ = ReadTrackedFromFile(repoFolder / TRACKED_FILE);
+  commits_ = ReadCommitsFromFile(repoFolder / COMMITS_FILE);
 }
 
 void Repository::AddBranch(const types::Branch& branch) {
