@@ -6,6 +6,8 @@
 
 class UserFileManager : public IFileManager {
  public:
+  ~UserFileManager() override = default;
+
   bool Create() override;
 
   bool Read() override;
