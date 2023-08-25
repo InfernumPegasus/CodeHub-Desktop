@@ -26,6 +26,12 @@ fs::path RepositoryConfig::FormRepositoryConfigFilePath(
   return GetHomeDirectory() / VCS_CONFIG_FOLDER / repositoryName / REPOSITORY_CONFIG_FILE;
 }
 
+void RepositoryConfig::CheckBranchExist(const types::Branch& branch) const {
+  if (!branches_.contains(branch)) {
+    throw std::invalid_argument(fmt::format("Branch [{}] does not exist", branch));
+  }
+}
+
 RepositoryConfig ReadRepositoryConfigFromFile(const fs::path& path) {
   std::ifstream ifs(path);
   if (!ifs) {
@@ -52,6 +58,11 @@ void CheckRepositoryConfig(const RepositoryConfig& config) {
 
   if (config.currentBranch_.empty()) {
     throw std::invalid_argument("No current branch selected");
+  }
+
+  if (!config.branches_.contains(config.currentBranch_)) {
+    throw std::invalid_argument(
+        fmt::format("Branch [{}] set as current does not exist", config.currentBranch_));
   }
 }
 

@@ -16,6 +16,8 @@ struct RepositoryConfig {
 
   nlohmann::json ToJson() const;
 
+  void CheckBranchExist(const types::Branch& branch) const;
+
  public:
   std::string repositoryName_;
   fs::path repositoryFolder_;
