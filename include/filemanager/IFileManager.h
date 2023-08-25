@@ -9,6 +9,8 @@
 
 class IFileManager {
  public:
+  virtual ~IFileManager() = default;
+
   virtual bool Create() = 0;
 
   virtual bool Read() = 0;
@@ -16,7 +18,7 @@ class IFileManager {
   virtual void Init() {
     if (!Read()) {
       if (!Create()) {
-        throw std::runtime_error("IFileManager::Create() ended with error");
+        throw std::runtime_error("IFileManager::Create() ended with error (first read)");
       }
       if (!Read()) {
         throw std::runtime_error("IFileManager::Read() ended with error (final read)");

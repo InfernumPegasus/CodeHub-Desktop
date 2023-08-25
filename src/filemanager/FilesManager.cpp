@@ -5,9 +5,9 @@
 FilesManager::FilesManager(const fs::path& folder, types::FileHashMap* fileHashMapRef,
                            const fs::path& ignoreFile, types::PathSet* ignoredFilesRef)
     : folder_(folder),
-      fileHashMapRef_(*fileHashMapRef),
       ignoreFileManager_(std::make_unique<IgnoreFileManager>(folder.string(), ignoreFile,
-                                                             ignoredFilesRef)) {}
+                                                             ignoredFilesRef)),
+      fileHashMapRef_(*fileHashMapRef) {}
 
 void FilesManager::Init() { ignoreFileManager_->Init(); }
 

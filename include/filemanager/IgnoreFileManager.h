@@ -13,6 +13,8 @@ namespace fs = std::filesystem;
 // TODO add regexes support
 class IgnoreFileManager : public IFileManager {
  public:
+  ~IgnoreFileManager() override = default;
+
   IgnoreFileManager(fs::path repositoryFolder, fs::path ignoreFile,
                     types::PathSet* ignoredFilesRef);
 
