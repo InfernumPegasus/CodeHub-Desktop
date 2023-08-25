@@ -3,19 +3,12 @@
 
 #include <filesystem>
 #include <map>
-#include <ostream>
 #include <string>
 #include <utility>
 
 class FileComparator {
-  using Lines = std::pair<std::string, std::string>;
-  using LineNumber = size_t;
-
-  using FileDifference = std::map<LineNumber, Lines>;
-
  public:
-  static FileDifference Compare(const std::filesystem::path& p1,
-                                const std::filesystem::path& p2);
+  static void Compare(const std::filesystem::path& p1, const std::filesystem::path& p2);
 };
 
 #endif  // CODEHUB_FILECOMPARATOR_H
