@@ -18,6 +18,7 @@ constexpr auto COMMIT       = "commit";
 constexpr auto BRANCH       = "branch";
 constexpr auto BRANCHES     = "branches";
 constexpr auto CHECKOUT     = "checkout";
+constexpr auto MERGE        = "merge";
 constexpr auto RESTORE      = "restore";
 constexpr auto PUSH         = "push";
 }
@@ -43,6 +44,8 @@ int main(int argc, char* argv[]) {
           (BRANCHES,"show all branches of this repository")
 
           (CHECKOUT, po::value<std::string>(), "switch to another branch")
+
+          (MERGE, po::value<std::string>(), "merge provided branch with current")
 
           (RESTORE, po::value<size_t>(),
           "remove file from index or get it back to committed condition")
@@ -72,6 +75,8 @@ int main(int argc, char* argv[]) {
       vcs.ShowBranches();
     } else if (vm.contains(CHECKOUT)) {
       vcs.ChangeBranch(vm[CHECKOUT].as<std::string>());
+    } else if (vm.contains(MERGE)) {
+      vcs.MergeBranches(vm[MERGE].as<std::string>());
     } else if (vm.contains(PUSH)) {
       vcs.Push();
     } else if (vm.contains(RESTORE)) {

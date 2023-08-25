@@ -256,14 +256,7 @@ void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
                     repository.CurrentBranch() / std::to_string(commit.Checksum()) /
                     filename;
 
-  const auto difference = FileComparator::Compare(file, filename);
-  if (difference.empty()) {
-    fmt::print("File '{}' hasn't changed from the past version\n", filename.c_str());
-  } else {
-    for (const auto& [lineNumber, lines] : difference) {
-      fmt::print("[{}]:\n\t{}\n\t{}\n", lineNumber, lines.first, lines.second);
-    }
-  }
+  FileComparator::Compare(file, filename);
 }
 
 void VersionControlSystem::RestoreFiles(size_t checksum) {
@@ -368,6 +361,18 @@ void VersionControlSystem::ShowBranches() const {
   for (const auto& branch : branches) {
     fmt::print("{} {}\n", branch, (branch == currentBranch) ? "[current]" : "");
   }
+}
+
+void VersionControlSystem::MergeBranches(const types::Branch& mergeWith) {
+  CheckRepositoriesExist();
+  const auto config =
+      ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryConfigFilePath(
+          GetRepositoryNameByFolder(fs::current_path())));
+  CheckRepositoryConfig(config);
+
+  Repository repository(config);
+  repository.Init();
+  repository.MergeBranch(mergeWith);
 }
 
 std::string VersionControlSystem::GetRepositoryNameByFolder(

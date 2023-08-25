@@ -38,6 +38,8 @@ class Repository {
 
   void ChangeBranch(types::Branch branch);
 
+  void MergeBranch(const types::Branch& mergeWith);
+
  public:
   [[nodiscard]] const std::string& Name() const;
 

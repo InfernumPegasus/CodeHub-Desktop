@@ -47,6 +47,8 @@ class VersionControlSystem {
 
   void ShowBranches() const;
 
+  void MergeBranches(const types::Branch& mergeWith);
+
  private:
   std::string GetRepositoryNameByFolder(const fs::path& folder) const;
 

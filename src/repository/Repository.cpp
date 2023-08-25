@@ -139,6 +139,34 @@ void Repository::AddBranch(const types::Branch& branch) {
   config_.branches_.insert(branch);
 }
 
+void Repository::MergeBranch(const types::Branch& mergeWith) {
+  config_.CheckBranchExist(mergeWith);
+
+  const auto checkCommitsNotEmpty = [](const types::Commits& commits,
+                                       std::string_view branch) {
+    if (commits.empty()) {
+      throw std::runtime_error(
+          fmt::format("There are no commits in [{}] branch", branch));
+    }
+  };
+
+  checkCommitsNotEmpty(commits_, config_.currentBranch_);
+
+  const auto mergedCommits = ReadCommitsFromFile(
+      GetHomeDirectory() / config_.repositoryName_ / mergeWith / COMMITS_FILE);
+  checkCommitsNotEmpty(mergedCommits, mergeWith);
+
+  const auto& currentLastCommit = commits_.back();
+  const auto& mergedLastCommit = mergedCommits.back();
+
+  // TODO merge two files into one
+  const auto mergeCommits = [](const Commit& c1, const Commit& c2) {
+    return Commit{types::FilesSet{}, ""};
+  };
+
+  const auto mergedCommit = mergeCommits(currentLastCommit, mergedLastCommit);
+}
+
 void Repository::ChangeBranch(types::Branch branch) {
   const auto changedFiles = filesManager_->ChangedFiles();
   const auto removedFiles = filesManager_->RemovedFiles();
