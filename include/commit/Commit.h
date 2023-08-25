@@ -13,7 +13,7 @@ class Commit {
  public:
   Commit(types::FilesSet files, std::string message);
 
-  Commit(const std::unordered_set<std::string>& files, std::string message);
+  Commit(const types::PathSet& files, std::string message);
 
   Commit(types::FilesSet files, std::string message, size_t checkSum);
 

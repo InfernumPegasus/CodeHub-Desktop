@@ -3,11 +3,11 @@
 #include <utility>
 
 Commit::Commit(types::FilesSet files, std::string message)
-    : message_(std::move(message)),
-      files_{std::move(files)},
+    : files_{std::move(files)},
+      message_(std::move(message)),
       checkSum_(CalculateCheckSum()) {}
 
-Commit::Commit(const std::unordered_set<std::string>& files, std::string message)
+Commit::Commit(const types::PathSet& files, std::string message)
     : message_(std::move(message)) {
   for (const auto& file : files) {
     files_.emplace(file);
