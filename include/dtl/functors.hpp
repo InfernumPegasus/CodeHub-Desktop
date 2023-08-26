@@ -129,8 +129,8 @@ class UniHunkPrinter {
 
   void operator()(const uniHunk<sesElem>& hunk) const {
     const auto str =
-        fmt::format("@@ -{},{}, +{},{} @@\n", hunk.a, hunk.b, hunk.c, hunk.d);
-    constexpr fmt::text_style style = fg(fmt::color::violet) /*| fmt::emphasis::bold*/;
+        fmt::format("@@ -{},{}  +{},{} @@\n", hunk.a, hunk.b, hunk.c, hunk.d);
+    constexpr fmt::text_style style = fg(fmt::color::violet) | fmt::emphasis::bold;
     PrintOstreamFormatted(str, this->out_, style);
 
     for_each(hunk.common[0].begin(), hunk.common[0].end(),
