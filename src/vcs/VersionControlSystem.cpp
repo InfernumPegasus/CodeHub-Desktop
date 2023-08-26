@@ -240,8 +240,8 @@ void VersionControlSystem::ShowFileDifference(const fs::path& filename) {
   const auto findCommitWithFile = [&commits](auto&& file) {
     for (const auto& commit : std::ranges::reverse_view(commits)) {
       const auto& files = commit.Files();
-      const auto found = std::find_if(files.begin(), files.end(),
-                                      [&file](auto&& f) { return f.Name() == file; });
+      const auto found =
+          std::ranges::find_if(files, [&file](auto&& f) { return f.Name() == file; });
       if (found != files.cend() && (found->Status() != FileStatus::Deleted &&
                                     found->Status() != FileStatus::Unknown)) {
         return commit;
@@ -269,9 +269,8 @@ void VersionControlSystem::RestoreFiles(size_t checksum) {
   repository.Init();
 
   const auto& commits = repository.Commits();
-  const auto found =
-      std::find_if(commits.cbegin(), commits.cend(),
-                   [checksum](const Commit& c) { return c.Checksum() == checksum; });
+  const auto found = std::ranges::find_if(
+      commits, [checksum](const Commit& c) { return c.Checksum() == checksum; });
   if (found == commits.cend()) {
     throw std::invalid_argument(fmt::format("No commit with checksum {}", checksum));
   }
@@ -321,7 +320,7 @@ void VersionControlSystem::ChangeBranch(const types::Branch& branch) {
     throw std::invalid_argument("Branch name cannot be empty");
   }
 
-  auto config =
+  const auto config =
       ReadRepositoryConfigFromFile(RepositoryConfig::FormRepositoryConfigFilePath(
           GetRepositoryNameByFolder(fs::current_path())));
   CheckRepositoryConfig(config);
@@ -377,9 +376,8 @@ void VersionControlSystem::MergeBranches(const types::Branch& mergeWith) {
 
 std::string VersionControlSystem::GetRepositoryNameByFolder(
     const fs::path& folder) const {
-  const auto found =
-      std::find_if(nameFolderMap_.cbegin(), nameFolderMap_.cend(),
-                   [&folder](auto&& pair) { return pair.second == folder; });
+  const auto found = std::ranges::find_if(
+      nameFolderMap_, [&folder](auto&& pair) { return pair.second == folder; });
   if (found == nameFolderMap_.cend()) {
     throw std::invalid_argument(
         fmt::format("There is no repository in folder '{}'", folder.c_str()));
